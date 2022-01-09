@@ -2,10 +2,17 @@
 JYNX WEB
 --------
 
+	[ ] C# Tests for the never-freeing memory allocator
+	[ ] Translate never-freeing memory allocator to C++
+	[ ] House never-freeing memory allocator in WASM spike context
+	[ ] Add JynxFramework to WASM spike -- will need to sort out "operator new" / "placement new" issues.
+	[ ] Proper heap allocator needed -- spike in the CsHeapManagerPrototype project.
+
 	[X] Spike test the AutoWorkLet (128 samples at a time). -- C:\Users\Jonathan\Documents\Work\webaudio-examples\audioworklet
 	[X] Spike test the bare metal WASM
 	[X] Spike test data transfer to/from WASM memory space.
 	[X] Spike test image in WASM space
+	
 	
 Strategy for JynxFramework
 --------------------------
@@ -17,6 +24,8 @@ Strategy for JynxFramework
 
 Strategy for WEB
 ----------------
+
+No LibC.  Use JynxFramework instead, plus a possibly custom allocator.
 
 When the audio handler is called
 
