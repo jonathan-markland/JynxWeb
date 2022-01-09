@@ -7,6 +7,12 @@ JYNX WEB
 	[X] Spike test data transfer to/from WASM memory space.
 	[X] Spike test image in WASM space
 	
+Strategy for JynxFramework
+--------------------------
+	
+	[ ] The JynxFramework main repo line is currently the (separate) Work/JynxFramework folder
+	[ ] I am getting random stuff to compile against the new JynxFramework in the old Jynx folder (on a branch),
+	    but Work/Jynx/Portable/ is NOT THE PRIMARY DEVELOPMENT LOCATION for the framework!
 
 
 Strategy for WEB
