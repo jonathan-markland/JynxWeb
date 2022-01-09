@@ -1,0 +1,172 @@
+
+JYNX WEB
+--------
+
+	[X] Spike test the AutoWorkLet (128 samples at a time). -- C:\Users\Jonathan\Documents\Work\webaudio-examples\audioworklet
+	[X] Spike test the bare metal WASM
+	[X] Spike test data transfer to/from WASM memory space.
+	[ ] Spike test image in WASM space
+	[ ] Spike test SDL2 generation of wave audio (on the Desktop).
+
+
+Strategy for WEB
+----------------
+
+When the audio handler is called
+
+	- Do 128 samples worth of Z80 time  (11610 cycles @ 44,100Hz sample rate)
+	- Check WASM's screen flags for need to queue a JS function to update screen.
+	- Return the audio
+	
+Keyboard event (JS)
+
+	- Maintain key flags in WASM memory space, on keyup/down.
+	- No other actions required
+
+Screen
+
+	- Audio handler queues 'permission' to check.
+
+
+Strategy for Desktop
+--------------------
+
+	- Rip out multi-threading and frameworks.
+	- Use SDL2 on Windows and Linux
+	- Make the desktop version mimic the browser so that the code is all on one thread.
+
+
+
+WASM only (no emscripten)
+=========================
+
+	- Need Heap manager LibC
+	- Screen I/O from WASM memory space
+	
+
+
+Examples
+========
+
+		// white-noise-processor.js
+
+		class WhiteNoiseProcessor extends AudioWorkletProcessor {
+		  process (inputs, outputs, parameters) {
+			const output = outputs[0]
+			output.forEach(channel => {
+			  for (let i = 0; i < channel.length; i++) {
+				channel[i] = Math.random() * 2 - 1
+			  }
+			})
+			return true
+		  }
+		}
+
+		registerProcessor('white-noise-processor', WhiteNoiseProcessor)
+
+
+		const audioContext = new AudioContext()
+		await audioContext.audioWorklet.addModule('white-noise-processor.js')
+		const whiteNoiseNode = new AudioWorkletNode(audioContext, 'white-noise-processor')
+		whiteNoiseNode.connect(audioContext.destination)
+
+
+
+Compile WASM on main thread and transfer to worker for instantation
+-------------------------------------------------------------------
+
+	There is an example on MDN which shows how to do that with a 
+	regular worker but it works the same way when using the 
+	processorOptions of an AudioWorkletProcessor.
+
+			// test-processor.js
+			class TestProcessor extends AudioWorkletProcessor {
+			  constructor (options) {
+				super()
+				console.log(options.numberOfInputs)
+				console.log(options.processorOptions.someUsefulVariable)
+			  }
+			  process (inputs, outputs, parameters) {
+				return true
+			  }
+			}
+
+			registerProcessor('test-processor', TestProcessor)
+
+	In main:
+	
+			const testNode = new AudioWorkletNode(audioContext, 'test-processor', {
+			  processorOptions: {
+				someUsefulVariable: new Map([[1, 'one'], [2, 'two']])
+			  }
+			})
+
+	Compile and pass:
+
+				WebAssembly.compileStreaming(fetch('simple.wasm'))
+					.then(mod =>
+						worker.postMessage(mod)
+					);
+	
+	Instantiate:
+	
+			var importObject = {
+				  imports: {
+					imported_func: function(arg) {
+					  console.log(arg);
+					}
+				  }
+				};
+	
+			var mod = e.data;
+
+			WebAssembly.instantiate(mod, importObject).then(function(instance) {
+				instance.exports.exported_func();
+			});
+
+
+
+References
+==========
+
+	https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly/Memory
+
+	https://emscripten.org/docs/porting/emscripten-runtime-environment.html#emscripten-runtime-environment
+
+	https://depth-first.com/articles/2019/10/16/compiling-c-to-webassembly-and-running-it-without-emscripten/
+
+	https://developers.google.com/web/updates/2018/06/audio-worklet-design-pattern
+
+	https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly/Memory
+	
+	https://stackoverflow.com/questions/65673325/best-way-to-call-wasm-module-functions-in-audioworkletprocessor
+	
+	https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly/Module#sending_a_compiled_module_to_a_worker
+	
+	https://developer.mozilla.org/en-US/docs/Web/API/AudioWorkletProcessor/AudioWorkletProcessor
+	
+	https://developer.mozilla.org/en-US/docs/Web/API/crossOriginIsolated
+	
+			Examples
+			Specifications
+			Browser compatibility
+			See also
+			crossOriginIsolated
+			Experimental: This is an experimental technology
+			Check the Browser compatibility table carefully before using this in production.
+
+			The global crossOriginIsolated read-only property returns a boolean value that indicates whether a SharedArrayBuffer can be sent via a Window.postMessage() call.
+
+	https://blog.logrocket.com/understanding-sharedarraybuffer-and-cross-origin-isolation/
+	
+	https://docs.google.com/document/d/1zDlfvfTJ_9e8Jdc8ehuV4zMEu9ySMCiTGMS9y0GU92k/edit
+
+	https://stackoverflow.com/questions/68609682/is-there-anyway-to-use-sharedarraybuffer-on-github-page/68675301#68675301
+	https://github.com/gzuidhof/coi-serviceworker
+	C:\Users\Jonathan\Documents\Work\Jynx\TechSpikes\COOP-COEP\coi-serviceworker\coi-serviceworker.js	
+	
+	https://tc39.es/ecma262/multipage/memory-model.html#sec-races
+	
+	
+	
+	

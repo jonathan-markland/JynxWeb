@@ -1,0 +1,67 @@
+
+llc --version
+
+clang --target=wasm32 --no-standard-libraries -Wl,--export-all -Wl,--no-entry -o add.wasm add.c
+
+	Explanation:
+	
+		--target=wasm32 Set the build target to wasm.
+		--no-standard-libraries Do not use libc (more on this later).
+		-Wl,--export-all Export all symbols (i.e., add) from the compiled wasm file so that they can be used from JavaScript.
+		-Wl,--no-entry Don't check for a main function.
+		-o Set the output destination.
+		NB: Options preceded by -Wl, are passed from the LLVM compiler to the linker.
+
+
+
+extern unsigned char __heap_base;
+
+		
+
+https://depth-first.com/articles/2019/10/16/compiling-c-to-webassembly-and-running-it-without-emscripten/
+
+https://webassembly.github.io/wabt/demo/wasm2wat/
+
+
+
+(module
+  (type $t0 (func))
+  (type $t1 (func (param i32 i32) (result i32)))
+  (func $__wasm_call_ctors (export "__wasm_call_ctors") (type $t0))
+  (func $add (export "add") (type $t1) (param $p0 i32) (param $p1 i32) (result i32)
+    (local $l2 i32) (local $l3 i32) (local $l4 i32) (local $l5 i32) (local $l6 i32) (local $l7 i32)
+    (local.set $l2
+      (global.get $g0))
+    (local.set $l3
+      (i32.const 16))
+    (local.set $l4
+      (i32.sub
+        (local.get $l2)
+        (local.get $l3)))
+    (i32.store offset=12
+      (local.get $l4)
+      (local.get $p0))
+    (i32.store offset=8
+      (local.get $l4)
+      (local.get $p1))
+    (local.set $l5
+      (i32.load offset=12
+        (local.get $l4)))
+    (local.set $l6
+      (i32.load offset=8
+        (local.get $l4)))
+    (local.set $l7
+      (i32.add
+        (local.get $l5)
+        (local.get $l6)))
+    (return
+      (local.get $l7)))
+  (table $T0 1 1 funcref)
+  (memory $memory (export "memory") 2)
+  (global $g0 (mut i32) (i32.const 66560))
+  (global $__dso_handle (export "__dso_handle") i32 (i32.const 1024))
+  (global $__data_end (export "__data_end") i32 (i32.const 1024))
+  (global $__global_base (export "__global_base") i32 (i32.const 1024))
+  (global $__heap_base (export "__heap_base") i32 (i32.const 66560))
+  (global $__memory_base (export "__memory_base") i32 (i32.const 0))
+  (global $__table_base (export "__table_base") i32 (i32.const 1)))
