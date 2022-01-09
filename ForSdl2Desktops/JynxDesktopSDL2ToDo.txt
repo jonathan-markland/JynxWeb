@@ -1,0 +1,19 @@
+
+JYNX DESKTOP SDL2
+=================
+
+	[ ] Spike test SDL2 generation of wave audio (on the Desktop).
+
+
+
+Strategy for Desktop
+--------------------
+
+	- Rip out multi-threading and frameworks.
+	- Use SDL2 on Windows and Linux
+	- Make the desktop version mimic the browser so that:
+		- the code is all on one thread
+		- the Portable (shared) library has no threads knowledge or 
+		  file system knowledge or anything else non-browser
+
+

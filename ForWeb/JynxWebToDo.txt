@@ -5,8 +5,8 @@ JYNX WEB
 	[X] Spike test the AutoWorkLet (128 samples at a time). -- C:\Users\Jonathan\Documents\Work\webaudio-examples\audioworklet
 	[X] Spike test the bare metal WASM
 	[X] Spike test data transfer to/from WASM memory space.
-	[ ] Spike test image in WASM space
-	[ ] Spike test SDL2 generation of wave audio (on the Desktop).
+	[X] Spike test image in WASM space
+	
 
 
 Strategy for WEB
@@ -28,101 +28,12 @@ Screen
 	- Audio handler queues 'permission' to check.
 
 
-Strategy for Desktop
---------------------
-
-	- Rip out multi-threading and frameworks.
-	- Use SDL2 on Windows and Linux
-	- Make the desktop version mimic the browser so that the code is all on one thread.
-
-
 
 WASM only (no emscripten)
 =========================
 
 	- Need Heap manager LibC
-	- Screen I/O from WASM memory space
-	
-
-
-Examples
-========
-
-		// white-noise-processor.js
-
-		class WhiteNoiseProcessor extends AudioWorkletProcessor {
-		  process (inputs, outputs, parameters) {
-			const output = outputs[0]
-			output.forEach(channel => {
-			  for (let i = 0; i < channel.length; i++) {
-				channel[i] = Math.random() * 2 - 1
-			  }
-			})
-			return true
-		  }
-		}
-
-		registerProcessor('white-noise-processor', WhiteNoiseProcessor)
-
-
-		const audioContext = new AudioContext()
-		await audioContext.audioWorklet.addModule('white-noise-processor.js')
-		const whiteNoiseNode = new AudioWorkletNode(audioContext, 'white-noise-processor')
-		whiteNoiseNode.connect(audioContext.destination)
-
-
-
-Compile WASM on main thread and transfer to worker for instantation
--------------------------------------------------------------------
-
-	There is an example on MDN which shows how to do that with a 
-	regular worker but it works the same way when using the 
-	processorOptions of an AudioWorkletProcessor.
-
-			// test-processor.js
-			class TestProcessor extends AudioWorkletProcessor {
-			  constructor (options) {
-				super()
-				console.log(options.numberOfInputs)
-				console.log(options.processorOptions.someUsefulVariable)
-			  }
-			  process (inputs, outputs, parameters) {
-				return true
-			  }
-			}
-
-			registerProcessor('test-processor', TestProcessor)
-
-	In main:
-	
-			const testNode = new AudioWorkletNode(audioContext, 'test-processor', {
-			  processorOptions: {
-				someUsefulVariable: new Map([[1, 'one'], [2, 'two']])
-			  }
-			})
-
-	Compile and pass:
-
-				WebAssembly.compileStreaming(fetch('simple.wasm'))
-					.then(mod =>
-						worker.postMessage(mod)
-					);
-	
-	Instantiate:
-	
-			var importObject = {
-				  imports: {
-					imported_func: function(arg) {
-					  console.log(arg);
-					}
-				  }
-				};
-	
-			var mod = e.data;
-
-			WebAssembly.instantiate(mod, importObject).then(function(instance) {
-				instance.exports.exported_func();
-			});
+	- JynxFramework
 
 
 
