@@ -2,7 +2,10 @@
 JYNX WEB
 --------
 
-	[ ] C# Tests for the never-freeing memory allocator
+	[ ] Push these new repos to GitHub.
+
+	[X] C# Tests for the never-freeing memory allocator
+	[ ] Create proper folder for the web based emulator C++ code.
 	[ ] Translate never-freeing memory allocator to C++
 	[ ] House never-freeing memory allocator in WASM spike context
 	[ ] Add JynxFramework to WASM spike -- will need to sort out "operator new" / "placement new" issues.
