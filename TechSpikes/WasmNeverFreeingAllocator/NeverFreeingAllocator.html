@@ -7,10 +7,10 @@
         const response = await fetch('NeverFreeingAllocator.wasm');
         const bytes = await response.arrayBuffer();
         const { instance } = await WebAssembly.instantiate(bytes);
-
-        console.log('Allocation #1 is at WASM address: ' + instance.exports.create_block());
-        console.log('Allocation #2 is at WASM address: ' + instance.exports.create_block());
-        console.log('Allocation #3 is at WASM address: ' + instance.exports.create_block());
+		instance.exports.InitWasmProgram();
+        console.log('Never-freeing-allocator:  Allocation #1 is at WASM address: ' + instance.exports.CreateBlock());
+        console.log('Never-freeing-allocator:  Allocation #2 is at WASM address: ' + instance.exports.CreateBlock());
+        console.log('Never-freeing-allocator:  Allocation #3 is at WASM address: ' + instance.exports.CreateBlock());
       })();
     </script>
   </body>

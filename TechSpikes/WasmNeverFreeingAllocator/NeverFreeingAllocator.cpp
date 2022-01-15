@@ -3,35 +3,78 @@
 
 // clang --std=c++17 -O2 --target=wasm32 --no-standard-libraries -Wl,--export-all -Wl,--no-entry -o NeverFreeingAllocator.wasm NeverFreeingAllocator.cpp
 
+#include <stdint.h>
+
 extern unsigned char __heap_base;
 
-__attribute__ ((visibility("default"))) 
-extern "C" void *get_heap_base(void) 
+// ==========================================================================================================
+
+static uintptr_t g_AllocatorNext = 0;
+static uintptr_t g_AllocatorEnd = 0;
+const int BytesPerMachineWord = 4;
+
+const uintptr_t NullAddress = 0x80000000;   // TODO: If we do WASM memory resizing, rather than have a fixed size, this needs attention.
+
+void InitNeverFreeHeapAllocator()
 {
-	return &__heap_base;
+	// TODO: assert not re-initialising
+	g_AllocatorNext = (uintptr_t) &__heap_base;
+	g_AllocatorEnd = 16 * 1048576; // TODO: 16MB space assumption hack
 }
 
-void *MyHeap = (void *) 0;
-
-extern "C" int jmalign(int size)
+uintptr_t HeapRemaining()
 {
-	if (size & 3) return (size | 3) + 1;
-	return size;
+	return g_AllocatorEnd - g_AllocatorNext;
 }
 
-extern "C" void *jmmalloc(int size)
+static uintptr_t AllocWithUncheckedAlignment(uintptr_t size)
 {
-	void *block = MyHeap;
-	if (block == (void *) 0)
+	if (size <= HeapRemaining())
 	{
-		block = get_heap_base();
+		auto address = g_AllocatorNext;
+		g_AllocatorNext += size;
+		return address;
 	}
-	size = jmalign(size);
-	MyHeap = (void *) (((int) block) + size);
-	return block;
+	else return NullAddress;
 }
 
-extern "C" void *create_block()
+static bool ShuntForwardToNextAddressMultipleOf(uintptr_t powerOfTwo)
 {
-	return jmmalloc(10);
+	// TODO: We don't check that powerOfTwo really is that!
+
+	uintptr_t mask = powerOfTwo - 1;
+	auto moduloAlignment = g_AllocatorNext & mask;
+	if (moduloAlignment != 0)
+	{
+		auto shuntDistance = powerOfTwo - moduloAlignment;
+		return AllocWithUncheckedAlignment(shuntDistance) != NullAddress;
+	}
+	else
+	{
+		return true; // No change needed
+	}
 }
+
+void *Alloc(uintptr_t size)
+{
+	if (ShuntForwardToNextAddressMultipleOf(BytesPerMachineWord))
+	{
+		return (void *) AllocWithUncheckedAlignment(size);
+	}
+	return (void *) NullAddress;
+}
+
+// ==========================================================================================================
+
+extern "C" void InitWasmProgram()
+{
+	InitNeverFreeHeapAllocator();
+}
+
+extern "C" void *CreateBlock()
+{
+	return Alloc(10);
+}
+
+// ==========================================================================================================
+
