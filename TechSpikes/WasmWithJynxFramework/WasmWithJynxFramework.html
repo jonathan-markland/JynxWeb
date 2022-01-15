@@ -1,0 +1,17 @@
+<!-- WasmWithJynxFramework.html -->
+<html>
+  <head></head>
+  <body>
+    <script type="module">
+      (async() => {
+        const response = await fetch('WasmWithJynxFramework.wasm');
+        const bytes = await response.arrayBuffer();
+        const { instance } = await WebAssembly.instantiate(bytes);
+		instance.exports.InitWasmProgram();
+        console.log('WasmWithJynxFramework:  Allocation #1 is at WASM address: ' + instance.exports.CreateBlock());
+        console.log('WasmWithJynxFramework:  Allocation #2 is at WASM address: ' + instance.exports.CreateBlock());
+        console.log('WasmWithJynxFramework:  Allocation #3 is at WASM address: ' + instance.exports.CreateBlock());
+      })();
+    </script>
+  </body>
+</html>
