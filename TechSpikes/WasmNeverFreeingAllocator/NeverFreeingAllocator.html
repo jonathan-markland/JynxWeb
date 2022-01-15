@@ -1,0 +1,17 @@
+<!-- NeverFreeingAllocator.html -->
+<html>
+  <head></head>
+  <body>
+    <script type="module">
+      (async() => {
+        const response = await fetch('NeverFreeingAllocator.wasm');
+        const bytes = await response.arrayBuffer();
+        const { instance } = await WebAssembly.instantiate(bytes);
+
+        console.log('Allocation #1 is at WASM address: ' + instance.exports.create_block());
+        console.log('Allocation #2 is at WASM address: ' + instance.exports.create_block());
+        console.log('Allocation #3 is at WASM address: ' + instance.exports.create_block());
+      })();
+    </script>
+  </body>
+</html>
