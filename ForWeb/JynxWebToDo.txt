@@ -5,10 +5,9 @@ JYNX WEB
 	[ ] Push these new repos to GitHub.
 
 	[X] C# Tests for the never-freeing memory allocator
+	[ ] Translate never-freeing memory allocator to C++ in spike app context
+	[ ] Spike compiling and usage of JynxFramework -- will need to sort out "operator new" / "placement new" issues.
 	[ ] Create proper folder for the web based emulator C++ code.
-	[ ] Translate never-freeing memory allocator to C++
-	[ ] House never-freeing memory allocator in WASM spike context
-	[ ] Add JynxFramework to WASM spike -- will need to sort out "operator new" / "placement new" issues.
 	[ ] Proper heap allocator needed -- spike in the CsHeapManagerPrototype project.
 
 	[X] Spike test the AutoWorkLet (128 samples at a time). -- C:\Users\Jonathan\Documents\Work\webaudio-examples\audioworklet
