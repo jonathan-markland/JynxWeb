@@ -1,7 +1,7 @@
 
 // NeverFreeingAllocator
 
-// clang --std=c++17 -O2 --target=wasm32 --no-standard-libraries -Wl,--export-all -Wl,--no-entry -o NeverFreeingAllocator.wasm NeverFreeingAllocator.cpp
+// clang --std=c++17 -O2 --target=wasm32 --no-standard-libraries -matomics -mbulk-memory -Wl,--max-memory=16777216 -Wl,--shared-memory -Wl,--import-memory -Wl,--export-all -Wl,--no-entry -o NeverFreeingAllocator.wasm NeverFreeingAllocator.cpp
 
 #include <stdint.h>
 
