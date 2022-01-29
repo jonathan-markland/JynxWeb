@@ -15,10 +15,13 @@
 
 		var importObject = { env: { memory: memory } };
         const { instance } = await WebAssembly.instantiate( bytes, importObject );
+		console.log(importObject);
 		instance.exports.InitWasmProgram();
         console.log('WasmWithJynxFramework:  Allocation #1 is at WASM address: ' + instance.exports.CreateBlock());
         console.log('WasmWithJynxFramework:  Allocation #2 is at WASM address: ' + instance.exports.CreateBlock());
         console.log('WasmWithJynxFramework:  Allocation #3 is at WASM address: ' + instance.exports.CreateBlock());
+        console.log('WasmWithJynxFramework:  Call 1 to ExerciseJynxFramework() returns WASM address: ' + instance.exports.ExerciseJynxFramework());
+        console.log('WasmWithJynxFramework:  Call 2 to ExerciseJynxFramework() returns WASM address: ' + instance.exports.ExerciseJynxFramework());
       })();
     </script>
   </body>

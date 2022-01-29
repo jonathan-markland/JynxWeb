@@ -5,6 +5,7 @@
 
 #include <stdint.h>
 #include "WasmNeverFreeingMemoryAllocator.h"
+#include "JynxFramework.h"
 
 extern "C" void InitWasmProgram()
 {
@@ -16,3 +17,8 @@ extern "C" void *CreateBlock()
 	return malloc(10);
 }
 
+extern "C" const void *ExerciseJynxFramework()
+{
+	auto str = JynxFramework::String("Hello!");
+	return str.c_str(); // unsafe as memory is freed, but we can still see it immediately on JS side.
+}
