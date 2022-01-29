@@ -2,18 +2,35 @@
 JYNX WEB
 --------
 
+Phase I
+
 	[ ] Push these new repos to GitHub.
 
 	[X] C# Tests for the never-freeing memory allocator
-	[ ] Translate never-freeing memory allocator to C++ in spike app context
+	[X] Jynx Panic moved to its own header file outside the framework.
+	[ ] Translate never-freeing memory allocator to C++
 	[ ] Spike compiling and usage of JynxFramework -- will need to sort out "operator new" / "placement new" issues.
-	[ ] Create proper folder for the web based emulator C++ code.
+	[ ] Investigate requesting the browser to repaint a rectangular portion of the guest display.
+	[ ] Have a defined Device Layer : LynxHardware folder
+		- Screen handler:    Compose RGBA pixels in static buffer on write to Lynx screen. Invalid Band flags.  [MVP == No 6845]
+		- Keyboard handler:  State machine maintaining flags:  Host Key up / Key down sets bits in static buffer.
+		- Sound handler:     Every speaker write get the level 0-63 and Z80 count.  Write sound static buffer.
+		- extern "C" api to get addresses of static buffers.
+		- De-couple from UI and higher-level features.
+		- What support does the TAPE need?  Tape motor on and off.  How to split that between LynxHardware and higher-level?  
+		  Design this now.
+	[ ] Convert some tape images to C binary for static-linking.
+
+Phase II
+
+	[ ] Build Jynx by linking one tape image, and automate the Lynx to run at boot up.  [MVP == no BASIC because BASIC needs menus + file up/download]
 	[ ] Proper heap allocator needed -- spike in the CsHeapManagerPrototype project.
 
 	[X] Spike test the AutoWorkLet (128 samples at a time). -- C:\Users\Jonathan\Documents\Work\webaudio-examples\audioworklet
 	[X] Spike test the bare metal WASM
 	[X] Spike test data transfer to/from WASM memory space.
 	[X] Spike test image in WASM space
+	[X] Create proper folder for the web based emulator C++ code.
 	
 	
 Strategy for JynxFramework
