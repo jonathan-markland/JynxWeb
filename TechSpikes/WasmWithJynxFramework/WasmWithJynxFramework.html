@@ -6,7 +6,15 @@
       (async() => {
         const response = await fetch('WasmWithJynxFramework.wasm');
         const bytes = await response.arrayBuffer();
-        const { instance } = await WebAssembly.instantiate(bytes);
+
+		let memory = new WebAssembly.Memory({
+			initial:10,
+			maximum:256,  // TODO: Sort out maximum issue.
+			shared: true 
+		});  
+
+		var importObject = { env: { memory: memory } };
+        const { instance } = await WebAssembly.instantiate( bytes, importObject );
 		instance.exports.InitWasmProgram();
         console.log('WasmWithJynxFramework:  Allocation #1 is at WASM address: ' + instance.exports.CreateBlock());
         console.log('WasmWithJynxFramework:  Allocation #2 is at WASM address: ' + instance.exports.CreateBlock());
