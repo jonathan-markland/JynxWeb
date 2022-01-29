@@ -10,8 +10,7 @@
 #ifdef __clang_major__
 // We are not using a LIBC with Clang.
 typedef decltype(nullptr) nullptr_t;
-void *malloc(uintptr_t size);
-void free(void *) noexcept;
+#include "WasmNeverFreeingMemoryAllocator.h"
 inline void* operator new(uintptr_t, void* p) noexcept { return p; }
 #endif
 
