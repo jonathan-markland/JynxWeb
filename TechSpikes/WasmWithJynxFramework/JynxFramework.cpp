@@ -12,20 +12,6 @@ namespace JynxFramework
 	// The String class knows NOT to free this address!
 	static const char* EmptyString = "";
 
-	// This is set when the panic state is entered.
-	static volatile const char* g_JynxPanicMessage = nullptr;
-
-	void Panic(const char* message)
-	{
-		g_JynxPanicMessage = message;
-		while (true) {} // Non-emulation thread will monitor the situation.
-	}
-
-	bool IsInPanicState()
-	{
-		return g_JynxPanicMessage != 0;
-	}
-
 	uintptr_t StringLengthOf(const char* s)
 	{
 		auto length = RawCountUntil(s, [](char c) -> bool { return c == '\0'; });

@@ -1,12 +1,14 @@
 #pragma once
 
 #include <stdint.h>
+#include "JynxFrameworkPanic.h"
 
 #ifdef _WIN32
 #include <new>
 #endif
 
 #ifdef __clang_major__
+// We are not using a LIBC with Clang.
 typedef decltype(nullptr) nullptr_t;
 void *malloc(uintptr_t size);
 void free(void *) noexcept;
@@ -26,9 +28,6 @@ namespace JynxFramework
 	{
 		return static_cast<T&&>(source);
 	}
-
-	void Panic(const char* message);
-	bool IsInPanicState();
 
 	template<typename T>
 	void RawBlockCopy(const T* source, T* dest, uintptr_t count)
@@ -121,7 +120,7 @@ namespace JynxFramework
 	ELEMENT *CopyToNewHeapArray(const ELEMENT* source, const ELEMENT *end)
 	{
 		auto block = malloc(SpanSizeInBytes(source, end));
-		// TODO: malloc verification
+		PanicIfNull(block, "Out of memory");
 		CopyConstructDisjoint(source, end, block);
 		return (ELEMENT*)block;
 	}
@@ -328,6 +327,7 @@ namespace JynxFramework
 		Pointer(T&& o)
 		{
 			Boxed<T>* block = (Boxed<T>*) malloc(sizeof(Boxed<T>));   // NB: Matches free in DecUsage().
+			PanicIfNull(block, "Out of memory");
 			new ((void*)block) Boxed<T>(UnsafeAccept(), Move(o));
 			_ptr = (Boxed<T>*)block;
 			IncUsage(_ptr);
@@ -452,6 +452,7 @@ namespace JynxFramework
 	Pointer<T> MakeNew(ConstructionArgs... args)
 	{
 		Boxed<T>* block = (Boxed<T>*) malloc(sizeof(Boxed<T>));   // NB: Matches free in DecUsage().
+		PanicIfNull(block, "Out of memory");
 		new ((void*)block) Boxed<T>(UnsafeAccept(), args...);
 		return Pointer<T>(UnsafeAccept(), block);
 	}
@@ -527,7 +528,11 @@ namespace JynxFramework
 			{
 				return _data[index];
 			}
-			else return *(T*)nullptr;//  assert(false); // TODO: panic
+			else
+			{
+				Panic("Array index out of bounds.");
+				return *(T*)nullptr;
+			}
 		}
 
 		// Checked indexing.
@@ -537,7 +542,11 @@ namespace JynxFramework
 			{
 				return _data[index];
 			}
-			else return *(const T*)nullptr;//  assert(false); // TODO: panic
+			else
+			{
+				Panic("Array index out of bounds.");
+				return *(const T*)nullptr;
+			}
 		}
 
 		// Returns number of elements in the array.
@@ -630,6 +639,7 @@ namespace JynxFramework
 	Array<T> ArrayInit(uintptr_t count, ConstructionArgs... args)
 	{
 		T* block = (T*)malloc(sizeof(T) * count);   // matches free in DecUsage().
+		PanicIfNull(block, "Out of memory");
 		auto ptr = block;
 		auto end = ptr + count;
 		while (ptr < end)
@@ -646,6 +656,7 @@ namespace JynxFramework
 	Array<T> ArrayGenerate(uintptr_t count, FUNCTION generatorFunction)
 	{
 		T* block = (T*)malloc(sizeof(T) * count);   // matches free in DecUsage().
+		PanicIfNull(block, "Out of memory");
 		auto ptr = block;
 		auto end = ptr + count;
 		uintptr_t index = 0;
@@ -788,6 +799,7 @@ namespace JynxFramework
 				}
 
 				void* newBlock = malloc(sizeof(T) * capacity);
+				PanicIfNull(newBlock, "Out of memory");
 				MoveConstructDisjoint(_data, newBlock, _appendIndex);
 				free(_data);
 				_data = (T*)newBlock;
