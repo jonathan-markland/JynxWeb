@@ -9,7 +9,7 @@ extern unsigned char __heap_base;
 
 namespace WasmNeverFreeingMemoryAllocator
 {
-	const int BytesPerMachineWord = 4;
+	const int BytesPerMachineWord = 4;  // TODO: Possibly get from architecture, but we probably don't care for 32-bit WASM.
 
 	static uintptr_t g_AllocatorNext = 0;
 	static uintptr_t g_AllocatorEnd  = 0;
@@ -20,7 +20,7 @@ namespace WasmNeverFreeingMemoryAllocator
 	{
 		if (g_AllocatorNext != 0 || g_AllocatorEnd != 0)
 		{
-			Panic("WasmNeverFreeingMemoryAllocator should only be initialised once.");
+			JynxFramework::Panic("WasmNeverFreeingMemoryAllocator should only be initialised once.");
 		}
 		g_AllocatorNext = (uintptr_t) &__heap_base;
 		g_AllocatorEnd = 16 * 1048576; // TODO: 16MB space assumption hack
@@ -35,6 +35,8 @@ namespace WasmNeverFreeingMemoryAllocator
 
 	static uintptr_t AllocWithUncheckedAlignment(uintptr_t size)
 	{
+		// NB: Panics in the out of memory cases.
+		
 		if (size <= HeapRemaining())
 		{
 			auto address = g_AllocatorNext;
@@ -45,16 +47,17 @@ namespace WasmNeverFreeingMemoryAllocator
 		{
 			if (g_AllocatorNext == 0 && g_AllocatorEnd == 0)
 			{
-				Panic("WasmNeverFreeingMemoryAllocator::Init() must be called before memory allocations can take place.");
+				JynxFramework::Panic("WasmNeverFreeingMemoryAllocator::Init() must be called before memory allocations can take place.");
 			}
 			else
 			{
-				Panic("WasmNeverFreeingMemoryAllocator out of memory.");
+				JynxFramework::Panic("WasmNeverFreeingMemoryAllocator out of memory.");
 			}
+			return 0; // Never executed.
 		}
 	}
 
-	static bool ShuntForwardToNextAddressMultipleOf(uintptr_t powerOfTwo)
+	static void ShuntForwardToNextAddressMultipleOf(uintptr_t powerOfTwo)
 	{
 		// TODO: We don't check that powerOfTwo really is that!
 
@@ -63,11 +66,7 @@ namespace WasmNeverFreeingMemoryAllocator
 		if (moduloAlignment != 0)
 		{
 			auto shuntDistance = powerOfTwo - moduloAlignment;
-			return AllocWithUncheckedAlignment(shuntDistance) != nullptr;
-		}
-		else
-		{
-			return true; // No change needed
+			AllocWithUncheckedAlignment(shuntDistance);
 		}
 	}
 }
@@ -76,11 +75,10 @@ namespace WasmNeverFreeingMemoryAllocator
 
 void *malloc(uintptr_t size)
 {
-	if (ShuntForwardToNextAddressMultipleOf(BytesPerMachineWord))
-	{
-		return (void *) AllocWithUncheckedAlignment(size);
-	}
-	return (void *) nullptr;
+	WasmNeverFreeingMemoryAllocator::ShuntForwardToNextAddressMultipleOf(
+		WasmNeverFreeingMemoryAllocator::BytesPerMachineWord);
+		
+	return (void *) WasmNeverFreeingMemoryAllocator::AllocWithUncheckedAlignment(size);
 }
 
 void free(void *) noexcept
