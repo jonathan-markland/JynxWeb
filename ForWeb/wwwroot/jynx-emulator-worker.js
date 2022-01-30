@@ -67,7 +67,7 @@ class JynxEmulatorWorkletProcessor extends AudioWorkletProcessor
 				// We also post the WASM shared memory object.
 
 				let postedDataForHost = {
-					volumeLevelAddress: instance.exports.get_static_level_variable(),
+					// volumeLevelAddress: instance.exports.get_static_level_variable(),
 					screenBaseAddress:  instance.exports.get_screen_base_address(),
 					memory:             memory
 				};

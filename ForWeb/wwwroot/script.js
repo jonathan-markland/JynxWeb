@@ -49,7 +49,7 @@ async function createEmulatorAudioWorkletNode(audioContext, onReady)
 
 				let onReadyDetails = { 
 					wasmMemoryArray:       wasmMemoryArray,
-					wasmVolumeLevelArray:  new Float32Array(wasmMemoryArray, postedDataForHost.volumeLevelAddress, 4),
+					// wasmVolumeLevelArray:  new Float32Array(wasmMemoryArray, postedDataForHost.volumeLevelAddress, 4),
 					wasmImageArray:        new Uint8ClampedArray(wasmMemoryArray, postedDataForHost.screenBaseAddress, 16 * 16 * 4)
 				};
 
