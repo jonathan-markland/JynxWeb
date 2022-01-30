@@ -2,48 +2,54 @@
 <html lang="en">
 
   <head>
-    <title>AudioWorklet Demo including WebAssembly. Wasm memory in shared memory. coi-serviceworker integrated.</title>
+  
+    <title>Jynx - Online Camputers Lynx Emulator.</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
-    <!-- import the webpage's stylesheet -->
-    <link rel="stylesheet" href="style.css">
-    
-    <!-- Page-reloader to add COOP and COEP headers to this page allowing hosting in eg: Github.io -->
+    <!-- Page-reloader to add COOP and COEP HTTP headers to this 
+	     page. This workaround allows us to host in Github.io, which 
+		 otherwise does not allow setting these headers. -->
 	<script src="./coi-serviceworker.js"></script>
 
     <!-- import the webpage's javascript file -->
     <script src="script.js" defer></script>
+	
   </head>  
   
   <body>
 
     <h1>JynxII for Web -- THIS IS THE REAL PROGRAM -- WORK IN PROGRESS</h1>
 
-	<!--
-		<script>
-			const el = document.createElement("div")
-			el.innerHTML = `Cross origin isolated: ${window.crossOriginIsolated ? "✅" : "❌"}`
+	<script>
+		if (!window.crossOriginIsolated)
+		{
+			// const el = document.createElement("div")
+			// el.innerHTML = `Cross origin isolated: ${window.crossOriginIsolated ? "✅" : "❌"}`
+			const el = document.createElement("p");
+			el.innerText = 'This web site cannot be displayed because it needs Cross-Origin Isolation, which is not available.';
 			document.body.append(el);
-		</script>
-	-->
+		}
+	</script>
 	
-    <button id="toggle">
-		Toggle Sound On/Off
-    </button>
-
-    <button id="toggleVolume">
-		Toggle Volume Level Loud / Quiet
-    </button>
-
-    <button id="updateGraphics">
-		Update graphics
-    </button>
-    
-	<hr/>
+	<div>
 	
-	<canvas id="canvas" width="16" height="16" style="width:1024px; height:1024px; image-rendering:pixelated;"></canvas>	
+		<button id="toggle">
+			Toggle Sound On/Off
+		</button>
+
+		<button id="toggleVolume">
+			Toggle Volume Level Loud / Quiet
+		</button>
+
+		<button id="updateGraphics">
+			Update graphics
+		</button>
+	
+	</div>
+	
+	<canvas id="canvas" width="16" height="16" style="width:512px; height:512px; image-rendering:pixelated;"></canvas>	
 	
   </body>
 </html>
