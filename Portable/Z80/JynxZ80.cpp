@@ -219,7 +219,7 @@ namespace JynxZ80
 			ExecuteOpcodeMainSet();
 
 			//
-			// Interrupt handling -- TODO: sort of work in progress, as the Lynx implementation didn't emulate anything that used interrupts.
+			// Interrupt handling -- TODO: sort of work in progress, as the Lynx implementation didn't use interrupts much!
 			//
 
 			if( _deferInterruptCheck )
