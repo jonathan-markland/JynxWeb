@@ -22,7 +22,7 @@
 #include <algorithm>
 #include "stdint.h"
 
-#include "../JynxPanic.h" // TODO: Ultimately, we might want to separate the Z80 from Jynx itself.
+#include "../JynxFrameworkPanic.h" // TODO: Ultimately, we might want to separate the Z80 from Jynx itself.
 
 #include "JynxZ80Timings.h"
 #include "JynxZ80.h"
@@ -122,7 +122,7 @@ namespace JynxZ80
 	{
 		if( ! g_Z80GlobalInitDone )
 		{
-			JynxPanic("Z80 construction failed because InitialiseGlobalTables() not yet called.");
+			JynxFramework::Panic("Z80 construction failed because InitialiseGlobalTables() not yet called.");
 		}
 		_timesliceLength = 0;
 		_currentOpcode = 0; // Not essential
@@ -195,7 +195,7 @@ namespace JynxZ80
 
 	void Z80::UndefinedInstruction()
 	{
-		JynxPanic("Z80 undefined instruction met");
+		JynxFramework::Panic("Z80 undefined instruction met");
 	}
 
 
