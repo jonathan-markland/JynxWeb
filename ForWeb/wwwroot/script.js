@@ -1,8 +1,25 @@
+//
+// Jynx - Camputers Lynx Emulator
+//
+// Main bootstrapping and browser interfacing script.
+//
+
+
+
+// ------------------------------------------------------------------------------------------------------------
+//   GLOBAL STATE
+// ------------------------------------------------------------------------------------------------------------
+
 let globalWasmMemoryArray;
 // let globalWasmVolumeLevelArray;
 let globalWasmImageSharedUint8ClampedArray;
 let globalWasmImageUnsharedUint8ClampedArray;
 let globalWasmImage;
+
+
+// ------------------------------------------------------------------------------------------------------------
+//   BOOTSTRAP
+// ------------------------------------------------------------------------------------------------------------
 
 async function createEmulatorAudioWorkletNode(audioContext, onReady) 
 {
@@ -23,19 +40,20 @@ async function createEmulatorAudioWorkletNode(audioContext, onReady)
 			});
 
 	audioWorkletNode.port.onmessage = 
-		(e) => {
+		(e) => 
+		{
 			if (e.isTrusted)
 			{
 				let postedDataForHost = e.data;
 				let wasmMemoryArray   = postedDataForHost.memory.buffer;
 
-				let wasmReadyDetails = { 
+				let onReadyDetails = { 
 					wasmMemoryArray:       wasmMemoryArray,
 					wasmVolumeLevelArray:  new Float32Array(wasmMemoryArray, postedDataForHost.volumeLevelAddress, 4),
 					wasmImageArray:        new Uint8ClampedArray(wasmMemoryArray, postedDataForHost.screenBaseAddress, 16 * 16 * 4)
 				};
 
-				onReady(wasmReadyDetails);
+				onReady(onReadyDetails);
 			}
 		};
 
@@ -44,73 +62,104 @@ async function createEmulatorAudioWorkletNode(audioContext, onReady)
 	return audioWorkletNode;
 }
 
-async function audioDemoStart(audioContext, onReady) {
+
+
+async function startEmulatorAndDo(audioContext, onReady) 
+{
+	let emulatorAudioWorkletNode = 
+		await createEmulatorAudioWorkletNode(audioContext, onReady);
 	
-	let emulatorAudioWorkletNode = await createEmulatorAudioWorkletNode(audioContext, onReady);
-	
+	// TODO: I REALLY need to find out how to get sound output without this mixing in of a silent square wave(!).
+	//       Also I need to check whether, without this, the sound sustains on switch-away.
 	const squareOscillatorNode = new OscillatorNode(audioContext);
-	
-	// Configure the oscillator node
-	
 	squareOscillatorNode.type = "square";
-	squareOscillatorNode.frequency.setValueAtTime(440, audioContext.currentTime); // (A4)  // TODO: How to live without this(!).  Check if, without this, the sound sustains on switch-away too.
+	squareOscillatorNode.frequency.setValueAtTime(440, audioContext.currentTime); // (A4)  
 	
 	// Connect and start
-	
 	squareOscillatorNode.connect(emulatorAudioWorkletNode).connect(audioContext.destination);
 	squareOscillatorNode.start();
 }
 
+
+
+// ------------------------------------------------------------------------------------------------------------
+//   GLOBAL AUDIO CONTEXT OBJECT MANAGEMENT
 // ------------------------------------------------------------------------------------------------------------
 
 let globalAudioContext = null;
 
-function ensureGlobalAudioContextCreated() {
-	if (!globalAudioContext) {
-		try {
+function ensureGlobalAudioContextCreated() 
+{
+	if (!globalAudioContext) 
+	{
+		try 
+		{
 			globalAudioContext = new AudioContext();
-		} catch(e) {
+		}
+		catch(e) 
+		{
 			throw "** Error: Unable to create audio context **"; // TODO sort out
 		}
 	}
 }
 
-async function ensureGlobalAudioContextDisposed() {
-	if (globalAudioContext) {
+
+
+async function ensureGlobalAudioContextDisposed() 
+{
+	if (globalAudioContext) 
+	{
 		await globalAudioContext.close();
 		globalAudioContext = null;
 	}
 }
 
+
+
+// ------------------------------------------------------------------------------------------------------------
+//   WINDOW INIT
 // ------------------------------------------------------------------------------------------------------------
 
-window.addEventListener("load", event => {
-	document.getElementById("startEmulator").addEventListener("click", startEmulator);
-	// document.getElementById("toggleVolume").addEventListener("click", toggleVolumeLevel);
-	document.getElementById("updateGraphics").addEventListener("click", updateGraphics);
-});
+window.addEventListener(
+	"load", 
+	event => 
+		{
+			document.getElementById("startEmulator").addEventListener("click", onStartEmulator);
+			// document.getElementById("toggleVolume").addEventListener("click", onToggleVolumeLevel);
+			document.getElementById("updateGraphics").addEventListener("click", onUpdateGraphics);
+		});
+		
+		
+
+// ------------------------------------------------------------------------------------------------------------
+//   UI EVENT HANDLERS
+// ------------------------------------------------------------------------------------------------------------
+
 
 function HideStartEmulatorButton()
 {
 	document.getElementById("startEmulator").style.display = 'none';
 }
 
-async function startEmulator(event) 
+
+
+async function onStartEmulator(event) 
 {
 	if (!globalAudioContext) 
 	{
 		ensureGlobalAudioContextCreated();
+		
 		await globalAudioContext.audioWorklet.addModule("jynx-emulator-worker.js");
 		
-		audioDemoStart(
+		startEmulatorAndDo(
 			globalAudioContext, 
-			wasmReadyDetails => 
+			onReadyDetails => 
 				{
-					globalWasmMemoryArray                    = wasmReadyDetails.wasmMemoryArray;
-					// globalWasmVolumeLevelArray               = wasmReadyDetails.wasmVolumeLevelArray;
-					globalWasmImageSharedUint8ClampedArray   = wasmReadyDetails.wasmImageArray;
-					globalWasmImageUnsharedUint8ClampedArray = new Uint8ClampedArray(16 * 16 * 4);  // an unfortunate duplicate, but we allocate ONCE at least!
-					globalWasmImage                          = new ImageData(globalWasmImageUnsharedUint8ClampedArray, 16, 16); // TODO: check out the format parameter
+					globalWasmMemoryArray                    = onReadyDetails.wasmMemoryArray;
+					// globalWasmVolumeLevelArray               = onReadyDetails.wasmVolumeLevelArray;
+					globalWasmImageSharedUint8ClampedArray   = onReadyDetails.wasmImageArray;
+					globalWasmImageUnsharedUint8ClampedArray = new Uint8ClampedArray(16 * 16 * 4);  // This entails unfortunate copying, but we allocate ONCE at least!
+					globalWasmImage                          = new ImageData(globalWasmImageUnsharedUint8ClampedArray, 16, 16); // TODO: check out the "format" parameter
 				});
 				
 		HideStartEmulatorButton();
@@ -121,8 +170,10 @@ async function startEmulator(event)
 	} */
 }
 
+
+
 /*
-async function toggleVolumeLevel(event) {
+async function onToggleVolumeLevel(event) {
 	
 	if (globalWasmVolumeLevelArray)
 	{
@@ -146,14 +197,16 @@ async function toggleVolumeLevel(event) {
 }
 */
 
-function updateGraphics(event) {
+
+
+function onUpdateGraphics(event) {
 
 	if (globalWasmImageSharedUint8ClampedArray)
 	{
-		globalWasmImageUnsharedUint8ClampedArray.set(globalWasmImageSharedUint8ClampedArray); // Unfortunate copy.
+		globalWasmImageUnsharedUint8ClampedArray.set(globalWasmImageSharedUint8ClampedArray); // TODO: Design issue:  Unfortunately we must copy.  Can Web Canvas not directly accept a portion of the WASM memory space as the image source?
 		
 		const canvas = document.getElementById('canvas');
 		const ctx = canvas.getContext('2d');
-		ctx.putImageData(globalWasmImage, 0, 0);  // TODO: investigate portion-painting
+		ctx.putImageData(globalWasmImage, 0, 0);  // TODO: investigate portion-painting for the "update bands" that Jynx uses.
 	}
 }
