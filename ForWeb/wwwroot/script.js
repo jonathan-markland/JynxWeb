@@ -1,5 +1,5 @@
 let globalWasmMemoryArray;
-let globalWasmVolumeLevelArray;
+// let globalWasmVolumeLevelArray;
 let globalWasmImageSharedUint8ClampedArray;
 let globalWasmImageUnsharedUint8ClampedArray;
 let globalWasmImage;
@@ -82,27 +82,43 @@ async function ensureGlobalAudioContextDisposed() {
 // ------------------------------------------------------------------------------------------------------------
 
 window.addEventListener("load", event => {
-	document.getElementById("toggle").addEventListener("click", toggleSound);
-	document.getElementById("toggleVolume").addEventListener("click", toggleVolumeLevel);
+	document.getElementById("startEmulator").addEventListener("click", startEmulator);
+	// document.getElementById("toggleVolume").addEventListener("click", toggleVolumeLevel);
 	document.getElementById("updateGraphics").addEventListener("click", updateGraphics);
 });
 
-async function toggleSound(event) {
-	if (!globalAudioContext) {
-		ensureGlobalAudioContextCreated();
-		await globalAudioContext.audioWorklet.addModule("shared-generator.js");
-		audioDemoStart(globalAudioContext, wasmReadyDetails => {
-			globalWasmMemoryArray                    = wasmReadyDetails.wasmMemoryArray;
-			globalWasmVolumeLevelArray               = wasmReadyDetails.wasmVolumeLevelArray;
-			globalWasmImageSharedUint8ClampedArray   = wasmReadyDetails.wasmImageArray;
-			globalWasmImageUnsharedUint8ClampedArray = new Uint8ClampedArray(16 * 16 * 4);  // an unfortunate duplicate, but we allocate ONCE at least!
-			globalWasmImage                          = new ImageData(globalWasmImageUnsharedUint8ClampedArray, 16, 16); // TODO: check out the format parameter
-		});
-	} else {
-		await ensureGlobalAudioContextDisposed();
-	}
+function HideStartEmulatorButton()
+{
+	document.getElementById("startEmulator").style.display = 'none';
 }
 
+async function startEmulator(event) 
+{
+	if (!globalAudioContext) 
+	{
+		ensureGlobalAudioContextCreated();
+		await globalAudioContext.audioWorklet.addModule("shared-generator.js");
+		
+		audioDemoStart(
+			globalAudioContext, 
+			wasmReadyDetails => 
+				{
+					globalWasmMemoryArray                    = wasmReadyDetails.wasmMemoryArray;
+					// globalWasmVolumeLevelArray               = wasmReadyDetails.wasmVolumeLevelArray;
+					globalWasmImageSharedUint8ClampedArray   = wasmReadyDetails.wasmImageArray;
+					globalWasmImageUnsharedUint8ClampedArray = new Uint8ClampedArray(16 * 16 * 4);  // an unfortunate duplicate, but we allocate ONCE at least!
+					globalWasmImage                          = new ImageData(globalWasmImageUnsharedUint8ClampedArray, 16, 16); // TODO: check out the format parameter
+				});
+				
+		HideStartEmulatorButton();
+	}
+	/* Let's never stop.  else
+	{
+		await ensureGlobalAudioContextDisposed();
+	} */
+}
+
+/*
 async function toggleVolumeLevel(event) {
 	
 	if (globalWasmVolumeLevelArray)
@@ -125,6 +141,7 @@ async function toggleVolumeLevel(event) {
 		globalWasmVolumeLevelArray[0] = currentLevel;
 	}
 }
+*/
 
 function updateGraphics(event) {
 
