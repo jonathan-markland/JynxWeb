@@ -7,7 +7,7 @@ let globalWasmImage;
 async function createEmulatorAudioWorkletNode(audioContext, onReady) {
 
 	let wasmMod = await WebAssembly
-		.compileStreaming(fetch('shared.wasm'))
+		.compileStreaming(fetch('jynx-emulator.wasm'))
 		.then(mod => { 
 			return mod;
 		});
