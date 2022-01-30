@@ -4,37 +4,40 @@ let globalWasmImageSharedUint8ClampedArray;
 let globalWasmImageUnsharedUint8ClampedArray;
 let globalWasmImage;
 
-async function createEmulatorAudioWorkletNode(audioContext, onReady) {
-
-	let wasmMod = await WebAssembly
-		.compileStreaming(fetch('jynx-emulator.wasm'))
-		.then(mod => { 
-			return mod;
-		});
+async function createEmulatorAudioWorkletNode(audioContext, onReady) 
+{
+	let compiledWasmModule = 
+		await WebAssembly
+			.compileStreaming( fetch('jynx-emulator.wasm') )
+			.then( mod => { return mod; } );
 		
-	let audioWorkletNodeProcessorOptions = {
-		processorOptions: { 
-			wasmMod: wasmMod  /* Forward the compiled WASM module to the worker. The worker will instantiate, not us. */ 
-		} 
-	};
-	
-	let audioWorkletNode = new AudioWorkletNode(audioContext, "jynx-emulator-worker", audioWorkletNodeProcessorOptions);
+	let audioWorkletNode = 
+		new AudioWorkletNode(
+			audioContext, 
+			"jynx-emulator-worker", 
+			{
+				processorOptions: 
+				{ 
+					compiledWasmModule: compiledWasmModule  /* NB: Instantiation of the WASM VM is on the worker, not the main thread. */ 
+				} 
+			});
 
-	audioWorkletNode.port.onmessage = (e) => {
-		if (e.isTrusted)
-		{
-			let postedDataForHost = e.data;
-			let wasmMemoryArray   = postedDataForHost.memory.buffer;
+	audioWorkletNode.port.onmessage = 
+		(e) => {
+			if (e.isTrusted)
+			{
+				let postedDataForHost = e.data;
+				let wasmMemoryArray   = postedDataForHost.memory.buffer;
 
-			let wasmReadyDetails = { 
-				wasmMemoryArray:       wasmMemoryArray,
-				wasmVolumeLevelArray:  new Float32Array(wasmMemoryArray, postedDataForHost.volumeLevelAddress, 4),
-				wasmImageArray:        new Uint8ClampedArray(wasmMemoryArray, postedDataForHost.screenBaseAddress, 16 * 16 * 4)
-			};
+				let wasmReadyDetails = { 
+					wasmMemoryArray:       wasmMemoryArray,
+					wasmVolumeLevelArray:  new Float32Array(wasmMemoryArray, postedDataForHost.volumeLevelAddress, 4),
+					wasmImageArray:        new Uint8ClampedArray(wasmMemoryArray, postedDataForHost.screenBaseAddress, 16 * 16 * 4)
+				};
 
-			onReady(wasmReadyDetails);
-		}
-	};
+				onReady(wasmReadyDetails);
+			}
+		};
 
 	await audioContext.resume();
 	

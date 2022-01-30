@@ -27,7 +27,7 @@ class JynxEmulatorWorkletProcessor extends AudioWorkletProcessor
 			this.port.postMessage('pong');
 		};
 		
-		let wasmMod = options.processorOptions.wasmMod;
+		let compiledWasmModule = options.processorOptions.compiledWasmModule;
 		
 		this.ready = false;
 		
@@ -44,7 +44,7 @@ class JynxEmulatorWorkletProcessor extends AudioWorkletProcessor
 		};
 
 		WebAssembly
-			.instantiate(wasmMod, importObject)
+			.instantiate(compiledWasmModule, importObject)
 			.then(function(instance) {
 				
 				let soundBufferAddress = instance.exports.get_static_sound_buffer();
