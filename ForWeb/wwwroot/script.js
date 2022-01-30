@@ -18,7 +18,7 @@ async function createEmulatorAudioWorkletNode(audioContext, onReady) {
 		} 
 	};
 	
-	let audioWorkletNode = new AudioWorkletNode(audioContext, "shared-generator", audioWorkletNodeProcessorOptions);
+	let audioWorkletNode = new AudioWorkletNode(audioContext, "jynx-emulator-worker", audioWorkletNodeProcessorOptions);
 
 	audioWorkletNode.port.onmessage = (e) => {
 		if (e.isTrusted)
@@ -97,7 +97,7 @@ async function startEmulator(event)
 	if (!globalAudioContext) 
 	{
 		ensureGlobalAudioContextCreated();
-		await globalAudioContext.audioWorklet.addModule("shared-generator.js");
+		await globalAudioContext.audioWorklet.addModule("jynx-emulator-worker.js");
 		
 		audioDemoStart(
 			globalAudioContext, 

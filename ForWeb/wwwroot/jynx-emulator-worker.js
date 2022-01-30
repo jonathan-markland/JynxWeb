@@ -118,4 +118,6 @@ class SharedGeneratorProcessor extends AudioWorkletProcessor
 }
 
 
-  registerProcessor("shared-generator", SharedGeneratorProcessor);
+
+registerProcessor("jynx-emulator-worker", SharedGeneratorProcessor);
+
