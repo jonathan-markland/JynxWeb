@@ -5,6 +5,18 @@
 #include <stdlib.h>
 #endif
 
+#ifdef __clang_major__
+
+extern "C" int __cxa_atexit(void (*func) (void *), void *arg, void *d) 
+{
+	// We are not doing anything about calling at-exit functions because
+	// we will not support exiting for Jynx, in lieu of no LibC.  
+	// TODO: Sort out properly, if I progress this.
+	return 0;
+}
+
+#endif
+
 
 namespace JynxFramework
 {

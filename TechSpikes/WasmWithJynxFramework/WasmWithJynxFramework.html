@@ -13,15 +13,23 @@
 			shared: true 
 		});  
 
+		debugger;
 		var importObject = { env: { memory: memory } };
         const { instance } = await WebAssembly.instantiate( bytes, importObject );
 		console.log(importObject);
-		instance.exports.InitWasmProgram();
+		// TODO: Can we get away with not doing this?   Seems so, because all it does is zero init the data regions.
+		//    RuntimeError:  "Atomics.wait cannot be called in this context"  <-- BUT!! This might be because it's the browser's main thread (which cannot seize).  We MIGHT be able to do this on the Audio Worker!
+		// instance.exports.__wasm_init_memory();
+		//    Atomics are needed (clang -matomics) because of shared memory.
+		instance.exports.InitBeforeCtorsCalled(); // TODO: The attempt to self-initialise the Never-freeing allocator failed.  Investigate why.
+		instance.exports.__wasm_call_ctors();
         console.log('WasmWithJynxFramework:  Allocation #1 is at WASM address: ' + instance.exports.CreateBlock());
         console.log('WasmWithJynxFramework:  Allocation #2 is at WASM address: ' + instance.exports.CreateBlock());
         console.log('WasmWithJynxFramework:  Allocation #3 is at WASM address: ' + instance.exports.CreateBlock());
         console.log('WasmWithJynxFramework:  Call 1 to ExerciseJynxFramework() returns WASM address: ' + instance.exports.ExerciseJynxFramework());
         console.log('WasmWithJynxFramework:  Call 2 to ExerciseJynxFramework() returns WASM address: ' + instance.exports.ExerciseJynxFramework());
+        console.log('WasmWithJynxFramework:  GetGlobalStringAddress() returns WASM address: ' + instance.exports.GetGlobalStringAddress());
+		
       })();
     </script>
   </body>
