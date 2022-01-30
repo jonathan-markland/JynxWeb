@@ -2,10 +2,12 @@
 
 // clang -O2 --target=wasm32 --no-standard-libraries -matomics -mbulk-memory -Wl,--max-memory=655360 -Wl,--shared-memory -Wl,--import-memory -Wl,--export-all -Wl,--no-entry -o shared.wasm shared.c
 
-#define SOUND_BUFFER_SIZE 128
+#define SOUND_BUFFER_SIZE   128   // x PCM samples at target rate.   This cannot be changed because of browser specifications.
+#define GUEST_SCREEN_WIDTH  256   // If changed, must also change the Javascript const of the same name.
+#define GUEST_SCREEN_HEIGHT 256   // If changed, must also change the Javascript const of the same name.
 
 float sound_buffer[SOUND_BUFFER_SIZE];
-int screen[16 * 16];
+int screen[GUEST_SCREEN_WIDTH * GUEST_SCREEN_HEIGHT];
 int next_colour = 0;
 float top_level = 0.1;
 
@@ -22,7 +24,7 @@ float *get_static_level_variable()
 int *get_screen_base_address()
 {
 	// TODO: for now:
-	for(int i=0; i<256; i++)
+	for(int i=0; i < (GUEST_SCREEN_WIDTH * GUEST_SCREEN_HEIGHT); i++)
 	{
 		screen[i] = 0xFFFF00FF;
 	}
@@ -48,10 +50,10 @@ void fill_sound_buffer(double gain)  // TODO: the gain isn't used in this exampl
 		++i;
 	}
 
-	// TODO: for now fiddle with the screen also:
+	// TODO: for now fiddle with the top quarter of the screen also:
 	next_colour = (next_colour + 1) & 0xFF;
 	int paint_colour = next_colour | 0xFF000000;
-	for(int i=0; i<64; i++)
+	for(int i=0; i < (GUEST_SCREEN_WIDTH * (GUEST_SCREEN_HEIGHT / 4)); i++)
 	{
 		screen[i] = paint_colour;
 	}

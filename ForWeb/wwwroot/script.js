@@ -4,6 +4,12 @@
 // Main bootstrapping and browser interfacing script.
 //
 
+// ------------------------------------------------------------------------------------------------------------
+//   CONSTANTS
+// ------------------------------------------------------------------------------------------------------------
+
+const GUEST_SCREEN_WIDTH  = 256;   // If changed, must also change the C++ #define of the same name.
+const GUEST_SCREEN_HEIGHT = 256;   // If changed, must also change the C++ #define of the same name.
 
 
 // ------------------------------------------------------------------------------------------------------------
@@ -50,7 +56,7 @@ async function createEmulatorAudioWorkletNode(audioContext, onReady)
 				let onReadyDetails = { 
 					wasmMemoryArray:       wasmMemoryArray,
 					// wasmVolumeLevelArray:  new Float32Array(wasmMemoryArray, postedDataForHost.volumeLevelAddress, 4),
-					wasmImageArray:        new Uint8ClampedArray(wasmMemoryArray, postedDataForHost.screenBaseAddress, 16 * 16 * 4)
+					wasmImageArray:        new Uint8ClampedArray(wasmMemoryArray, postedDataForHost.screenBaseAddress, GUEST_SCREEN_WIDTH * GUEST_SCREEN_HEIGHT * 4)
 				};
 
 				onReady(onReadyDetails);
@@ -158,8 +164,8 @@ async function onStartEmulator(event)
 					globalWasmMemoryArray                    = onReadyDetails.wasmMemoryArray;
 					// globalWasmVolumeLevelArray               = onReadyDetails.wasmVolumeLevelArray;
 					globalWasmImageSharedUint8ClampedArray   = onReadyDetails.wasmImageArray;
-					globalWasmImageUnsharedUint8ClampedArray = new Uint8ClampedArray(16 * 16 * 4);  // This entails unfortunate copying, but we allocate ONCE at least!
-					globalWasmImage                          = new ImageData(globalWasmImageUnsharedUint8ClampedArray, 16, 16); // TODO: check out the "format" parameter
+					globalWasmImageUnsharedUint8ClampedArray = new Uint8ClampedArray(GUEST_SCREEN_WIDTH * GUEST_SCREEN_HEIGHT * 4);  // This entails unfortunate copying, but we allocate ONCE at least!
+					globalWasmImage                          = new ImageData(globalWasmImageUnsharedUint8ClampedArray, GUEST_SCREEN_WIDTH, GUEST_SCREEN_HEIGHT); // TODO: check out the "format" parameter
 				});
 				
 		HideStartEmulatorButton();
