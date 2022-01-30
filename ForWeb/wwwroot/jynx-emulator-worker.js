@@ -1,12 +1,21 @@
 /**
- * Adds shared into each channel.
- * This is the simple version where we use WebAssembly only on the worklet (no shared memory).
+ * The Jynx Emulator.
  *
- * @class SharedGeneratorProcessor
+ * The emulation is entirely run in a WASM module within an AudioWorkletProcessor.
+ * This is because the emulator needs to generate wave audio.
+ * Shared memory is used to enable the browser's main thread to:-
+ *    - Monitor the emulation health (JynxFramework::Panic())
+ *    - Update the screen in the host browser (Display invalidation flags).
+ *    - Copy the screen bitmap bits from WASM memory to the Web Canvas bitmap.
+ *    - Send key presses into the emulator (keydown/up flags).
+ * The main thread does not block, so there (theoretically) could be tearing artefacts
+ * for the display, however this is not deemed important.
+ *
+ * @class JynxEmulatorWorkletProcessor
  * @extends AudioWorkletProcessor
  **/
 
-class SharedGeneratorProcessor extends AudioWorkletProcessor 
+class JynxEmulatorWorkletProcessor extends AudioWorkletProcessor 
 {
 	constructor(options) 
 	{
@@ -119,5 +128,5 @@ class SharedGeneratorProcessor extends AudioWorkletProcessor
 
 
 
-registerProcessor("jynx-emulator-worker", SharedGeneratorProcessor);
+registerProcessor("jynx-emulator-worker", JynxEmulatorWorkletProcessor);
 
