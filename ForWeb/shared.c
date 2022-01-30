@@ -1,6 +1,6 @@
 // shared.c
 
-// clang -O2 --target=wasm32 --no-standard-libraries -matomics -mbulk-memory -Wl,--max-memory=655360 -Wl,--shared-memory -Wl,--import-memory -Wl,--export-all -Wl,--no-entry -o shared.wasm shared.c
+// The clang command line to build is now in buildcpp.sh
 
 #define SOUND_BUFFER_SIZE   128   // x PCM samples at target rate.   This cannot be changed because of browser specifications.
 #define GUEST_SCREEN_WIDTH  256   // If changed, must also change the Javascript const of the same name.
