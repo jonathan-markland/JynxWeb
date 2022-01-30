@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <title>AudioWorklet Demo including WebAssembly. Wasm memory in shared memory. coi-serviceworker integrated.</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- import the webpage's stylesheet -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Page-reloader to add COOP and COEP headers to this page allowing hosting in eg: Github.io -->
+	<script src="./coi-serviceworker.js"></script>
+
+    <!-- import the webpage's javascript file -->
+    <script src="script.js" defer></script>
+  </head>  
+  
+  <body>
+
+    <h1>JynxII for Web -- THIS IS THE REAL PROGRAM -- WORK IN PROGRESS</h1>
+
+    <h1>AudioWorklet + WASM in Shared Memory + coi-serviceworker</h1>
+    
+    <p>Sound generation on AudioWorklet (2nd javascript "thread" instance).</p>
+	
+	<p>Running of WASM program on the AudioWorklet (as the emulator would be).</p>
+	
+	<p>Hosting the WASM memory in a SharedArrayBuffer, which has ramifications 
+	on the C program's linker, since a SHARED flag exists in the WASM executable 
+	to consent to the WASM memory being held in a JS SharedArrayBuffer.</p>
+	
+	<p>Accessing the WASM memory via a Float32Array alias over the SharedArrayBuffer. 
+	This is a model for bi-directional data access, and would be used for the 
+	emulator keyboard/screen.</p>
+    
+    <script>
+        const el = document.createElement("div")
+        el.innerHTML = `Cross origin isolated: ${window.crossOriginIsolated ? "✅" : "❌"}`
+        document.body.append(el);
+    </script>
+	
+    <button id="toggle">
+		Toggle Sound On/Off
+    </button>
+
+    <button id="toggleVolume">
+		Toggle Volume Level Loud / Quiet
+    </button>
+
+    <button id="updateGraphics">
+		Update graphics
+    </button>
+    
+	<hr/>
+	
+	<canvas id="canvas" width="16" height="16" style="width:1024px; height:1024px; image-rendering:pixelated;"></canvas>	
+	
+  </body>
+</html>
