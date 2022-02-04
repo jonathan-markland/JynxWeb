@@ -117,7 +117,6 @@ protected:
 //
 
 #include <stdint.h>
-#include <string>
 
 // I was experimenting with these on the MSVC compiler:
 #ifdef _MSC_VER

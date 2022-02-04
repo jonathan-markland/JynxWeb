@@ -18,7 +18,7 @@
 //		jynx_emulator {at} yahoo {dot} com
 //
 
-#include <algorithm>
+#include "JynxFramework.h"
 #include "JynxZ80.h"
 #include "JynxZ80Timings.h"
 #include "JynxZ80Shared.h"
@@ -275,7 +275,7 @@ namespace JynxZ80
 	//      MAIN SET IMPLEMENTATION
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-	INLINE_FUNCTION void Z80::MainSet_Quarter0_Column0()
+	inline void Z80::MainSet_Quarter0_Column0()
 	{
 		if( _currentOpcode == 0x00 )
 		{
@@ -284,7 +284,7 @@ namespace JynxZ80
 		else if( _currentOpcode == 0x08 )
 		{
 			// EX AF, AF'
-			std::swap( _AF, _alternateAF );
+			JynxFramework::Swap( _AF, _alternateAF );
 		}
 		else
 		{
@@ -326,7 +326,7 @@ namespace JynxZ80
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-	INLINE_FUNCTION void Z80::MainSet_Quarter0_Column1()
+	inline void Z80::MainSet_Quarter0_Column1()
 	{
 		auto &operandRegister = GetReferenceTo_BC_DE_HLIXIY_SP_FromOpcodeBits5and4();
 		if( _currentOpcode & 8 )
@@ -343,7 +343,7 @@ namespace JynxZ80
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-	INLINE_FUNCTION void Z80::MainSet_Quarter0_Column2()
+	inline void Z80::MainSet_Quarter0_Column2()
 	{
 		uint16_t address;
 
@@ -393,7 +393,7 @@ namespace JynxZ80
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-	INLINE_FUNCTION void Z80::MainSet_Quarter0_Column3()
+	inline void Z80::MainSet_Quarter0_Column3()
 	{
 		auto &targetRegister = GetReferenceTo_BC_DE_HLIXIY_SP_FromOpcodeBits5and4();
 		if( _currentOpcode & 8 )
@@ -408,14 +408,14 @@ namespace JynxZ80
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-	INLINE_FUNCTION uint8_t Calculate_HF_PV_PostIncrementAndPreDecrement( uint8_t value )
+	inline uint8_t Calculate_HF_PV_PostIncrementAndPreDecrement( uint8_t value )
 	{
 		return (value == 0x80 ? Z80Flags::PV : 0) | ((value & 0x0F) ? 0 : Z80Flags::HF);
 	}
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-	INLINE_FUNCTION void Z80::MainSet_Quarter0_Column4()
+	inline void Z80::MainSet_Quarter0_Column4()
 	{
 		// 04 14 24 34 0C 1C 2C 3C
 		// INC 8-bit registers
@@ -446,7 +446,7 @@ namespace JynxZ80
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-	INLINE_FUNCTION void Z80::MainSet_Quarter0_Column5()
+	inline void Z80::MainSet_Quarter0_Column5()
 	{
 		// 05 15 25 35 0D 1D 2D 3D
 		// DEC 8-bit register
@@ -475,7 +475,7 @@ namespace JynxZ80
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-	INLINE_FUNCTION void Z80::MainSet_Quarter0_Column6()
+	inline void Z80::MainSet_Quarter0_Column6()
 	{
 		// Load constant into 8-bit register, or
 		// Store constant to (HL) / (IX+dd) / (IY+dd).
@@ -499,7 +499,7 @@ namespace JynxZ80
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-	INLINE_FUNCTION void Z80::MainSet_Quarter0_Column7()
+	inline void Z80::MainSet_Quarter0_Column7()
 	{
 		// RLCA RRCA RLA RRA DAA CPL SCF CCF
 		switch( GetRowIndexWithinColumnFromOpcode(_currentOpcode) )
@@ -568,7 +568,7 @@ namespace JynxZ80
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-	INLINE_FUNCTION void Z80::MainSet_Quarter1()
+	inline void Z80::MainSet_Quarter1()
 	{
 		// 0x40 .. 0x7F
 
@@ -611,7 +611,7 @@ namespace JynxZ80
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-	INLINE_FUNCTION void Z80::MainSet_Quarter2()
+	inline void Z80::MainSet_Quarter2()
 	{
 		// 0x80 .. 0xBF
 		// ADD ADC SUB SBC AND XOR OR CP
@@ -628,7 +628,7 @@ namespace JynxZ80
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-	INLINE_FUNCTION void Z80::MainSet_Quarter3_Column0()
+	inline void Z80::MainSet_Quarter3_Column0()
 	{
 		if( IsConditionSatisfiedBasedOnOpcode() )
 		{
@@ -638,7 +638,7 @@ namespace JynxZ80
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-	INLINE_FUNCTION void Z80::MainSet_Quarter3_Column1()
+	inline void Z80::MainSet_Quarter3_Column1()
 	{
 		if( (_currentOpcode & 0x0F) == 0x01 )
 		{
@@ -652,9 +652,9 @@ namespace JynxZ80
 		else if( _currentOpcode == 0xD9 )
 		{
 			// EXX
-			std::swap( _BC, _alternateBC );
-			std::swap( _DE, _alternateDE );
-			std::swap( _HL, _alternateHL );  // always swaps HL, never IX/IY !
+			JynxFramework::Swap( _BC, _alternateBC );
+			JynxFramework::Swap( _DE, _alternateDE );
+			JynxFramework::Swap( _HL, _alternateHL );  // always swaps HL, never IX/IY !
 		}
 		else if( _currentOpcode == 0xE9 )
 		{
@@ -670,7 +670,7 @@ namespace JynxZ80
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-	INLINE_FUNCTION void Z80::MainSet_Quarter3_Column2()
+	inline void Z80::MainSet_Quarter3_Column2()
 	{
 		if( IsConditionSatisfiedBasedOnOpcode() )
 		{
@@ -684,7 +684,7 @@ namespace JynxZ80
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-	INLINE_FUNCTION void Z80::MainSet_Quarter3_Column3()
+	inline void Z80::MainSet_Quarter3_Column3()
 	{
 		switch( GetRowIndexWithinColumnFromOpcode(_currentOpcode) )
 		{
@@ -719,7 +719,7 @@ namespace JynxZ80
 			break;
 
 		case 5:  // EB: EX DE,HL   (never re-directed to swap with IX or IY)
-			std::swap( _DE, _HL );
+			JynxFramework::Swap( _DE, _HL );
 			break;
 
 		case 6:  // F3: DI
@@ -735,7 +735,7 @@ namespace JynxZ80
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-	INLINE_FUNCTION void Z80::MainSet_Quarter3_Column4()
+	inline void Z80::MainSet_Quarter3_Column4()
 	{
 		if( IsConditionSatisfiedBasedOnOpcode() )
 		{
@@ -750,7 +750,7 @@ namespace JynxZ80
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-	INLINE_FUNCTION void Z80::MainSet_Quarter3_Column5()
+	inline void Z80::MainSet_Quarter3_Column5()
 	{
 		switch( GetRowIndexWithinColumnFromOpcode( _currentOpcode ) )
 		{
@@ -781,7 +781,7 @@ namespace JynxZ80
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-	INLINE_FUNCTION void Z80::MainSet_Quarter3_Column6()
+	inline void Z80::MainSet_Quarter3_Column6()
 	{
 		// ADD(etc) immediate constant to accumulator
 		auto immediateConstant = CodeStreamFetch();
@@ -790,7 +790,7 @@ namespace JynxZ80
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-	INLINE_FUNCTION void Z80::MainSet_Quarter3_Column7()
+	inline void Z80::MainSet_Quarter3_Column7()
 	{
 		// RST
 		DoPushSixteenBits( _programCounter );
@@ -950,7 +950,7 @@ namespace JynxZ80
 			// DAA subtroutine - with thanks:
 			// http://www.worldofspectrum.org/faq/reference/z80reference.htm
 
-	INLINE_FUNCTION void Z80::DoDAA()
+	inline void Z80::DoDAA()
 	{
 		auto A = Accumulator();
 		auto F = Flags();

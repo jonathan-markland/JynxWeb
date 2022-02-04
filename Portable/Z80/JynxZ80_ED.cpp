@@ -264,7 +264,7 @@ namespace JynxZ80
 
 
 
-	INLINE_FUNCTION   void Z80::SetAccumulatorFromIOrR( uint8_t value )
+	inline   void Z80::SetAccumulatorFromIOrR( uint8_t value )
 	{
 		// TODO: check setting of PV when doing proper interrupt model
 		SetAccumulator( value );
@@ -290,7 +290,7 @@ namespace JynxZ80
 
 
 
-	INLINE_FUNCTION  uint8_t IsRepeated( uint8_t opcode ) 
+	inline  uint8_t IsRepeated( uint8_t opcode ) 
 	{
 		return opcode & 0x10;
 	}

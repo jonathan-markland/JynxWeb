@@ -21,40 +21,21 @@
 
 #include "JynxZ80Disassembler.h"
 #include "JynxZ80DisassemblyData.h"
-#include <iomanip>
 
 
 namespace JynxZ80
 {
-
-	Z80Disassembler::Z80Disassembler()
-		: _sourceStream(nullptr)
-		, _programCounter(0)
-		, _insertBlankLine(false)
+	Z80Disassembler::Z80Disassembler(
+		IZ80DisassemblerStream* sourceStream,
+		uint16_t programCounter,
+		const char* prefixString,
+		const char* separatorString)
+			: _sourceStream(sourceStream)
+			, _programCounter(programCounter)
+			, _prefixString(String(prefixString))
+			, _separatorString(String(separatorString))
+			, _insertBlankLine(false) // TODO: parameterise?
 	{
-	}
-
-
-
-	void Z80Disassembler::SetStreamAndAddress( IZ80DisassemblerStream *sourceStream, uint16_t programCounter )
-	{
-		_sourceStream    = sourceStream;
-		_programCounter  = programCounter;
-		_insertBlankLine = false;
-	}
-
-
-
-	void Z80Disassembler::SetLinePrefix( const char *prefixString )
-	{
-		_prefixString = prefixString;
-	}
-
-
-
-	void Z80Disassembler::SetSeparator( const char *separatorString )
-	{
-		_separatorString = separatorString;
 	}
 
 
@@ -68,19 +49,19 @@ namespace JynxZ80
 
 
 
-	std::string  Z80Disassembler::GetNextLine()
+	String  Z80Disassembler::GetNextLine()
 	{
 		if( _insertBlankLine )
 		{
 			_insertBlankLine = false; // for next time
-			return std::string("");
+			return String("");
 		}
 
-		_thisRowString.str("");
-		_thisRowString.clear();
-
-		_thisRowString << std::setfill('0');
-		_thisRowString << _prefixString << std::hex << std::setw(4) << _programCounter << std::setw(0) << _separatorString;
+		_thisRowString
+			.Clear()
+			.Append(_prefixString)
+			.Append(NumberAsString<uint32_t>(_programCounter, 16, 4, '0'))
+			.Append(_separatorString);
 
 		auto opcode = Fetch();
 
@@ -133,7 +114,7 @@ namespace JynxZ80
 			DisassembleMain( opcode );
 		}
 
-		return _thisRowString.str();
+		return _thisRowString.ToString();
 	}
 
 
@@ -240,7 +221,7 @@ namespace JynxZ80
 			}
 			else
 			{
-				_thisRowString << ch;
+				_thisRowString.AppendChar(ch);
 			}
 			++source;
 		}
@@ -250,14 +231,18 @@ namespace JynxZ80
 
 	void Z80Disassembler::AppendHex8( uint8_t value )
 	{
-		_thisRowString << "0x" << std::hex << std::setw(2) << ((uint32_t) value) << std::setw(0) ;
+		_thisRowString
+			.Append("0x")
+			.Append(NumberAsString<uint32_t>(value, 16, 2, '0'));
 	}
 
 
 
 	void Z80Disassembler::AppendHex16( uint16_t value )
 	{
-		_thisRowString << "0x" << std::hex << std::setw(4) << ((uint32_t) value) << std::setw(0);
+		_thisRowString
+			.Append("0x")
+			.Append(NumberAsString<uint32_t>(value, 16, 4, '0'));
 	}
 
 
@@ -282,21 +267,29 @@ namespace JynxZ80
 
 		if( value >= 10 && value <= 255 )
 		{
-			// hex (only if worth it)
+			// hex interpretation (only if worth it)
 			AppendHex8( value );
-			_thisRowString << ' ';
+			_thisRowString.AppendChar(' ');
 		}
 
 		if( value >= 32 && value <= 126 )
 		{
-			_thisRowString << "\'" << ((char) value) << "\' ";  // character representation
+			// character interpretation
+			_thisRowString
+				.Append("\'") 
+				.AppendChar((char)value)
+				.Append("\' ");
 		}
 
-		_thisRowString << std::dec << ((uint32_t) value) << ' ';   // unsigned decimal
+		_thisRowString
+			.Append(ToString((uint32_t)value))   // unsigned decimal interpretation
+			.AppendChar(' ');
 
 		if( value >= 128 && value <= 255 )
 		{
-			_thisRowString << std::dec << ((int32_t) (int8_t) value) << ' ';   // signed (negative case)
+			_thisRowString
+				.Append(ToString((int32_t) (int8_t) value))   // signed (negative case) interpretation
+				.AppendChar(' ');
 		}
 	}
 
@@ -319,14 +312,18 @@ namespace JynxZ80
 		{
 			// hex (only if worth it)
 			AppendHex16( value );
-			_thisRowString << ' ';
+			_thisRowString.AppendChar(' ');
 		}
 
-		_thisRowString << std::dec << ((uint32_t) value) << ' ';   // unsigned decimal
+		_thisRowString
+			.Append(ToString((uint32_t)value))   // unsigned decimal interpretation
+			.AppendChar(' ');
 
 		if( value >= 32768 && value <= 65535 )
 		{
-			_thisRowString << std::dec << ((int32_t) (int16_t) value) << ' ';   // signed (negative case)
+			_thisRowString
+				.Append(ToString((int32_t) (int16_t) value))   // signed (negative case) interpretation
+				.AppendChar(' ');
 		}
 	}
 
@@ -353,8 +350,12 @@ namespace JynxZ80
 
 	void Z80Disassembler::FetchAndAppend8bitSignedOffset( int8_t offset )
 	{
-		if( offset < 128 ) _thisRowString << '+';
-		_thisRowString << std::dec << ((int32_t) (int8_t) offset);   // signed
+		if (offset < 128)
+		{
+			_thisRowString.AppendChar('+');
+		}
+		_thisRowString
+			.Append(ToString((int32_t)(int8_t)offset));   // signed
 	}
 
 

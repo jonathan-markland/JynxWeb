@@ -22,33 +22,33 @@
 #pragma once
 
 #include <stdint.h>
-#include <string>
-#include <sstream>
+#include "../JynxFramework.h"
 #include "IZ80DisassemblerStream.h"
 
+using namespace JynxFramework;
 
 namespace JynxZ80
 {
 
+	// Disassembler for the Z80.
+	// This requires a byte stream to source fetching the bytes sequentially.  Random-access is not required.
 	class Z80Disassembler
 	{
 	public:
 
-		// Disassembler for the Z80.
-		// This requires a byte stream to source fetching the bytes sequentially.  Random-access is not required.
+		Z80Disassembler(
+			IZ80DisassemblerStream* sourceStream, 
 
-		Z80Disassembler();
-
-		void SetStreamAndAddress( IZ80DisassemblerStream *sourceStream, uint16_t programCounter );
 			// The next byte fetched from the stream will be at address 'programCounter'.
+			uint16_t programCounter, 
 
-		void SetLinePrefix( const char *prefixString );
 			// This optional string is output at the left side of each line.
+			const char* prefixString, 
 
-		void SetSeparator( const char *separatorString );
 			// This string is output between the address and the instruction.
+			const char* separatorString);
 
-		std::string  GetNextLine();
+		String  GetNextLine();
 			// Retrieves the next instruction, in disassembled form.
 			// The return string does NOT contain any line ending characters.
 			// - This is a state-machine, multiple calls to this function will continue
@@ -80,9 +80,9 @@ namespace JynxZ80
 		IZ80DisassemblerStream *_sourceStream;
 		uint16_t _programCounter;
 		bool     _insertBlankLine;
-		std::stringstream _thisRowString;
-		std::string  _prefixString;
-		std::string  _separatorString;
+		StringBuilder _thisRowString;
+		String  _prefixString;
+		String  _separatorString;
 
 	};
 

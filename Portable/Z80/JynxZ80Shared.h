@@ -18,7 +18,6 @@
 //		jynx_emulator {at} yahoo {dot} com
 // 
 
-
 #pragma once
 
 #include <stdint.h>
@@ -49,7 +48,7 @@ namespace JynxZ80
 	}
 
 
-	INLINE_FUNCTION uint8_t GetColumnNumber( uint8_t opcodeByte )
+	inline uint8_t GetColumnNumber( uint8_t opcodeByte )
 	{
 		// I organise the Z80 opcode space in rows of 8, so this returns the column based on that.
 		return (opcodeByte & 7);
@@ -57,7 +56,7 @@ namespace JynxZ80
 
 
 
-	INLINE_FUNCTION RowMasks::Enum  GetRowMask( uint8_t opcodeByte )
+	inline RowMasks::Enum  GetRowMask( uint8_t opcodeByte )
 	{
 		// I organise the Z80 opcode space as 8*32, with the 32 rows divided into four "quarters" each with 8 rows.
 		// This effectively returns the row within the quarter.
@@ -66,7 +65,7 @@ namespace JynxZ80
 
 
 
-	INLINE_FUNCTION uint8_t GetRowIndexWithinColumnFromOpcode( uint8_t opcodeByte )
+	inline uint8_t GetRowIndexWithinColumnFromOpcode( uint8_t opcodeByte )
 	{
 		// Used for doing a "column" of eight instructions, eg: C3 CB D3 DB E3 EB F3 FB.
 		// This shifts and masks the opcode so it can be switched, with switch-cases of 0,1,2,3,4,5,6,7 resp.
@@ -83,28 +82,28 @@ namespace JynxZ80
 	//     FLAGS
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-	INLINE_FUNCTION   uint8_t  CalcZeroAndSignFlags( uint8_t value )
+	inline   uint8_t  CalcZeroAndSignFlags( uint8_t value )
 	{
 		return (value == 0) ? Z80Flags::ZF : (value & Z80Flags::SF);
 	}
 
 
 
-	INLINE_FUNCTION   uint8_t  Z80::ZeroSignAndParity8( uint8_t value ) // static
+	inline   uint8_t  Z80::ZeroSignAndParity8( uint8_t value ) // static
 	{
 		return _signParityAndZeroTable[ value ];
 	}
 
 
 
-	INLINE_FUNCTION   uint8_t  CarryFlagFromBit16( uint32_t value )
+	inline   uint8_t  CarryFlagFromBit16( uint32_t value )
 	{
 		return (value >> 16) & Z80Flags::CF;
 	}
 
 
 
-	INLINE_FUNCTION   uint8_t  SignAndZeroFlagFrom16BitNumber( uint16_t value )
+	inline   uint8_t  SignAndZeroFlagFrom16BitNumber( uint16_t value )
 	{
 		// Bit 15 has the sign flag, we shift it into bit 7.
 		return ((value == 0) ? Z80Flags::ZF : 0)   |   ((value >> 8) & Z80Flags::SF);
@@ -119,19 +118,19 @@ namespace JynxZ80
 			// With thanks:
 			// http://teaching.idallen.com/dat2343/10f/notes/040_overflow.txt
 
-	INLINE_FUNCTION   uint32_t  CalcOverflowForAdd( uint32_t a, uint32_t b, uint32_t calculatedResult )
+	inline   uint32_t  CalcOverflowForAdd( uint32_t a, uint32_t b, uint32_t calculatedResult )
 	{
 		return ~(a ^ b) & (b ^ calculatedResult);
 	}
 
 
-	INLINE_FUNCTION   uint32_t  CalcOverflowForSubtract( uint32_t a, uint32_t b, uint32_t calculatedResult )
+	inline   uint32_t  CalcOverflowForSubtract( uint32_t a, uint32_t b, uint32_t calculatedResult )
 	{
 		return (a ^ b) & (a ^ calculatedResult);
 	}
 
 
-	INLINE_FUNCTION   uint8_t  ShiftBit7IntoOverflowFlagPosition( uint8_t value )
+	inline   uint8_t  ShiftBit7IntoOverflowFlagPosition( uint8_t value )
 	{
 		// After the sub-expression, bit 7 has the desired V flag value, 
 		// so we shift it into the Z80Flags::PV position:
@@ -139,7 +138,7 @@ namespace JynxZ80
 	}
 
 
-	INLINE_FUNCTION   uint8_t  ShiftBit15IntoOverflowFlagPosition( uint16_t value )
+	inline   uint8_t  ShiftBit15IntoOverflowFlagPosition( uint16_t value )
 	{
 		// After the sub-expression, bit 15 has the desired V flag value, 
 		// so we shift it into the Z80Flags::PV position:
@@ -154,28 +153,28 @@ namespace JynxZ80
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 	template<typename A, typename B, typename RESULT>
-	INLINE_FUNCTION   uint8_t  OverflowFlagAfterAddition8( A a, B b, RESULT calculatedResult )
+	inline   uint8_t  OverflowFlagAfterAddition8( A a, B b, RESULT calculatedResult )
 	{
 		return ShiftBit7IntoOverflowFlagPosition( CalcOverflowForAdd( a, b, calculatedResult ) );
 	}
 
 
 	template<typename A, typename B, typename RESULT>
-	INLINE_FUNCTION   uint8_t  OverflowFlagAfterSubtraction8( A a, B b, RESULT calculatedResult )
+	inline   uint8_t  OverflowFlagAfterSubtraction8( A a, B b, RESULT calculatedResult )
 	{
 		return ShiftBit7IntoOverflowFlagPosition( CalcOverflowForSubtract( a, b, calculatedResult ) );
 	}
 
 
 	template<typename A, typename B, typename RESULT>
-	INLINE_FUNCTION   uint8_t  OverflowFlagAfterAddition16( A a, B b, RESULT calculatedResult )
+	inline   uint8_t  OverflowFlagAfterAddition16( A a, B b, RESULT calculatedResult )
 	{
 		return ShiftBit15IntoOverflowFlagPosition( CalcOverflowForAdd( a, b, calculatedResult ) );
 	}
 
 
 	template<typename A, typename B, typename RESULT>
-	INLINE_FUNCTION   uint8_t  OverflowFlagAfterSubtraction16( A a, B b, RESULT calculatedResult )
+	inline   uint8_t  OverflowFlagAfterSubtraction16( A a, B b, RESULT calculatedResult )
 	{
 		return ShiftBit15IntoOverflowFlagPosition( CalcOverflowForSubtract( a, b, calculatedResult ) );
 	}
@@ -189,21 +188,21 @@ namespace JynxZ80
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 	template<typename A, typename B, typename RESULT>
-	INLINE_FUNCTION   uint8_t  CarryAfterAddOrSubtract8( A a, B b, RESULT calculatedResult )
+	inline   uint8_t  CarryAfterAddOrSubtract8( A a, B b, RESULT calculatedResult )
 	{
 		return ((a ^ b ^ calculatedResult) >> 8) & Z80Flags::CF;
 	}
 
 
 	template<typename A, typename B, typename RESULT>
-	INLINE_FUNCTION   uint8_t  HalfCarryAfterAddOrSubtract8( A a, B b, RESULT calculatedResult )
+	inline   uint8_t  HalfCarryAfterAddOrSubtract8( A a, B b, RESULT calculatedResult )
 	{
 		return (a ^ b ^ calculatedResult) & Z80Flags::HF;
 	}
 
 
 	template<typename A, typename B, typename RESULT>
-	INLINE_FUNCTION   uint8_t  HalfCarryAfterAddOrSubtract16( A a, B b, RESULT calculatedResult )
+	inline   uint8_t  HalfCarryAfterAddOrSubtract16( A a, B b, RESULT calculatedResult )
 	{
 		return ((a ^ b ^ calculatedResult) >> 8) & Z80Flags::HF;
 	}
@@ -221,21 +220,21 @@ namespace JynxZ80
 
 
 
-	INLINE_FUNCTION const ConditionTestingData &GetConditionTestingDataForRow( uint8_t opcodeByte )
+	inline const ConditionTestingData &GetConditionTestingDataForRow( uint8_t opcodeByte )
 	{
 		return ConditionalExecutionMasksAndExpectations[ GetRowIndexWithinColumnFromOpcode( opcodeByte ) ];
 	}
 
 
 
-	INLINE_FUNCTION uint8_t  Z80::IsConditionSatisfied( const ConditionTestingData &conditionTestingData )  // To ensure performance, returns C-language style boolean.
+	inline uint8_t  Z80::IsConditionSatisfied( const ConditionTestingData &conditionTestingData )  // To ensure performance, returns C-language style boolean.
 	{
 		return (Flags() & conditionTestingData.AndMask) ^ conditionTestingData.XorMask;  // return C-language boolean.  (== 0) means FALSE, (!= 0) means TRUE.
 	}
 
 
 
-	INLINE_FUNCTION uint8_t  Z80::IsConditionSatisfiedBasedOnOpcode()  // To ensure performance, returns C-language style boolean.
+	inline uint8_t  Z80::IsConditionSatisfiedBasedOnOpcode()  // To ensure performance, returns C-language style boolean.
 	{
 		return IsConditionSatisfied( GetConditionTestingDataForRow( _currentOpcode ) );
 	}
@@ -247,7 +246,7 @@ namespace JynxZ80
 	//     Z80 REGISTER SELECTION
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-	INLINE_FUNCTION uint16_t &Z80::GetReferenceTo_HL_IX_IY()
+	inline uint16_t &Z80::GetReferenceTo_HL_IX_IY()
 	{
 		// This helps an instruction choose the correct 16-bit register uint16_t to read/write.
 		// - If present, the DD and FD prefixes will have re-directed the HL slot to IX / IY, respectively.
@@ -256,7 +255,7 @@ namespace JynxZ80
 
 
 
-	INLINE_FUNCTION uint16_t &Z80::GetReferenceTo_BC_DE_HLIXIY_SP_FromOpcodeBits5and4()
+	inline uint16_t &Z80::GetReferenceTo_BC_DE_HLIXIY_SP_FromOpcodeBits5and4()
 	{
 		// This helps an instruction choose the correct 16-bit register uint16_t to read/write.
 		// - If present, the DD and FD prefixes will have re-directed the HL slot to IX / IY, respectively.
@@ -265,7 +264,7 @@ namespace JynxZ80
 
 
 
-	INLINE_FUNCTION uint16_t &Z80::GetReferenceToRegisterForPushPopGroupFromOpcode()
+	inline uint16_t &Z80::GetReferenceToRegisterForPushPopGroupFromOpcode()
 	{
 		// This helps an instruction choose the correct 16-bit register uint16_t to read/write.
 		// - If present, the DD and FD prefixes will have re-directed the HL slot to IX / IY, respectively.
@@ -274,7 +273,7 @@ namespace JynxZ80
 
 
 
-	INLINE_FUNCTION uint8_t &Z80::GetReferenceToReg8_FromBits2to0OfOpcode()
+	inline uint8_t &Z80::GetReferenceToReg8_FromBits2to0OfOpcode()
 	{
 		// This helps an instruction choose the correct 8-bit register to read/write.
 		// - If present, the DD prefix will have re-directed H to IXH, and L to IXL.
@@ -285,7 +284,7 @@ namespace JynxZ80
 
 
 
-	INLINE_FUNCTION uint8_t &Z80::GetReferenceToReg8_NoRedirection_FromBits2to0OfOpcode()
+	inline uint8_t &Z80::GetReferenceToReg8_NoRedirection_FromBits2to0OfOpcode()
 	{
 		// This helps an instruction choose the correct 8-bit register to read/write.
 		// - The DD and FD prefixes have no effect: H and L will always reference H and L.
@@ -295,7 +294,7 @@ namespace JynxZ80
 
 
 
-	INLINE_FUNCTION uint8_t &Z80::GetReferenceToReg8_FromBits5to3()
+	inline uint8_t &Z80::GetReferenceToReg8_FromBits5to3()
 	{
 		// This helps an instruction choose the correct 8-bit register to read/write.
 		// - If present, the DD prefix will have re-directed H to IXH, and L to IXL.
@@ -306,7 +305,7 @@ namespace JynxZ80
 
 
 
-	INLINE_FUNCTION uint8_t &Z80::GetReferenceToReg8_NoRedirection_FromBits5to3()
+	inline uint8_t &Z80::GetReferenceToReg8_NoRedirection_FromBits5to3()
 	{
 		// This helps an instruction choose the correct 8-bit register to read/write.
 		// - The DD and FD prefixes have no effect: H and L will always reference H and L.

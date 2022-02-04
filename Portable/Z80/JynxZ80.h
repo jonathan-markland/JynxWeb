@@ -37,22 +37,8 @@
 #include "JynxZ80Declarations.h"
 #include "JynxZ80ExternalImplementation.h"
 
-
-
-// I was experimenting with these on the MSVC compiler.
-// Other than this #define I intend no system specific code in this source listing.
-// (This should be the case already).
-#ifdef _MSC_VER
-#define INLINE_FUNCTION  __forceinline
-#else
-#define INLINE_FUNCTION  inline
-#endif
-
 namespace JynxZ80
 {
-
-
-
 	class Z80: public Z80ImplementationBaseClass, private Z80SerialisableState
 	{
 	public:
@@ -180,16 +166,16 @@ namespace JynxZ80
 		// Support subroutines for instruction execution.
 		//
 
-		INLINE_FUNCTION   void     PrimaryOpcodeFetch()                  { _currentOpcode = CodeStreamFetch(); }
-		INLINE_FUNCTION   uint8_t  CodeStreamFetch()                     { return GuestRead( _programCounter++ ); }
+		inline   void     PrimaryOpcodeFetch()                  { _currentOpcode = CodeStreamFetch(); }
+		inline   uint8_t  CodeStreamFetch()                     { return GuestRead( _programCounter++ ); }
 
-		INLINE_FUNCTION   void     Spend( int32_t z80Cycles )            { _remainingCycles -= z80Cycles; }
+		inline   void     Spend( int32_t z80Cycles )            { _remainingCycles -= z80Cycles; }
 
-		INLINE_FUNCTION   void     JumpTo( uint16_t address )            { _programCounter = address; OnAboutToBranch(); }
-		INLINE_FUNCTION   void     JumpRelative( int16_t displacement )  { _programCounter += displacement;  }
+		inline   void     JumpTo( uint16_t address )            { _programCounter = address; OnAboutToBranch(); }
+		inline   void     JumpRelative( int16_t displacement )  { _programCounter += displacement;  }
 
-		INLINE_FUNCTION   void     Countdown8()                          { --HiByte(_BC); }
-		INLINE_FUNCTION   void     Countdown16()                         { --_BC; }
+		inline   void     Countdown8()                          { --HiByte(_BC); }
+		inline   void     Countdown16()                         { --_BC; }
 
 		uint16_t ReadSixteenBitsFromInstructionStream();
 		static void DoSixteenBitLoadConstant( uint16_t &PC, uint16_t &targetRegister );
@@ -221,30 +207,30 @@ namespace JynxZ80
 		// Flags reading
 		//
 
-		INLINE_FUNCTION   uint8_t  Flags()                               { return LoByte(_AF); }
-		INLINE_FUNCTION   uint8_t  CurrentCarry()                        { return Flags() & Z80Flags::CF; }
-		INLINE_FUNCTION   uint8_t  HalfCarryBasedOnCurrentCarry()        { return CurrentCarry() << 4; }
+		inline   uint8_t  Flags()                               { return LoByte(_AF); }
+		inline   uint8_t  CurrentCarry()                        { return Flags() & Z80Flags::CF; }
+		inline   uint8_t  HalfCarryBasedOnCurrentCarry()        { return CurrentCarry() << 4; }
 
 		//
 		// Flags writing
 		//
 
-		INLINE_FUNCTION   void SetFlags( uint8_t value )                                 { LoByte(_AF) = value; }
-		INLINE_FUNCTION   void ClearFlagsThenMerge( uint8_t toClear, uint8_t toMerge )   { SetFlags( (Flags() & (~toClear)) | toMerge ); }
+		inline   void SetFlags( uint8_t value )                                 { LoByte(_AF) = value; }
+		inline   void ClearFlagsThenMerge( uint8_t toClear, uint8_t toMerge )   { SetFlags( (Flags() & (~toClear)) | toMerge ); }
 
 		//
 		// Accumulator read and write
 		//
 
-		INLINE_FUNCTION   uint8_t Accumulator()                                          { return HiByte(_AF); }
-		INLINE_FUNCTION   void SetAccumulator( uint8_t value )                           { HiByte(_AF) = value; }
-		INLINE_FUNCTION   void SetAccumulatorFromIOrR( uint8_t value );
+		inline   uint8_t Accumulator()                                          { return HiByte(_AF); }
+		inline   void SetAccumulator( uint8_t value )                           { HiByte(_AF) = value; }
+		inline   void SetAccumulatorFromIOrR( uint8_t value );
 
 		//
 		// A lot of instruction need the Zero, Sign and Parity flags setting based on the value.
 		//
 
-		INLINE_FUNCTION   static uint8_t ZeroSignAndParity8( uint8_t value );
+		inline   static uint8_t ZeroSignAndParity8( uint8_t value );
 
 	};
 

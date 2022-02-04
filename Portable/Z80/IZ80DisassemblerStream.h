@@ -18,8 +18,6 @@
 //		jynx_emulator {at} yahoo {dot} com
 // 
 
-// JynxII passed
-
 #pragma once
 
 #include <stdint.h>

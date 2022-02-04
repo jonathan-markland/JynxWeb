@@ -18,15 +18,15 @@
 //		jynx_emulator {at} yahoo {dot} com
 // 
 
-#include <stdio.h>
-#include <algorithm>
 #include "stdint.h"
-
-#include "../JynxFrameworkPanic.h" // TODO: Ultimately, we might want to separate the Z80 from Jynx itself.
+#include "../JynxFrameworkTests.h" // TODO: remove
 
 #include "JynxZ80Timings.h"
 #include "JynxZ80.h"
 #include "JynxZ80Shared.h"
+
+#include "../JynxFramework.h"
+
 
 namespace JynxZ80
 {
@@ -120,10 +120,13 @@ namespace JynxZ80
 
 	Z80::Z80()
 	{
-		if( ! g_Z80GlobalInitDone )
+		RunJynxFrameworkTests();
+
+		if (!g_Z80GlobalInitDone)
 		{
-			JynxFramework::Panic("Z80 construction failed because InitialiseGlobalTables() not yet called.");
+			JynxFramework::Panic("you didn't call InitialiseGlobalTables");
 		}
+
 		_timesliceLength = 0;
 		_currentOpcode = 0; // Not essential
 		Reset();
@@ -195,7 +198,7 @@ namespace JynxZ80
 
 	void Z80::UndefinedInstruction()
 	{
-		JynxFramework::Panic("Z80 undefined instruction met");
+		JynxFramework::Panic("Undefined Z80 instruction met by CPU emulator");
 	}
 
 
@@ -219,7 +222,7 @@ namespace JynxZ80
 			ExecuteOpcodeMainSet();
 
 			//
-			// Interrupt handling -- TODO: sort of work in progress, as the Lynx implementation didn't use interrupts much!
+			// Interrupt handling -- TODO: sort of work in progress, as the Lynx implementation didn't emulate anything that used interrupts.
 			//
 
 			if( _deferInterruptCheck )
