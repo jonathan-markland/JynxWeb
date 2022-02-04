@@ -1,5 +1,3 @@
-// shared.c
-
 // The clang command line to build is now in buildcpp.sh
 
 #define SOUND_BUFFER_SIZE   128   // x PCM samples at target rate.   This cannot be changed because of browser specifications.
