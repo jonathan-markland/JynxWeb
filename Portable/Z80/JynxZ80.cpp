@@ -19,13 +19,12 @@
 // 
 
 #include "stdint.h"
-#include "../JynxFrameworkTests.h" // TODO: remove
 
 #include "JynxZ80Timings.h"
 #include "JynxZ80.h"
 #include "JynxZ80Shared.h"
 
-#include "../JynxFramework.h"
+#include "../JynxFrameworkPanic.h"
 
 
 namespace JynxZ80
@@ -120,8 +119,6 @@ namespace JynxZ80
 
 	Z80::Z80()
 	{
-		RunJynxFrameworkTests();
-
 		if (!g_Z80GlobalInitDone)
 		{
 			JynxFramework::Panic("you didn't call InitialiseGlobalTables");

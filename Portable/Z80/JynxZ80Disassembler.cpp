@@ -22,6 +22,7 @@
 #include "JynxZ80Disassembler.h"
 #include "JynxZ80DisassemblyData.h"
 
+using namespace JynxFramework;
 
 namespace JynxZ80
 {
@@ -350,7 +351,7 @@ namespace JynxZ80
 
 	void Z80Disassembler::FetchAndAppend8bitSignedOffset( int8_t offset )
 	{
-		if (offset < 128)
+		if (offset >= 0)
 		{
 			_thisRowString.AppendChar('+');
 		}

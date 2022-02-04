@@ -118,28 +118,18 @@ protected:
 
 #include <stdint.h>
 
-// I was experimenting with these on the MSVC compiler:
-#ifdef _MSC_VER
-#define NO_INLINE        __declspec(noinline)
-#else
-#define NO_INLINE        
-#endif
-
-
 namespace JynxZ80
 {
 
 	class Z80ImplementationBaseClass
 	{
 	public:
-		NO_INLINE  static void GuestWrite(  uint16_t address, uint8_t value );
-		NO_INLINE  static void GuestWriteIOSpace( uint16_t portNumber, uint8_t value );
-		NO_INLINE  static uint8_t GuestRead( uint16_t address );
-		NO_INLINE  static uint8_t GuestReadIOSpace( uint16_t port );
-		NO_INLINE  static void OnAboutToBranch();
-		NO_INLINE  static void OnAboutToReturn();
+		static void GuestWrite(  uint16_t address, uint8_t value );
+		static void GuestWriteIOSpace( uint16_t portNumber, uint8_t value );
+		static uint8_t GuestRead( uint16_t address );
+		static uint8_t GuestReadIOSpace( uint16_t port );
+		static void OnAboutToBranch();
+		static void OnAboutToReturn();
 	};
 
 }
-
-#undef NO_INLINE

@@ -25,8 +25,6 @@
 #include "../JynxFramework.h"
 #include "IZ80DisassemblerStream.h"
 
-using namespace JynxFramework;
-
 namespace JynxZ80
 {
 
@@ -48,7 +46,7 @@ namespace JynxZ80
 			// This string is output between the address and the instruction.
 			const char* separatorString);
 
-		String  GetNextLine();
+		JynxFramework::String  GetNextLine();
 			// Retrieves the next instruction, in disassembled form.
 			// The return string does NOT contain any line ending characters.
 			// - This is a state-machine, multiple calls to this function will continue
@@ -80,9 +78,9 @@ namespace JynxZ80
 		IZ80DisassemblerStream *_sourceStream;
 		uint16_t _programCounter;
 		bool     _insertBlankLine;
-		StringBuilder _thisRowString;
-		String  _prefixString;
-		String  _separatorString;
+		JynxFramework::StringBuilder _thisRowString;
+		JynxFramework::String  _prefixString;
+		JynxFramework::String  _separatorString;
 
 	};
 
