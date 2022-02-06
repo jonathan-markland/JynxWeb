@@ -53,6 +53,7 @@ namespace Jynx
 		_memory.OnHardwareReset();
 		_screen.OnHardwareReset();
 		_screen.OnDevicePortValueChanged(_devicePort);
+		SyncAddressSpaceFromPorts();
 	}
 
 
@@ -200,7 +201,7 @@ namespace Jynx
 	}
 	
 	
-	
+
 	uint8_t LynxAddressSpaceDecoder::Z80_AddressRead( uint16_t address )
 	{
 		auto regionIndex = (address >> 13) & 7;
