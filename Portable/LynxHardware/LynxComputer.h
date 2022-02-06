@@ -20,6 +20,10 @@
 
 #pragma once
 
+#include <stdint.h>
+#include "../Z80/JynxZ80.h"
+#include "LynxAddressSpaceDecoder.h"
+
 namespace Jynx
 {
 	class LynxComputer
@@ -30,6 +34,8 @@ namespace Jynx
 		
 		void OnHardwareReset();
 		void OnTimeSlice();
+		
+		uint32_t *GetScreenBitmapBaseAddress();
 		
 	private:
 	

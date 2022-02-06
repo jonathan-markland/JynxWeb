@@ -21,6 +21,7 @@
 #pragma once
 
 #include "LynxHardwareCommon.h"
+#include "LynxScreenInterface.h"
 
 #define LYNX_FRAMEBUF_WIDTH            256   // NOTE: These are not really changeable at all!  If we ever did the 128K machine, these would need to be variables anyway...
 #define LYNX_FRAMEBUF_HEIGHT           256   // NOTE: These are not really changeable at all!
@@ -37,9 +38,11 @@ namespace Jynx
 		LynxScreen(const LynxScreen &) = delete;
 		void operator=(const LynxScreen &) = delete;
 		
+		uint32_t *GetScreenBitmapBaseAddress();
+		
 		void SetPalette(LynxColourSet::Enum colourSet);
 		void OnDevicePortValueChanged(uint8_t devicePortValue);
-		void OnScreenRamWrite(CHIP *ramChip, uint16_t addressIndex, uint8_t dataByte);
+		void OnScreenRamWrite(CHIP ramChip, uint16_t addressIndex, uint8_t dataByte);
 		void OnHardwareReset();
 
 		void MarkWholeScreenInvalid();

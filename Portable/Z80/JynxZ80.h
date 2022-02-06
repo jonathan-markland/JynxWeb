@@ -219,9 +219,9 @@ namespace JynxZ80
 		inline   void     Countdown16()                         { --_BC; }
 
 		uint16_t ReadSixteenBitsFromInstructionStream();
-		static void DoSixteenBitLoadConstant( uint16_t &PC, uint16_t &targetRegister );
-		static uint16_t DoFetchSixteenBits( uint16_t address );
-		static void DoStoreSixteenBits( uint16_t address, uint16_t dataRegister );
+		void DoSixteenBitLoadConstant( uint16_t &PC, uint16_t &targetRegister );
+		uint16_t DoFetchSixteenBits( uint16_t address );
+		void DoStoreSixteenBits( uint16_t address, uint16_t dataRegister );
 
 		void DoPushSixteenBits( uint16_t valueToPush );
 		void DoPopSixteenBitsIntoRegister( uint16_t &targetRegister );

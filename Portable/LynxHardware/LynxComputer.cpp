@@ -19,6 +19,7 @@
 //
 
 #include "LynxAddressSpaceDecoder.h"
+#include "LynxComputer.h"
 
 namespace Jynx
 {
@@ -26,6 +27,13 @@ namespace Jynx
 	{
 		_processor.SetExternalHandler( &_addressSpace );
 		OnHardwareReset();
+	}
+
+
+
+	uint32_t *LynxComputer::GetScreenBitmapBaseAddress()
+	{
+		return _addressSpace.GetScreenBitmapBaseAddress();
 	}
 
 
@@ -52,7 +60,7 @@ namespace Jynx
 		auto cycleCountAfter  = _processor.GetRemainingCycles();
 		_z80CycleCounter += (cycleCountAfter - cycleCountBefore) + _processor.GetTimesliceLength();
 
-		_lynxScreen.RecomposeEntireScreenIfNeeded();
+		_addressSpace.RecomposeWholeHostScreenRGBAsIfPending();
 	}
 }
 

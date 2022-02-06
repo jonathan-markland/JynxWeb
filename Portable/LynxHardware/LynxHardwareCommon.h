@@ -50,3 +50,22 @@ namespace Jynx
 #define DEVICEPORT_DECODING_MASK   0x00C6
 #define DEVICEPORT_KEYBOARD_DECODING_MASK   0x0FC6
 
+//
+// BANK SELECT PORT
+// ~~~~~~~~~~~~~~~~
+// "PORT FFFF" : Actual I/O space decoding is:  A15..A0 resp:  [xx1x xxxx x111 1111]   x=don't care
+//
+
+#define BANKPORT_INITIALISATION_VALUE  0x00
+
+#define BANKPORT_RDEN4       0x80  // D7 =  RDEN4
+#define BANKPORT_RDEN2_3     0x40  // D6 =  RDEN2_3
+#define BANKPORT_NOT_RDEN1   0x20  // D5 = !RDEN1
+#define BANKPORT_NOT_RDEN0   0x10  // D4 = !RDEN0
+#define BANKPORT_WREN4       0x08  // D3 =  WREN4
+#define BANKPORT_WREN3       0x04  // D2 =  WREN3
+#define BANKPORT_WREN2       0x02  // D1 =  WREN2
+#define BANKPORT_NOT_WREN1   0x01  // D0 = !WREN1
+
+#define BANKPORT_DECODING_MASK   0x207F
+

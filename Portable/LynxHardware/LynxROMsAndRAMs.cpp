@@ -18,6 +18,7 @@
 //		jynx_emulator {at} yahoo {dot} com
 //
 
+#include "../JynxFramework.h"
 #include "LynxROMsAndRAMs.h"
 
 // - The snapshot format permits the user to fiddle the ROM images,
@@ -53,14 +54,14 @@ namespace Jynx
 	
 	void LynxROMsAndRAMs::OnHardwareReset()
 	{
-		ZeroInitialiseMemory( _lynxRAM_0000 );
-		ZeroInitialiseMemory( _lynxRAM_2000 );
-		ZeroInitialiseMemory( _lynxRAM_4000 );
-		ZeroInitialiseMemory( _lynxRAM_6000 );
-		ZeroInitialiseMemory( _lynxRAM_8000 );
-		ZeroInitialiseMemory( _lynxRAM_A000 );
-		ZeroInitialiseMemory( _lynxRAM_C000 );
-		ZeroInitialiseMemory( _lynxRAM_E000 );
+		JynxFramework::ZeroInitialiseArrayMemory( _lynxRAM_0000 );
+		JynxFramework::ZeroInitialiseArrayMemory( _lynxRAM_2000 );
+		JynxFramework::ZeroInitialiseArrayMemory( _lynxRAM_4000 );
+		JynxFramework::ZeroInitialiseArrayMemory( _lynxRAM_6000 );
+		JynxFramework::ZeroInitialiseArrayMemory( _lynxRAM_8000 );
+		JynxFramework::ZeroInitialiseArrayMemory( _lynxRAM_A000 );
+		JynxFramework::ZeroInitialiseArrayMemory( _lynxRAM_C000 );
+		JynxFramework::ZeroInitialiseArrayMemory( _lynxRAM_E000 );
 
 		//
 		// Copy the appropriate ROMs in according to the _machineType
@@ -68,22 +69,22 @@ namespace Jynx
 
 		if( _machineType == LynxMachineType::LYNX_48K )
 		{
-			CopyArrayMemory( _lynxROM_0000, RomImageLynx48Image1 );
-			CopyArrayMemory( _lynxROM_2000, RomImageLynx48Image2 );
-			ZeroInitialiseMemory( _lynxROM_4000 );
+			JynxFramework::CopyWholeArray( RomImageLynx48Image1, _lynxROM_0000 );
+			JynxFramework::CopyWholeArray( RomImageLynx48Image2, _lynxROM_2000 );
+			JynxFramework::ZeroInitialiseArrayMemory( _lynxROM_4000 );
 		}
 		else if( _machineType == LynxMachineType::LYNX_96K )
 		{
-			CopyArrayMemory( _lynxROM_0000, RomImageLynx96Image1 );
-			CopyArrayMemory( _lynxROM_2000, RomImageLynx96Image2 );
-			CopyArrayMemory( _lynxROM_4000, RomImageLynx96Image3 );
+			JynxFramework::CopyWholeArray( RomImageLynx96Image1, _lynxROM_0000 );
+			JynxFramework::CopyWholeArray( RomImageLynx96Image2, _lynxROM_2000 );
+			JynxFramework::CopyWholeArray( RomImageLynx96Image3, _lynxROM_4000 );
 		}
 		else if( _machineType == LynxMachineType::LYNX_96K_Scorpion )
 		{
-			CopyArrayMemory( _lynxROM_0000, RomImageLynx96Image1 );
-			CopyArrayMemory( _lynxROM_2000, RomImageLynx96Image2 );
-			CopyArrayMemory( _lynxROM_4000, RomImageLynx96ScorpionImage3 );
+			JynxFramework::CopyWholeArray( RomImageLynx96Image1         , _lynxROM_0000 );
+			JynxFramework::CopyWholeArray( RomImageLynx96Image2         , _lynxROM_2000 );
+			JynxFramework::CopyWholeArray( RomImageLynx96ScorpionImage3 , _lynxROM_4000 );
 		}
-		else assert(false);
+		// TODO: else assert(false);
 	}
 }

@@ -20,6 +20,9 @@
 
 #pragma once
 
+#include "LynxHardwareCommon.h"
+#include "LynxComputerInterface.h"
+
 namespace Jynx
 {
 	class LynxROMsAndRAMs

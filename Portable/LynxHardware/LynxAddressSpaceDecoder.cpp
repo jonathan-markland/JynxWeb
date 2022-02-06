@@ -18,7 +18,9 @@
 //		jynx_emulator {at} yahoo {dot} com
 //
 
+#include "../JynxFramework.h"
 #include "LynxAddressSpaceDecoder.h"
+#include "LynxHardwareCommon.h"
 
 namespace Jynx
 {
@@ -38,14 +40,29 @@ namespace Jynx
 
 	void ZeroBANK( ADDRESS_SPACE &addressSpace )
 	{
-		InitialiseAllArrayElements( addressSpace, (CHIP *) nullptr );
+		JynxFramework::InitialiseAllArrayElements( addressSpace, (CHIP *) nullptr );
 	}
 
 
 
 	LynxAddressSpaceDecoder::LynxAddressSpaceDecoder()
 	{
+		_machineType = LynxMachineType::LYNX_48K; // TODO: Parameterise this externally.
 		OnHardwareReset();
+	}
+
+
+
+	uint32_t *LynxAddressSpaceDecoder::GetScreenBitmapBaseAddress()
+	{
+		return _screen.GetScreenBitmapBaseAddress();
+	}
+	
+	
+	
+	void LynxAddressSpaceDecoder::RecomposeWholeHostScreenRGBAsIfPending()
+	{
+		_screen.RecomposeWholeHostScreenRGBAsIfPending();
 	}
 
 
@@ -55,10 +72,10 @@ namespace Jynx
 		_devicePort = DEVICEPORT_INITIALISATION_VALUE;
 		_bankPort   = BANKPORT_INITIALISATION_VALUE;
 		
-		InitialiseAllArrayElements( _addressSpaceREAD,   (CHIP *) nullptr );
-		InitialiseAllArrayElements( _addressSpaceWRITE1, (CHIP *) nullptr );
-		InitialiseAllArrayElements( _addressSpaceWRITE2, (CHIP *) nullptr );
-		InitialiseAllArrayElements( _addressSpaceWRITE3, (CHIP *) nullptr );
+		JynxFramework::InitialiseAllArrayElements( _addressSpaceREAD,   (CHIP *) nullptr );
+		JynxFramework::InitialiseAllArrayElements( _addressSpaceWRITE1, (CHIP *) nullptr );
+		JynxFramework::InitialiseAllArrayElements( _addressSpaceWRITE2, (CHIP *) nullptr );
+		JynxFramework::InitialiseAllArrayElements( _addressSpaceWRITE3, (CHIP *) nullptr );
 		
 		_memory.OnHardwareReset();
 		_screen.OnHardwareReset();
@@ -78,7 +95,7 @@ namespace Jynx
 		// _addressSpaceWRITE3
 		//
 
-		_lynxScreen.OnDevicePortValueChanged(_devicePort);
+		_screen.OnDevicePortValueChanged(_devicePort);
 
 		bool bCasEnBank2 = (_devicePort & DEVICEPORT_NOT_CASEN_BANK2) == 0;
 		bool bCasEnBank3 = (_devicePort & DEVICEPORT_NOT_CASEN_BANK3) == 0;
@@ -97,7 +114,7 @@ namespace Jynx
 			}
 			else
 			{
-				assert( _machineType == LynxMachineType::LYNX_96K || _machineType == LynxMachineType::LYNX_96K_Scorpion );
+				// TODO: assert( _machineType == LynxMachineType::LYNX_96K || _machineType == LynxMachineType::LYNX_96K_Scorpion );
 				_addressSpaceWRITE1[0] = _memory.GetRAM_0000();
 				_addressSpaceWRITE1[1] = _memory.GetRAM_2000();
 				_addressSpaceWRITE1[2] = _memory.GetRAM_4000();
@@ -151,7 +168,7 @@ namespace Jynx
 			}
 			else
 			{
-				assert( _machineType == LynxMachineType::LYNX_96K || _machineType == LynxMachineType::LYNX_96K_Scorpion );
+				// TODO: assert( _machineType == LynxMachineType::LYNX_96K || _machineType == LynxMachineType::LYNX_96K_Scorpion );
 				_addressSpaceREAD[0] = _memory.GetRAM_0000();
 				_addressSpaceREAD[1] = _memory.GetRAM_2000();
 				_addressSpaceREAD[2] = _memory.GetRAM_4000();
@@ -194,8 +211,8 @@ namespace Jynx
 		{
 			// ROM is enabled for reading
 
-			_addressSpaceREAD[0] = GetROM_0000();
-			_addressSpaceREAD[1] = GetROM_2000();
+			_addressSpaceREAD[0] = _memory.GetROM_0000();
+			_addressSpaceREAD[1] = _memory.GetROM_2000();
                                    
 			if( _machineType == LynxMachineType::LYNX_48K )
 			{
@@ -203,8 +220,8 @@ namespace Jynx
 			}
 			else
 			{
-				assert( _machineType == LynxMachineType::LYNX_96K || _machineType == LynxMachineType::LYNX_96K_Scorpion );
-				_addressSpaceREAD[2] = GetROM_4000();  // The 96K machine has an extended ROM.
+				// TODO: assert( _machineType == LynxMachineType::LYNX_96K || _machineType == LynxMachineType::LYNX_96K_Scorpion );
+				_addressSpaceREAD[2] = _memory.GetROM_4000();  // The 96K machine has an extended ROM.
 			}
 		}
 	}
@@ -249,7 +266,7 @@ namespace Jynx
 		auto pChipInBank2 = _addressSpaceWRITE2[regionIndex];
 		if( pChipInBank2 )
 		{
-			_lynxScreen.OnScreenRamWrite(pChipInBank2, addressOffset, dataByte);
+			_screen.OnScreenRamWrite(*pChipInBank2, addressOffset, dataByte);
 		}
 
 		// Is bank 3 enabled to decode this?
@@ -257,7 +274,7 @@ namespace Jynx
 		auto pChipInBank3 = _addressSpaceWRITE3[regionIndex];
 		if( pChipInBank3 )
 		{
-			_lynxScreen.OnScreenRamWrite(pChipInBank3, addressOffset, dataByte);
+			_screen.OnScreenRamWrite(*pChipInBank3, addressOffset, dataByte);
 		}
 	}
 	
@@ -284,7 +301,7 @@ namespace Jynx
 				// Use XOR to detect *change* in the DEVICEPORT_USE_ALT_GREEN bit:
 				if( (oldSetting ^ dataByte) & DEVICEPORT_USE_ALT_GREEN )
 				{
-					_lynxScreen.OnDevicePortValueChanged(_devicePort);
+					_screen.OnDevicePortValueChanged(_devicePort);
 				}
 
 				// Use XOR to detect *change* in either/both of the DEVICEPORT_NOT_CASEN_BANK3 or DEVICEPORT_NOT_CASEN_BANK2 bits:
@@ -335,6 +352,20 @@ namespace Jynx
 	uint8_t LynxAddressSpaceDecoder::Z80_IOSpaceRead( uint16_t portNumber )
 	{
 		return 0xFF;   // TODO: We support reading the keyboard and the cassette.
+	}
+
+
+
+	void LynxAddressSpaceDecoder::OnAboutToBranch()
+	{
+		// TODO
+	}
+	
+	
+	
+	void LynxAddressSpaceDecoder::OnAboutToReturn()
+	{
+		// TODO
 	}
 }
 

@@ -20,6 +20,17 @@ extern "C" int __cxa_atexit(void (*func) (void *), void *arg, void *d)
 
 namespace JynxFramework
 {
+	void RawZeroInitialise( void *block, uintptr_t numBytes )
+	{
+		uint8_t *ptr = (uint8_t *) block;
+		uint8_t *end = ptr + numBytes;
+		while (ptr < end)
+		{
+			*ptr++ = 0;
+		}
+	}
+
+	
 	// Empty string instance used by String class when empty.
 	// The String class knows NOT to free this address!
 	static const char* EmptyString = "";

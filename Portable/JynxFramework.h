@@ -38,6 +38,50 @@ namespace JynxFramework
 		}
 	}
 
+	template<typename T, uintptr_t N>
+	void CopyWholeArray( const T (&sourceArray)[N], T (&destinationArray)[N] )
+	{
+		RawBlockCopy( sourceArray, destinationArray, N );
+	}
+
+	void RawZeroInitialise( void *block, uintptr_t numBytes );
+
+	template<typename T, uintptr_t N>
+	void ZeroInitialiseArrayMemory( T (&arrayToInitialise)[N] )
+	{
+		RawZeroInitialise( &arrayToInitialise, sizeof(T[N]) );
+	}
+
+	template<typename T>
+	void ZeroInitialiseMemory( T &itemToZeroInitialise )
+	{
+		RawZeroInitialise( &itemToZeroInitialise, sizeof(T) );
+	}
+
+	template<typename T, uintptr_t N>
+	void InitialiseAllArrayElements( T (&arrayToInitialise)[N], const T &value )
+	{
+		auto p = &arrayToInitialise[0];
+		auto e = &arrayToInitialise[N];
+		while( p < e )
+		{
+			*p = value;
+			++p;
+		}
+	}
+
+	template<typename T, uintptr_t N>
+	void InitialiseAllArrayElementsVolatile( volatile T (&arrayToInitialise)[N], const T &value )
+	{
+		auto p = &arrayToInitialise[0];
+		auto e = &arrayToInitialise[N];
+		while( p < e )
+		{
+			*p = value;
+			++p;
+		}
+	}
+
 	template<typename T, typename PRED>
 	uintptr_t RawCountUntil(const T* source, PRED pred)
 	{

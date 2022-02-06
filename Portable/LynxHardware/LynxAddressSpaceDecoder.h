@@ -21,14 +21,20 @@
 #pragma once
 
 #include "../Z80/IZ80ExternalHandler.h"
+#include "LynxHardwareCommon.h"
+#include "LynxComputerInterface.h"
+#include "LynxROMsAndRAMs.h"
+#include "LynxScreen.h"
 
 namespace Jynx
 {
-	class LynxAddressSpaceDecoder: public IZ80ExternalHandler
+	class LynxAddressSpaceDecoder: public JynxZ80::IZ80ExternalHandler
 	{
 	public:
 	
 		LynxAddressSpaceDecoder();
+		
+		uint32_t *GetScreenBitmapBaseAddress();
 		
 		void OnHardwareReset();
 		
@@ -46,14 +52,18 @@ namespace Jynx
 		// The cassette and keyboard are primarily readable via the I/O space.
 		virtual uint8_t Z80_IOSpaceRead( uint16_t portNumber ) override;
 
-		virtual void OnAboutToBranch() override {} //TODO
-		virtual void OnAboutToReturn() override {} //TODO
+		virtual void OnAboutToBranch() override; //TODO
+		virtual void OnAboutToReturn() override; //TODO
+		
+		void RecomposeWholeHostScreenRGBAsIfPending();
 
 	private:
 	
 		void SyncAddressSpaceFromPorts();
 
 	private:
+
+		LynxMachineType::Enum _machineType;
 
 		uint8_t          _devicePort;         // Port '0x80' see DEVICEPORT_ #defines
 		uint8_t          _bankPort;           // Port '0xFFFF' see BANKPORT_ #defines

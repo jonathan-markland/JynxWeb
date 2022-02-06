@@ -18,6 +18,7 @@
 //		jynx_emulator {at} yahoo {dot} com
 //
 
+#include "../JynxFramework.h"
 #include "LynxScreen.h"
 
 namespace Jynx
@@ -26,9 +27,9 @@ namespace Jynx
 	{
 		OnHardwareReset();
 	}
-	
-	
-	
+
+
+
 	void LynxScreen::OnHardwareReset()
 	{
 		_colourSet        = LynxColourSet::NormalRGB;
@@ -39,21 +40,28 @@ namespace Jynx
 		
 		_recompositeWholeHostRGBAs = false;
 
-		InitialiseAllArrayElementsVolatile( _invalidateRow, true );
+		JynxFramework::InitialiseAllArrayElementsVolatile( _invalidateRow, true );
 
 		for (uint32_t i=0; i < LYNX_FRAMEBUF_PIXEL_COUNT; i++)
 		{
-			_hostScreenImage[i] = 0xFFFFFFFFFF;
+			_hostScreenImage[i] = (uint32_t) 0xFFFFFFFFFF;
 		}
 		
-		ZeroInitialiseMemory( _lynxRedRAM );
-		ZeroInitialiseMemory( _lynxBlueRAM );
-		ZeroInitialiseMemory( _lynxAltGreenRAM );
-		ZeroInitialiseMemory( _lynxGreenRAM );
+		JynxFramework::ZeroInitialiseArrayMemory( _lynxRedRAM );
+		JynxFramework::ZeroInitialiseArrayMemory( _lynxBlueRAM );
+		JynxFramework::ZeroInitialiseArrayMemory( _lynxAltGreenRAM );
+		JynxFramework::ZeroInitialiseArrayMemory( _lynxGreenRAM );
 
 		SetPalette(LynxColourSet::NormalRGB);
 
-		MarkScreenAsNeedingRecompose();
+		MarkHostScreenRGBAsAsNeedingRecompose();
+	}
+	
+	
+	
+	uint32_t *LynxScreen::GetScreenBitmapBaseAddress()
+	{
+		return _hostScreenImage;
 	}
 	
 	
@@ -150,7 +158,7 @@ namespace Jynx
 	
 	
 	
-	void LynxScreen::OnScreenRamWrite(CHIP *ramChip, uint16_t addressIndex, uint8_t dataByte)
+	void LynxScreen::OnScreenRamWrite(CHIP ramChip, uint16_t addressIndex, uint8_t dataByte)
 	{
 		// The caller (the decoder) reminds us of which of our RAM chips we're writing to.
 		
@@ -178,7 +186,7 @@ namespace Jynx
 		// we could re-compose the invalid region.  If we did this, it would be desireable to
 		// record HIGH RESOLUTION invalid regions, in case just a small section has changed.
 
-		assert( addressOffset < 0x2000 );
+		// TODO: assert( addressOffset < 0x2000 );
 
 		uint32_t  lynxRedByte   = (*_sourceVideoRED)[addressOffset];
 		uint32_t  lynxGreenByte = (*_sourceVideoGREEN)[addressOffset];
@@ -199,7 +207,7 @@ namespace Jynx
 			++pixelAddress;
 		}
 
-		_hostObject->PaintPixelsOnHostBitmap_OnEmulatorThread( addressOffset, pixelDataRGBA );
+		// TODO:  _hostObject->PaintPixelsOnHostBitmap_OnEmulatorThread( addressOffset, pixelDataRGBA );
 
 		/* TODO: 6845 not in MVP for web brower version     if( _rangeMaskedScreenStartAddress6845 != 0 )
 		{
@@ -214,25 +222,25 @@ namespace Jynx
 			auto adjustedOffset = (charOffset - _rangeMaskedScreenStartAddress6845) & LYNX_DISPLAY_DIMENSIONS_6845_CHARS_MASK;
 			auto invRowIndex    = adjustedOffset / 64;
 
-			assert( invRowIndex < INV_ROWS );
+			// TODO: assert( invRowIndex < INV_ROWS );
 			_invalidateRow[ invRowIndex ] = true; // mark a row invalid
 		}
 		else */
 		{
 			// Original code for non-fiddled 6845 R12/R13.  (Just playing it super-safe for now until I regression test the above case more!).
-			assert( (addressOffset >> 8) < INV_ROWS );
+			// TODO: assert( (addressOffset >> 8) < INV_ROWS );
 			_invalidateRow[addressOffset >> 8] = true; // mark a row invalid
 		}
 	}
 	
 	
 	
-	void LynxEmulatorGuest::MarkWholeScreenInvalid()
+	void LynxScreen::MarkWholeScreenInvalid()
 	{
 		// (Called on Z80 thread and Main thread).
 		// Volatile variable access -- no sync needed.
 
-		InitialiseAllArrayElementsVolatile( _invalidateRow, true );
+		JynxFramework::InitialiseAllArrayElementsVolatile( _invalidateRow, true );
 	}
 	
 	
