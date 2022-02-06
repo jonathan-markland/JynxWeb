@@ -43,6 +43,7 @@ namespace Jynx
 		inline CHIP *GetROM_0000()   { return &_lynxROM_0000; }
 		inline CHIP *GetROM_2000()   { return &_lynxROM_2000; }
 		inline CHIP *GetROM_4000()   { return &_lynxROM_4000; }
+		inline CHIP *GetROM_FFs()    { return &_lynxROM_FFs; }
 		
 		inline CHIP *GetRAM_0000()   { return &_lynxRAM_0000; }
 		inline CHIP *GetRAM_2000()   { return &_lynxRAM_2000; }
@@ -62,6 +63,8 @@ namespace Jynx
 		//
 		// The Lynx's chip set  (8K ROMs/RAMs)
 		//
+
+		CHIP            _lynxROM_FFs;          // All 0xFFs throughout.  Used for empty READ address-space.
 
 		///
 		/// Lynx's Bank #0

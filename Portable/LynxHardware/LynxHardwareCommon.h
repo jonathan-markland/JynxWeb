@@ -53,11 +53,6 @@ namespace Jynx
 	{
 		ADDRESS_SPACE()
 		{
-			SetAllNull();
-		}
-
-		inline void SetAllNull()
-		{
 			for (int i=0; i<8; i++) { Chips[i] = nullptr; }
 		}
 

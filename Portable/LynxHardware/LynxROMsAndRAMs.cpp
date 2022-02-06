@@ -67,6 +67,8 @@ namespace Jynx
 		// Copy the appropriate ROMs in according to the _machineType
 		//
 
+		_lynxROM_FFs.SetToAll( 0xFF );
+
 		if( _machineType == LynxMachineType::LYNX_48K )
 		{
 			_lynxROM_0000.SetFrom( RomImageLynx48Image1 );

@@ -130,8 +130,6 @@ namespace Jynx
 		// ADDRESS SPACE - READING
 		//
 
-		uint8_t readCount = 0;
-
 		if( (_bankPort & BANKPORT_NOT_RDEN1) == 0 )
 		{
 			// Bank1 is switched IN.
@@ -152,29 +150,23 @@ namespace Jynx
 				_addressSpaceREAD.Chips[6] = _memory.GetRAM_C000();
 				_addressSpaceREAD.Chips[7] = _memory.GetRAM_E000();
 			}
-
-			++readCount;
 		}
-
-		if( _bankPort & BANKPORT_RDEN2_3 )
+		else if( _bankPort & BANKPORT_RDEN2_3 )
 		{
 			if( bCasEnBank2 )
 			{
 				// Bank 2 is switched in
 				_addressSpaceREAD.MapReflections( _screen.GetBlueRAM(), _screen.GetRedRAM() );
-				++readCount;
 			}
-			if( bCasEnBank3 )
+			else if( bCasEnBank3 )
 			{
 				// Bank 3 is switched in
 				_addressSpaceREAD.MapReflections( _screen.GetAltGreenRAM(), _screen.GetGreenRAM() );
-				++readCount;
 			}
-		}
-
-		if( readCount == 0 )
-		{
-			_addressSpaceREAD.SetAllNull();
+			else
+			{
+				_addressSpaceREAD.MapReflections( _memory.GetROM_FFs(), _memory.GetROM_FFs() );
+			}
 		}
 
 		//
@@ -190,7 +182,7 @@ namespace Jynx
                                    
 			if( _machineType == LynxMachineType::LYNX_48K )
 			{
-				_addressSpaceREAD.Chips[2] = nullptr; // extended ROM not present, MUST return 0xFF for the region.  // TODO: Use new solution: We initialised the ROM store to 0xFFs above!
+				_addressSpaceREAD.Chips[2] = _memory.GetROM_FFs();   // This ROM is missing on the 48K.
 			}
 			else
 			{
@@ -206,16 +198,8 @@ namespace Jynx
 	{
 		auto regionIndex = (address >> 13) & 7;
 		auto chipToReadFrom = _addressSpaceREAD.Chips[regionIndex];
-
-		if( chipToReadFrom != nullptr )  // TODO: Can we afford an 8KB slab of 0xFFs to avoid this branch?
-		{
-			auto dataByte = chipToReadFrom->RamBytes[address & 0x1FFF];
-			return dataByte;
-		}
-		else
-		{
-			return 0xFF;  // Nobody decoded this address.
-		}
+		auto dataByte = chipToReadFrom->RamBytes[address & 0x1FFF];
+		return dataByte;
 	}
 
 
