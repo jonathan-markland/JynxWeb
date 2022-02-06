@@ -44,7 +44,11 @@ namespace Jynx
 
 		void MarkWholeScreenInvalid();
 
-		void MarkHostScreenRGBAsAsNeedingRecompose();
+		// Some Z80 I/O space writes affect the whole Lynx screen.  We LAZILY update
+		// the host's RGBA values.
+		void MarkHostScreenRGBAsAsNeedingRecompose();  // TODO: Review whether external parties really need this.
+
+		// Only to be called one the Z80 timeslice processing function.
 		void RecomposeWholeHostScreenRGBAsIfPending();
 		
 		// TODO: Get address of invalidation flags for Javascript to directly read from the SharedArrayBuffer.

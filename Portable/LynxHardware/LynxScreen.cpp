@@ -141,8 +141,11 @@ namespace Jynx
 	void LynxScreen::OnDevicePortValueChanged(uint8_t devicePortValue)
 	{
 		_sourceVideoGREEN = (devicePortValue & DEVICEPORT_USE_ALT_GREEN) ? &_lynxAltGreenRAM : &_lynxGreenRAM;
-		_sourceVideoBLUE  = &_lynxBlueRAM;
-		_sourceVideoRED   = &_lynxRedRAM;
+
+		// We are changing the GREEN / ALTERNATIVE GREEN selector
+		// so a re-construction and invalidate of the display is needed.
+		// We don't do it right now, we flag for it at the next frame:
+		MarkHostScreenRGBAsAsNeedingRecompose();
 	}
 	
 	

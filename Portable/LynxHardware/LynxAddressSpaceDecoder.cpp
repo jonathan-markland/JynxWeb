@@ -55,6 +55,11 @@ namespace Jynx
 		_devicePort = DEVICEPORT_INITIALISATION_VALUE;
 		_bankPort   = BANKPORT_INITIALISATION_VALUE;
 		
+		InitialiseAllArrayElements( _addressSpaceREAD,   (CHIP *) nullptr );
+		InitialiseAllArrayElements( _addressSpaceWRITE1, (CHIP *) nullptr );
+		InitialiseAllArrayElements( _addressSpaceWRITE2, (CHIP *) nullptr );
+		InitialiseAllArrayElements( _addressSpaceWRITE3, (CHIP *) nullptr );
+		
 		_memory.OnHardwareReset();
 		_screen.OnHardwareReset();
 		_screen.OnDevicePortValueChanged(_devicePort);
@@ -202,6 +207,134 @@ namespace Jynx
 				_addressSpaceREAD[2] = GetROM_4000();  // The 96K machine has an extended ROM.
 			}
 		}
+	}
+	
+	
+	
+	uint8_t LynxAddressSpaceDecoder::Z80_AddressRead( uint16_t address )
+	{
+		auto regionIndex = (address >> 13) & 7;
+		auto chipToReadFrom = _addressSpaceREAD[regionIndex];
+
+		if( chipToReadFrom != nullptr )  // TODO: Can we afford an 8KB slab of 0xFFs to avoid this branch?
+		{
+			auto dataByte = (*chipToReadFrom)[address & 0x1FFF];
+			return dataByte;
+		}
+		else
+		{
+			return 0xFF;  // Nobody decoded this address.
+		}
+	}
+
+
+
+	void LynxAddressSpaceDecoder::Z80_AddressWrite( uint16_t address, uint8_t dataByte )
+	{
+		auto regionIndex = (address >> 13) & 7;
+		auto addressOffset = address & 0x1FFF;
+
+		// Writes can hit multiple devices depending on which banks are active.
+
+		// Is bank 1 enabled to decode this?
+
+		auto pChipInBank1 = _addressSpaceWRITE1[regionIndex];
+		if( pChipInBank1 )
+		{
+			(*pChipInBank1)[addressOffset] = dataByte;
+		}
+
+		// Is bank 2 enabled to decode this?
+
+		auto pChipInBank2 = _addressSpaceWRITE2[regionIndex];
+		if( pChipInBank2 )
+		{
+			_lynxScreen.OnScreenRamWrite(pChipInBank2, addressOffset, dataByte);
+		}
+
+		// Is bank 3 enabled to decode this?
+
+		auto pChipInBank3 = _addressSpaceWRITE3[regionIndex];
+		if( pChipInBank3 )
+		{
+			_lynxScreen.OnScreenRamWrite(pChipInBank3, addressOffset, dataByte);
+		}
+	}
+	
+	
+	
+	void LynxAddressSpaceDecoder::Z80_IOSpaceWrite( uint16_t portNumber, uint8_t dataByte )
+	{
+		//
+		// AUDIO-VISUAL CONTROL PORT
+		//
+
+		if( (portNumber & DEVICEPORT_DECODING_MASK) == 0x80 )
+		{
+			auto oldSetting = _devicePort;
+
+			dataByte &= 0x3F; // Bit 7 kept zero according to spec, and let's wire the mono-stable (bit 6) to 0   TODO: review monostable?
+
+			if( oldSetting != dataByte ) // optimise by ignoring repeated writes of same value.
+			{
+				// Update our record of the port status (which may simultaneously change several things):
+				// Must do this first, so any routines we call out to (below) see the new port settings:
+				_devicePort = dataByte;
+
+				// Use XOR to detect *change* in the DEVICEPORT_USE_ALT_GREEN bit:
+				if( (oldSetting ^ dataByte) & DEVICEPORT_USE_ALT_GREEN )
+				{
+					_lynxScreen.OnDevicePortValueChanged(_devicePort);
+				}
+
+				// Use XOR to detect *change* in either/both of the DEVICEPORT_NOT_CASEN_BANK3 or DEVICEPORT_NOT_CASEN_BANK2 bits:
+				if( (oldSetting ^ dataByte) & (DEVICEPORT_NOT_CASEN_BANK3 | DEVICEPORT_NOT_CASEN_BANK2) )
+				{
+					// Bits "NOT CASEN BANK3" or "NOT CASEN BANK2" have changed.
+					// This affects bank switching:
+					SyncAddressSpaceFromPorts();
+				}
+
+				/* TODO: cassette   // Use XOR to detect *change* in CASSETTE MOTOR control bit:
+				if( (oldSetting ^ dataByte) & DEVICEPORT_CASSETTE_MOTOR )
+				{
+					if( dataByte & DEVICEPORT_CASSETTE_MOTOR )
+					{
+						CassetteMotorOn();
+					}
+					else
+					{
+						CassetteMotorOff();
+					}
+				}
+				*/
+			}
+		}
+
+		//
+		// BANK SWITCH ( "Port 80" )
+		//
+
+		else if( (portNumber & 0x207F) == 0x207F )
+		{
+			// It's the so-called "PORT FFFF", although the 
+			// Lynx hardware doesn't decode all the bits of the address!
+			
+			if( _bankPort != dataByte ) // optimise away repeated writes of same value
+			{
+				_bankPort = dataByte;
+				SyncAddressSpaceFromPorts();
+			}
+		}
+		
+		// TODO: Support writing the volume level DAC.
+	}
+	
+	
+	
+	uint8_t LynxAddressSpaceDecoder::Z80_IOSpaceRead( uint16_t portNumber )
+	{
+		return 0xFF;   // TODO: We support reading the keyboard and the cassette.
 	}
 }
 
