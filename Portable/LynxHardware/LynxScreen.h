@@ -50,6 +50,11 @@ namespace Jynx
 		// TODO: Get address of invalidation flags for Javascript to directly read from the SharedArrayBuffer.
 		// TODO: Get address of _hostScreenImage for Javascript to directly read from the SharedArrayBuffer.
 
+		inline CHIP  *GetRedRAM()       { return &_lynxRedRAM; }         // A000 .. BFFF
+		inline CHIP  *GetBlueRAM()      { return &_lynxBlueRAM; }        // C000 .. DFFF
+		inline CHIP  *GetAltGreenRAM()  { return &_lynxAltGreenRAM; }    // A000 .. BFFF
+		inline CHIP  *GetGreenRAM()     { return &_lynxGreenRAM; }       // C000 .. DFFF
+
 	private:
 	
 		void ComposeHostBitmapPixelsForLynxScreenAddress( uint32_t addressOffset );

@@ -31,3 +31,59 @@ extern unsigned char RomImageLynx96Image2[8192];
 extern unsigned char RomImageLynx96Image3[8192];
 extern unsigned char RomImageLynx96ScorpionImage3[8192];
 
+
+
+namespace Jynx
+{
+	LynxROMsAndRAMs::LynxROMsAndRAMs()
+	{
+		_machineType = LynxMachineType::LYNX_48K;
+		OnHardwareReset();
+	}
+	
+	
+	
+	void LynxROMsAndRAMs::SetMachineType( LynxMachineType::Enum machineType )
+	{
+		_machineType = machineType;
+		OnHardwareReset();
+	}
+	
+	
+	
+	void LynxROMsAndRAMs::OnHardwareReset()
+	{
+		ZeroInitialiseMemory( _lynxRAM_0000 );
+		ZeroInitialiseMemory( _lynxRAM_2000 );
+		ZeroInitialiseMemory( _lynxRAM_4000 );
+		ZeroInitialiseMemory( _lynxRAM_6000 );
+		ZeroInitialiseMemory( _lynxRAM_8000 );
+		ZeroInitialiseMemory( _lynxRAM_A000 );
+		ZeroInitialiseMemory( _lynxRAM_C000 );
+		ZeroInitialiseMemory( _lynxRAM_E000 );
+
+		//
+		// Copy the appropriate ROMs in according to the _machineType
+		//
+
+		if( _machineType == LynxMachineType::LYNX_48K )
+		{
+			CopyArrayMemory( _lynxROM_0000, RomImageLynx48Image1 );
+			CopyArrayMemory( _lynxROM_2000, RomImageLynx48Image2 );
+			ZeroInitialiseMemory( _lynxROM_4000 );
+		}
+		else if( _machineType == LynxMachineType::LYNX_96K )
+		{
+			CopyArrayMemory( _lynxROM_0000, RomImageLynx96Image1 );
+			CopyArrayMemory( _lynxROM_2000, RomImageLynx96Image2 );
+			CopyArrayMemory( _lynxROM_4000, RomImageLynx96Image3 );
+		}
+		else if( _machineType == LynxMachineType::LYNX_96K_Scorpion )
+		{
+			CopyArrayMemory( _lynxROM_0000, RomImageLynx96Image1 );
+			CopyArrayMemory( _lynxROM_2000, RomImageLynx96Image2 );
+			CopyArrayMemory( _lynxROM_4000, RomImageLynx96ScorpionImage3 );
+		}
+		else assert(false);
+	}
+}

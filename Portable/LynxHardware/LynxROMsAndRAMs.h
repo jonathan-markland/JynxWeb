@@ -26,8 +26,35 @@ namespace Jynx
 	{
 	public:
 	
+		LynxROMsAndRAMs();
 
+		LynxROMsAndRAMs(const LynxROMsAndRAMs &) = delete;
+		void operator=(const LynxROMsAndRAMs &) = delete;
+
+		// Set machine type.  Wipes RAM to zeroes, and copies in the appropriate ROMs.
+		void SetMachineType( LynxMachineType::Enum machineType );
+		
+		// Wipes RAM to zeroes, and copies in the appropriate ROMs for current machine type.
+		void OnHardwareReset();
+
+		inline CHIP *GetROM_0000()   { return &_lynxROM_0000; }
+		inline CHIP *GetROM_2000()   { return &_lynxROM_2000; }
+		inline CHIP *GetROM_4000()   { return &_lynxROM_4000; }
+		
+		inline CHIP *GetRAM_0000()   { return &_lynxRAM_0000; }
+		inline CHIP *GetRAM_2000()   { return &_lynxRAM_2000; }
+		inline CHIP *GetRAM_4000()   { return &_lynxRAM_4000; }
+		inline CHIP *GetRAM_6000()   { return &_lynxRAM_6000; }
+		inline CHIP *GetRAM_8000()   { return &_lynxRAM_8000; }
+		inline CHIP *GetRAM_A000()   { return &_lynxRAM_A000; }
+		inline CHIP *GetRAM_C000()   { return &_lynxRAM_C000; }
+		inline CHIP *GetRAM_E000()   { return &_lynxRAM_E000; }
+		
 	private:
+	
+		// Machine type being emulated
+
+		LynxMachineType::Enum  _machineType;
 	
 		//
 		// The Lynx's chip set  (8K ROMs/RAMs)

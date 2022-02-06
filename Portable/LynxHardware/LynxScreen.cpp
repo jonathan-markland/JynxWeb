@@ -31,9 +31,13 @@ namespace Jynx
 	
 	void LynxScreen::OnHardwareReset()
 	{
+		_colourSet        = LynxColourSet::NormalRGB;
+		
 		_sourceVideoRED   = &_lynxRedRAM;
 		_sourceVideoGREEN = &_lynxGreenRAM;  // TODO:  kinda assuming we know the port register value on a reset here.  (very minor)
 		_sourceVideoBLUE  = &_lynxBlueRAM;
+		
+		_recompositeWholeHostRGBAs = false;
 
 		InitialiseAllArrayElementsVolatile( _invalidateRow, true );
 

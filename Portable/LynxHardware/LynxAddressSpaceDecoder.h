@@ -26,22 +26,34 @@ namespace Jynx
 	{
 	public:
 	
-
+		LynxAddressSpaceDecoder();
+		
+		void OnHardwareReset();
+		
 	private:
 	
+		void SyncAddressSpaceFromPorts();
+
+	private:
+
+		uint8_t          _devicePort;         // Port '0x80' see DEVICEPORT_ #defines
+		uint8_t          _bankPort;           // Port '0xFFFF' see BANKPORT_ #defines
+
+		LynxROMsAndRAMs  _memory;             // The ROM and program-RAM storage
+		LynxScreen       _screen;             // The Screen RAM and associated host-format bitmap rendering
+	
 		//
-		// BANK SWITCHING SELECTORS.
+		// ADDRESS SPACE
 		//
 		// - The following arrays select what the Z80 sees in the address space.
+		// - There are four overlapping 64KB address spaces, enabled by the bank switching ports.
 		//
-		//   Index [0] is 0000 .. 1FFF
-		//   Index [1] is 2000 .. 3FFF
-		//   Index [2] is 4000 .. 5FFF
-		//   Index [3] is 6000 .. 7FFF
-		//   Index [4] is 8000 .. 9FFF
-		//   Index [5] is A000 .. BFFF
-		//   Index [6] is C000 .. DFFF
-		//   Index [7] is E000 .. FFFF
+
+		ADDRESS_SPACE _addressSpaceREAD;
+		ADDRESS_SPACE _addressSpaceWRITE1; // First place to write to
+		ADDRESS_SPACE _addressSpaceWRITE2; // Additional place to write to if non-NULL
+		ADDRESS_SPACE _addressSpaceWRITE3; // Additional place to write to if non-NULL
+
 		//
 		// - An address-space READ will read from one CHIP,
 		//   or return 0xFF if the array holds a NULL pointer.
@@ -53,10 +65,19 @@ namespace Jynx
 		// The code *never* lets the ROMs appear in the WRITE arrays!
 		//
 
-		ADDRESS_SPACE _addressSpaceREAD;
-		ADDRESS_SPACE _addressSpaceWRITE1; // First place to write to
-		ADDRESS_SPACE _addressSpaceWRITE2; // Additional place to write to if non-NULL
-		ADDRESS_SPACE _addressSpaceWRITE3; // Additional place to write to if non-NULL
+		//
+		// An ADDRESS_SPACE is described as an array of 8 x CHIPs,
+		// occupying the following addresses:
+		//
+		//   Index [0] is 0000 .. 1FFF
+		//   Index [1] is 2000 .. 3FFF
+		//   Index [2] is 4000 .. 5FFF
+		//   Index [3] is 6000 .. 7FFF
+		//   Index [4] is 8000 .. 9FFF
+		//   Index [5] is A000 .. BFFF
+		//   Index [6] is C000 .. DFFF
+		//   Index [7] is E000 .. FFFF
+		//
 	
 	};
 }
