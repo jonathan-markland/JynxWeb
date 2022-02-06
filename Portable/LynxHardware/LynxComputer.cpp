@@ -24,6 +24,7 @@ namespace Jynx
 {
 	LynxComputer::LynxComputer()
 	{
+		_processor.SetExternalHandler( &_addressSpace );
 		OnHardwareReset();
 	}
 

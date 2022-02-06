@@ -35,11 +35,11 @@
 
 #include <stdint.h>
 #include "JynxZ80Declarations.h"
-#include "JynxZ80ExternalImplementation.h"
+#include "IZ80ExternalHandler.h"
 
 namespace JynxZ80
 {
-	class Z80: public Z80ImplementationBaseClass, private Z80SerialisableState
+	class Z80: private Z80SerialisableState
 	{
 	public:
 
@@ -50,6 +50,10 @@ namespace JynxZ80
 			// (Exposing this side-steps any multi-threading issues).
 
 		Z80();
+
+		// Attach the Z80 to the user-defined object for 
+		// I/O and address space handling.
+		void SetExternalHandler(IZ80ExternalHandler *externalHandler)  { _externalHandler = externalHandler; }
 
 		void Reset();
 		void RunForTimeslice();
@@ -86,6 +90,43 @@ namespace JynxZ80
 		uint16_t  *_addressesOf16BitRegisterPairs_BC_DE_HL_AF[4];  // Access to register file as register pairs.  Indexed based on bits from the opcode.
 
 		static uint8_t _signParityAndZeroTable[256];  // Calculated on construction.
+
+	private:
+
+		// The user-defined object that will handle external Z80 interfacing.
+		IZ80ExternalHandler *_externalHandler;
+
+		// Beautify the main Z80 code using inlines to allow shorter syntax.
+		
+		inline void GuestWrite( uint16_t address, uint8_t dataByte )
+		{
+			_externalHandler->Z80_AddressWrite( address, dataByte );
+		}
+		
+		inline void GuestWriteIOSpace( uint16_t portNumber, uint8_t dataByte )
+		{
+			_externalHandler->Z80_IOSpaceWrite( portNumber, dataByte );
+		}
+		
+		inline uint8_t GuestRead( uint16_t address )
+		{
+			return _externalHandler->Z80_AddressRead( address );
+		}
+		
+		inline uint8_t GuestReadIOSpace( uint16_t portNumber )
+		{
+			return _externalHandler->Z80_IOSpaceRead( portNumber );
+		}
+		
+		inline void OnAboutToBranch()
+		{
+			_externalHandler->OnAboutToBranch();
+		}
+		
+		inline void OnAboutToReturn()
+		{
+			_externalHandler->OnAboutToReturn();
+		}
 
 	private:
 

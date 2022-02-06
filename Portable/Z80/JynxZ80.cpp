@@ -124,6 +124,7 @@ namespace JynxZ80
 			JynxFramework::Panic("you didn't call InitialiseGlobalTables");
 		}
 
+		_externalHandler = nullptr;
 		_timesliceLength = 0;
 		_currentOpcode = 0; // Not essential
 		Reset();

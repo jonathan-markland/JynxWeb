@@ -20,9 +20,11 @@
 
 #pragma once
 
+#include "../Z80/IZ80ExternalHandler.h"
+
 namespace Jynx
 {
-	class LynxAddressSpaceDecoder
+	class LynxAddressSpaceDecoder: public IZ80ExternalHandler
 	{
 	public:
 	
@@ -32,17 +34,20 @@ namespace Jynx
 		
 		// The Z80 calls this to write a byte to the address space.
 		// Writes can hit multiple devices depending on which banks are active.
-		void Z80_AddressWrite( uint16_t address, uint8_t dataByte );
+		virtual void Z80_AddressWrite( uint16_t address, uint8_t dataByte ) override;
 
 		// The Z80 calls this to read a byte from the address space.
-		uint8_t Z80_AddressRead( uint16_t address );
+		virtual uint8_t Z80_AddressRead( uint16_t address ) override;
 
 		// The Z80 calls this to write a byte to the I/O space.
-		void Z80_IOSpaceWrite( uint16_t portNumber, uint8_t dataByte );
+		virtual void Z80_IOSpaceWrite( uint16_t portNumber, uint8_t dataByte ) override;
 
 		// The Z80 calls this to read from the I/O space.
 		// The cassette and keyboard are primarily readable via the I/O space.
-		uint8_t Z80_IOSpaceRead( uint16_t portNumber );
+		virtual uint8_t Z80_IOSpaceRead( uint16_t portNumber ) override;
+
+		virtual void OnAboutToBranch() override {} //TODO
+		virtual void OnAboutToReturn() override {} //TODO
 
 	private:
 	
