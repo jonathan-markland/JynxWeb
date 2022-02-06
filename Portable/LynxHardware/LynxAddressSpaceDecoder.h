@@ -25,6 +25,7 @@
 #include "LynxComputerInterface.h"
 #include "LynxROMsAndRAMs.h"
 #include "LynxScreen.h"
+#include "LynxKeyboard.h"
 
 namespace Jynx
 {
@@ -35,6 +36,7 @@ namespace Jynx
 		LynxAddressSpaceDecoder();
 		
 		uint32_t *GetScreenBitmapBaseAddress();
+		volatile uint8_t *GetLynxKeyboardArrayAddress();
 		
 		void OnHardwareReset();
 		
@@ -70,6 +72,7 @@ namespace Jynx
 
 		LynxROMsAndRAMs  _memory;             // The ROM and program-RAM storage
 		LynxScreen       _screen;             // The Screen RAM and associated host-format bitmap rendering
+		LynxKeyboard     _keyboard;           // The LYNX keyboard ports array.
 	
 		//
 		// ADDRESS SPACE

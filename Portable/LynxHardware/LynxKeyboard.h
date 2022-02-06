@@ -21,31 +21,23 @@
 #pragma once
 
 #include <stdint.h>
-#include "../Z80/JynxZ80.h"
-#include "LynxAddressSpaceDecoder.h"
 
 namespace Jynx
 {
-	class LynxComputer
+	class LynxKeyboard
 	{
 	public:
 	
-		LynxComputer();
+		LynxKeyboard();
 		
 		void OnHardwareReset();
-		void OnTimeSlice();
-		
-		uint32_t *GetScreenBitmapBaseAddress();
 		volatile uint8_t *GetLynxKeyboardArrayAddress();
+		uint8_t  ReadLynxKeyboard( uint16_t portNumber );
 		
 	private:
 	
-		enum { LynxZ80ClockSpeedHz = 4000000 };
-
-		JynxZ80::Z80   _processor;          // Z80 + Registers
-		uint64_t       _z80CycleCounter;    // Total cycle counter // TODO: serialise -- but only the cassette creation relies on it, and we don't & can't easily serialise the state of that.
-
-		LynxAddressSpaceDecoder _addressSpace;
+		volatile uint8_t  _keyboard[10];       // Lynx keyboard ports (not persistent).
+		bool     _keyboardSweepDetect[10];     // ports 0..9
 	
 	};
 }

@@ -82,12 +82,40 @@ extern "C" void RunTimeslice()
 	g_LynxComputerSingletonInstance->OnTimeSlice();
 }
 
-extern "C" void ResetGuest()
-{
-	g_LynxComputerSingletonInstance->OnHardwareReset();
-}
-
 extern "C" float *GetSingletonSoundBufferBaseAddress()
 {
 	return g_SilenceBuffer;  // TODO: no sound for now.
+}
+
+#define NUMBER_OF_KEYS (8*11)
+
+uint8_t  WebBrowserKeycodesLookupTable[NUMBER_OF_KEYS] =
+{
+	// Values are Web browser key codes.
+	// Indices are bit-indexes into the Lynx Keyboard Array.
+	16, 27,  40, 38,  20,   0,   0,  49,
+	 0,  0,  67, 68,  88,  69,  52,  51,
+	 0, 17,  65, 83,  90,  87,  81,  50,
+	 0,  0,  70, 71,  86,  84,  82,  53,
+	 0,  0,  66, 78,  32,  72,  89,  54,
+	 0,  0,  74,  0,  77,  85,  56,  55,
+	 0,  0,  75,  0, 188,  79,  73,  57,
+	 0,  0, 186,  0, 190,  76,  80,  48,
+	 0,  0, 187,  0, 191, 219, 222, 189,
+	 0,  0,  39,  0,  13,  37, 221,   8,
+};
+
+extern "C" int GetWebBrowserKeycodeTranslationTableSize()
+{
+	return NUMBER_OF_KEYS;
+}
+
+extern "C" uint8_t *GetWebBrowserKeycodeTranslationTableAddress()
+{
+	return WebBrowserKeycodesLookupTable;
+}
+
+extern "C" volatile uint8_t *GetLynxKeyboardArrayAddress()
+{
+	return g_LynxComputerSingletonInstance->GetLynxKeyboardArrayAddress();
 }

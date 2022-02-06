@@ -17,10 +17,12 @@ const GUEST_SCREEN_HEIGHT = 256;   // If changed, must also change the C++ #defi
 // ------------------------------------------------------------------------------------------------------------
 
 let globalWasmMemoryArray;
-// let globalWasmVolumeLevelArray;
 let globalWasmImageSharedUint8ClampedArray;
 let globalWasmImageUnsharedUint8ClampedArray;
 let globalWasmImage;
+let globalWasmKeyTranslationTableSize;
+let globalWasmKeyTranslationTableArray;
+let globalWasmKeyboardPortsArray;
 
 
 // ------------------------------------------------------------------------------------------------------------
@@ -54,9 +56,11 @@ async function createEmulatorAudioWorkletNode(audioContext, onReady)
 				let wasmMemoryArray   = postedDataForHost.memory.buffer;
 
 				let onReadyDetails = { 
-					wasmMemoryArray:       wasmMemoryArray,
-					// wasmVolumeLevelArray:  new Float32Array(wasmMemoryArray, postedDataForHost.volumeLevelAddress, 4),
-					wasmImageArray:        new Uint8ClampedArray(wasmMemoryArray, postedDataForHost.screenBaseAddress, GUEST_SCREEN_WIDTH * GUEST_SCREEN_HEIGHT * 4)
+					wasmMemoryArray                : wasmMemoryArray,
+					wasmImageArray                 : new Uint8ClampedArray(wasmMemoryArray, postedDataForHost.screenBaseAddress, GUEST_SCREEN_WIDTH * GUEST_SCREEN_HEIGHT * 4),
+					wasmKeyTranslationTableSize    : postedDataForHost.keyTranslationTableSize,
+					wasmKeyTranslationTableArray   : new Uint8ClampedArray(wasmMemoryArray, postedDataForHost.keyTranslationTableAddress, postedDataForHost.keyTranslationTableSize),
+					wasmKeyboardPortsArray         : new Uint8ClampedArray(wasmMemoryArray, postedDataForHost.keyboardPortsArray, 10) // TODO: constant is number of bytes in the Lynx's keyboard ports array.
 				};
 
 				onReady(onReadyDetails);
@@ -133,6 +137,8 @@ window.addEventListener(
 			document.getElementById("startEmulator").addEventListener("click", onStartEmulator);
 			// document.getElementById("toggleVolume").addEventListener("click", onToggleVolumeLevel);
 			document.getElementById("updateGraphics").addEventListener("click", onUpdateGraphics);
+			document.addEventListener('keydown', onKeyDown);
+			document.addEventListener('keyup', onKeyUp);
 		});
 		
 		
@@ -162,10 +168,12 @@ async function onStartEmulator(event)
 			onReadyDetails => 
 				{
 					globalWasmMemoryArray                    = onReadyDetails.wasmMemoryArray;
-					// globalWasmVolumeLevelArray               = onReadyDetails.wasmVolumeLevelArray;
 					globalWasmImageSharedUint8ClampedArray   = onReadyDetails.wasmImageArray;
 					globalWasmImageUnsharedUint8ClampedArray = new Uint8ClampedArray(GUEST_SCREEN_WIDTH * GUEST_SCREEN_HEIGHT * 4);  // This entails unfortunate copying, but we allocate ONCE at least!
 					globalWasmImage                          = new ImageData(globalWasmImageUnsharedUint8ClampedArray, GUEST_SCREEN_WIDTH, GUEST_SCREEN_HEIGHT); // TODO: check out the "format" parameter
+					globalWasmKeyTranslationTableSize        = onReadyDetails.wasmKeyTranslationTableSize,
+					globalWasmKeyTranslationTableArray       = onReadyDetails.wasmKeyTranslationTableArray,
+					globalWasmKeyboardPortsArray             = onReadyDetails.wasmKeyboardPortsArray
 				});
 				
 		HideStartEmulatorButton();
@@ -214,5 +222,52 @@ function onUpdateGraphics(event) {
 		const canvas = document.getElementById('canvas');
 		const ctx = canvas.getContext('2d');
 		ctx.putImageData(globalWasmImage, 0, 0);  // TODO: investigate portion-painting for the "update bands" that Jynx uses.
+	}
+}
+
+
+
+function BrowserKeyCodeToLynxKeyIndex(browserKeyCode)
+{
+	for (i=0; i < globalWasmKeyTranslationTableSize; i++)
+	{
+		if (browserKeyCode === globalWasmKeyTranslationTableArray[i])
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
+
+
+
+function onKeyDown(event) 
+{
+	if (globalWasmKeyTranslationTableArray)
+	{
+		let bitIndex = BrowserKeyCodeToLynxKeyIndex(event.keyCode);
+		if (bitIndex != -1)
+		{
+			let portIndex = bitIndex >>> 3;
+			let mask = 0x80 >>> (bitIndex & 7);
+			globalWasmKeyboardPortsArray[portIndex] = (globalWasmKeyboardPortsArray[portIndex] | mask) ^ mask;  // Clear bit in WASM shared memory  (key Down -ve logic)
+		}
+	}
+}	
+
+
+
+function onKeyUp(event) 
+{	
+	if (globalWasmKeyTranslationTableArray)
+	{
+		let bitIndex = BrowserKeyCodeToLynxKeyIndex(event.keyCode);
+		if (bitIndex != -1)
+		{
+			let portIndex = bitIndex >>> 3;
+			let mask = 0x80 >>> (bitIndex & 7);
+			globalWasmKeyboardPortsArray[portIndex] = globalWasmKeyboardPortsArray[portIndex] | mask;  // Set bit in WASM shared memory (key Up -ve logic)
+		}
 	}
 }

@@ -35,6 +35,13 @@ namespace Jynx
 	{
 		return _addressSpace.GetScreenBitmapBaseAddress();
 	}
+	
+	
+	
+	volatile uint8_t *LynxComputer::GetLynxKeyboardArrayAddress()
+	{
+		return _addressSpace.GetLynxKeyboardArrayAddress();
+	}
 
 
 

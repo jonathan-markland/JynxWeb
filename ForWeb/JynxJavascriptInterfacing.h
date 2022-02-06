@@ -22,6 +22,10 @@
 
 #include <stdint.h>
 
+
+		// TODO:  Do Reset with a volatile flag the host sets and the guest clears.
+
+
 // Obtains address of a pointer that will be null if no panic, otherwise
 // will be the address of the panic text nul-terminated string, when the
 // program is in the panic infinite loop.
@@ -55,7 +59,15 @@ extern "C" float *GetSingletonSoundBufferBaseAddress();
 // by the Javacsript Audio Worklet handler (128 x PCM samples of time).
 extern "C" void RunTimeslice();
 
-// Once the singleton is created, we can cause a guest reset.
-// Reset is the default state anyway. This can be used to later cause
-// additional resets.
-extern "C" void ResetGuest();
+// Once the singleton is created, we can find the key code translation table.
+extern "C" int GetWebBrowserKeycodeTranslationTableSize();
+
+// Once the singleton is created, we can find the key code translation table.
+extern "C" uint8_t *GetWebBrowserKeycodeTranslationTableAddress();
+
+// Translate by taking the web browser key code, lookup up in the translation
+// table given by GetWebBrowserKeycodeTranslationTableAddress(), then use 
+// the found-index as as a bit-index into the following array ONLY if the 
+// key code was found:
+extern "C" volatile uint8_t *GetLynxKeyboardArrayAddress();
+

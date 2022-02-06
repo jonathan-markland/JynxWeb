@@ -39,6 +39,13 @@ namespace Jynx
 	
 	
 	
+	volatile uint8_t *LynxAddressSpaceDecoder::GetLynxKeyboardArrayAddress()
+	{
+		return _keyboard.GetLynxKeyboardArrayAddress();
+	}
+	
+	
+	
 	void LynxAddressSpaceDecoder::RecomposeWholeHostScreenRGBAsIfPending()
 	{
 		_screen.RecomposeWholeHostScreenRGBAsIfPending();
@@ -309,7 +316,55 @@ namespace Jynx
 	
 	uint8_t LynxAddressSpaceDecoder::Z80_IOSpaceRead( uint16_t portNumber )
 	{
-		return 0xFF;   // TODO: We support reading the keyboard and the cassette.
+		if( (portNumber & DEVICEPORT_DECODING_MASK) == 0x80 )
+		{
+			/* TODO: 
+
+			// If the cassette motor is enabled, we are loading from tape.
+			// Bit 0 is a "level sensor" which detects whether the level is below or above the middle.
+
+			// Since the keyboard shares the same port as the cassette we must include the key states
+			// -- although I have insufficient documentation on this!  I deduced when the supply the
+			// cassette value in bit 0 of port 0x0080
+
+			if( _mc6845Regs[12] & 0x20 ) // Camputers use this output of the 6845 as a switch to enable cassette reading on the keyboard port (if MA13 is high).
+			{
+				if( (portNumber & 0xFC6) == 0x0080 ) // <-- Mask per Lynx User Magazine Issue 1.  The lynx appears to only read from this port specifically, when reading tapes.
+				{
+					// (It seems cassette loading terminates immediately unless the key information is
+					// returned here.  Fixing the top 7 bits at "0"s wasn't a good idea!).
+					auto cassetteBit0 = CassetteRead();
+					if( _hearTapeSounds )
+					{
+						// Listen to tape loading (quieten it a bit):
+						SpeakerWrite( cassetteBit0 << 3 );
+					}
+					return (ReadLynxKeyboard(portNumber) & 0xFE) | cassetteBit0;
+				}
+			}
+
+			*/
+
+			// Read of keyboard only (cassette motor not active):
+			return _keyboard.ReadLynxKeyboard(portNumber);
+		}
+		/* TODO:  else if( (portNumber & CRTCPORT_DECODING_MASK) == 0x86 )
+		{
+			// 6845 display generator
+			return _mc6845Select; // spec says this isn't readable, but heck
+		}
+		else if( (portNumber & CRTCPORT_DECODING_MASK) == 0x87 )
+		{
+			// 6845 display generator
+			return _mc6845Regs[ _mc6845Select & 0x1F ]; // spec says this isn't readable, but heck
+		}
+		else if( (portNumber & BANKPORT_DECODING_MASK) == BANKPORT_DECODING_MASK )
+		{
+			// It's the so-called "PORT FFFF":
+			return _bankPort; // I think the spec says this isn't readable either.  This doesn't seem to get executed.
+		}*/
+
+		return 0xFF;   // Nobody decoded this I/O space address.
 	}
 
 
