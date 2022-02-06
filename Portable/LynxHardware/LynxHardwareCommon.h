@@ -24,9 +24,57 @@
 
 namespace Jynx
 {
-	typedef uint8_t CHIP[8192];
-	typedef CHIP *CHIP_PTR;
-	typedef CHIP_PTR ADDRESS_SPACE[8];
+	struct CHIP
+	{
+		CHIP()
+		{
+			SetToAllZeroes();
+		}
+
+		inline void SetToAllZeroes()
+		{
+			SetToAll(0);
+		}
+
+		inline void SetToAll(uint8_t value)
+		{
+			for (int i=0; i<8192; i++) { RamBytes[i] = value; }
+		}
+
+		inline void SetFrom(const uint8_t *array)
+		{
+			for (int i=0; i<8192; i++) { RamBytes[i] = array[i]; }
+		}
+
+		uint8_t RamBytes[8192];
+	};
+	
+	struct ADDRESS_SPACE
+	{
+		ADDRESS_SPACE()
+		{
+			SetAllNull();
+		}
+
+		inline void SetAllNull()
+		{
+			for (int i=0; i<8; i++) { Chips[i] = nullptr; }
+		}
+
+		inline void MapReflections( CHIP *chipOne, CHIP *chipTwo )
+		{
+			Chips[0] = chipOne;
+			Chips[1] = chipOne;
+			Chips[2] = chipTwo;
+			Chips[3] = chipTwo;
+			Chips[4] = chipOne;
+			Chips[5] = chipOne;
+			Chips[6] = chipTwo;
+			Chips[7] = chipTwo;
+		}
+
+		CHIP *Chips[8];
+	};
 
 } // end namespace Jynx
 

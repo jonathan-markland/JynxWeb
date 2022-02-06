@@ -42,7 +42,7 @@ namespace Jynx
 		
 		void SetPalette(LynxColourSet::Enum colourSet);
 		void OnDevicePortValueChanged(uint8_t devicePortValue);
-		void OnScreenRamWrite(CHIP ramChip, uint16_t addressIndex, uint8_t dataByte);
+		void OnScreenRamWrite(CHIP &ramChip, uint16_t addressIndex, uint8_t dataByte);
 		void OnHardwareReset();
 
 		void MarkWholeScreenInvalid();

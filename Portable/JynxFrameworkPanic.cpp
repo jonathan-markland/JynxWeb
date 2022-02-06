@@ -12,6 +12,13 @@ namespace JynxFramework
 
 
 
+	volatile const char **GetPanicMessagePointerAddress()
+	{
+		return &g_JynxPanicMessage;
+	}
+	
+
+
 	void Panic(const char* message)
 	{
 		g_JynxPanicMessage = message;
@@ -21,6 +28,10 @@ namespace JynxFramework
 
 			#ifdef _WIN32
 			::Sleep(100000);  // May as well not waste CPU time on the Desktop build.
+			#endif
+			
+			#ifdef __clang_major__
+			*(int*)0x20000000 = 0;  // TODO: hack to abort WASM machine in the browser context
 			#endif
 
 			// TODO: || defined(__linux__))

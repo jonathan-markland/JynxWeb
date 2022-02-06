@@ -54,14 +54,14 @@ namespace Jynx
 	
 	void LynxROMsAndRAMs::OnHardwareReset()
 	{
-		JynxFramework::ZeroInitialiseArrayMemory( _lynxRAM_0000 );
-		JynxFramework::ZeroInitialiseArrayMemory( _lynxRAM_2000 );
-		JynxFramework::ZeroInitialiseArrayMemory( _lynxRAM_4000 );
-		JynxFramework::ZeroInitialiseArrayMemory( _lynxRAM_6000 );
-		JynxFramework::ZeroInitialiseArrayMemory( _lynxRAM_8000 );
-		JynxFramework::ZeroInitialiseArrayMemory( _lynxRAM_A000 );
-		JynxFramework::ZeroInitialiseArrayMemory( _lynxRAM_C000 );
-		JynxFramework::ZeroInitialiseArrayMemory( _lynxRAM_E000 );
+		_lynxRAM_0000.SetToAllZeroes();
+		_lynxRAM_2000.SetToAllZeroes();
+		_lynxRAM_4000.SetToAllZeroes();
+		_lynxRAM_6000.SetToAllZeroes();
+		_lynxRAM_8000.SetToAllZeroes();
+		_lynxRAM_A000.SetToAllZeroes();
+		_lynxRAM_C000.SetToAllZeroes();
+		_lynxRAM_E000.SetToAllZeroes();
 
 		//
 		// Copy the appropriate ROMs in according to the _machineType
@@ -69,21 +69,21 @@ namespace Jynx
 
 		if( _machineType == LynxMachineType::LYNX_48K )
 		{
-			JynxFramework::CopyWholeArray( RomImageLynx48Image1, _lynxROM_0000 );
-			JynxFramework::CopyWholeArray( RomImageLynx48Image2, _lynxROM_2000 );
-			JynxFramework::ZeroInitialiseArrayMemory( _lynxROM_4000 );
+			_lynxROM_0000.SetFrom( RomImageLynx48Image1 );
+			_lynxROM_2000.SetFrom( RomImageLynx48Image2 );
+			_lynxROM_4000.SetToAll(0xFF);
 		}
 		else if( _machineType == LynxMachineType::LYNX_96K )
 		{
-			JynxFramework::CopyWholeArray( RomImageLynx96Image1, _lynxROM_0000 );
-			JynxFramework::CopyWholeArray( RomImageLynx96Image2, _lynxROM_2000 );
-			JynxFramework::CopyWholeArray( RomImageLynx96Image3, _lynxROM_4000 );
+			_lynxROM_0000.SetFrom( RomImageLynx96Image1 );
+			_lynxROM_2000.SetFrom( RomImageLynx96Image2 );
+			_lynxROM_4000.SetFrom( RomImageLynx96Image3 );
 		}
 		else if( _machineType == LynxMachineType::LYNX_96K_Scorpion )
 		{
-			JynxFramework::CopyWholeArray( RomImageLynx96Image1         , _lynxROM_0000 );
-			JynxFramework::CopyWholeArray( RomImageLynx96Image2         , _lynxROM_2000 );
-			JynxFramework::CopyWholeArray( RomImageLynx96ScorpionImage3 , _lynxROM_4000 );
+			_lynxROM_0000.SetFrom( RomImageLynx96Image1         );
+			_lynxROM_2000.SetFrom( RomImageLynx96Image2         );
+			_lynxROM_4000.SetFrom( RomImageLynx96ScorpionImage3 );
 		}
 		// TODO: else assert(false);
 	}

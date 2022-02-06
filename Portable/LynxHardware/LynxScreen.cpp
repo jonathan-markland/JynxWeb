@@ -32,8 +32,6 @@ namespace Jynx
 
 	void LynxScreen::OnHardwareReset()
 	{
-		_colourSet        = LynxColourSet::NormalRGB;
-		
 		_sourceVideoRED   = &_lynxRedRAM;
 		_sourceVideoGREEN = &_lynxGreenRAM;  // TODO:  kinda assuming we know the port register value on a reset here.  (very minor)
 		_sourceVideoBLUE  = &_lynxBlueRAM;
@@ -44,13 +42,13 @@ namespace Jynx
 
 		for (uint32_t i=0; i < LYNX_FRAMEBUF_PIXEL_COUNT; i++)
 		{
-			_hostScreenImage[i] = (uint32_t) 0xFFFFFFFFFF;
+			_hostScreenImage[i] = (uint32_t) 0xFFFF00FF;
 		}
 		
-		JynxFramework::ZeroInitialiseArrayMemory( _lynxRedRAM );
-		JynxFramework::ZeroInitialiseArrayMemory( _lynxBlueRAM );
-		JynxFramework::ZeroInitialiseArrayMemory( _lynxAltGreenRAM );
-		JynxFramework::ZeroInitialiseArrayMemory( _lynxGreenRAM );
+		_lynxRedRAM.SetToAllZeroes();
+		_lynxBlueRAM.SetToAllZeroes();
+		_lynxAltGreenRAM.SetToAllZeroes();
+		_lynxGreenRAM.SetToAllZeroes();
 
 		SetPalette(LynxColourSet::NormalRGB);
 
@@ -158,18 +156,18 @@ namespace Jynx
 	
 	
 	
-	void LynxScreen::OnScreenRamWrite(CHIP ramChip, uint16_t addressIndex, uint8_t dataByte)
+	void LynxScreen::OnScreenRamWrite(CHIP &ramChip, uint16_t addressIndex, uint8_t dataByte)
 	{
 		// The caller (the decoder) reminds us of which of our RAM chips we're writing to.
 		
 		// TODO: We could do with knowing the colour the CHIP relates to, and only write that colour's byte in the RGBAs!
 		
-		auto ramLocation = ramChip + addressIndex;
+		auto ramLocation = &ramChip.RamBytes[addressIndex];
 		if( *ramLocation != dataByte ) // speed optimisation
 		{
 			*ramLocation = dataByte;
 			ComposeHostBitmapPixelsForLynxScreenAddress( addressIndex );
-		}		
+		}
 	}
 	
 	
@@ -188,9 +186,9 @@ namespace Jynx
 
 		// TODO: assert( addressOffset < 0x2000 );
 
-		uint32_t  lynxRedByte   = (*_sourceVideoRED)[addressOffset];
-		uint32_t  lynxGreenByte = (*_sourceVideoGREEN)[addressOffset];
-		uint32_t  lynxBlueByte  = (*_sourceVideoBLUE)[addressOffset];
+		uint32_t  lynxRedByte   = _sourceVideoRED->RamBytes[addressOffset];
+		uint32_t  lynxGreenByte = _sourceVideoGREEN->RamBytes[addressOffset];
+		uint32_t  lynxBlueByte  = _sourceVideoBLUE->RamBytes[addressOffset];
 
 		uint32_t   pixelDataRGBA[8];
 
@@ -208,8 +206,20 @@ namespace Jynx
 		}
 
 		// TODO:  _hostObject->PaintPixelsOnHostBitmap_OnEmulatorThread( addressOffset, pixelDataRGBA );
+		int32_t  destX = (addressOffset & 0x1F);
+		int32_t  destY = (addressOffset >> 5);
+		auto destination = _hostScreenImage + (destY * LYNX_FRAMEBUF_WIDTH) + (destX * 8);
+		destination[0] = pixelDataRGBA[0];
+		destination[1] = pixelDataRGBA[1];
+		destination[2] = pixelDataRGBA[2];
+		destination[3] = pixelDataRGBA[3];
+		destination[4] = pixelDataRGBA[4];
+		destination[5] = pixelDataRGBA[5];
+		destination[6] = pixelDataRGBA[6];
+		destination[7] = pixelDataRGBA[7];
 
-		/* TODO: 6845 not in MVP for web brower version     if( _rangeMaskedScreenStartAddress6845 != 0 )
+
+	/* TODO: 6845 not in MVP for web brower version     if( _rangeMaskedScreenStartAddress6845 != 0 )
 		{
 			// Since supporting register 12 and 13 on the 6845, we need to adjust for the 6845 start address,
 			// because the invalidation recording does not know about the 6845, only the display "straight on".

@@ -22,6 +22,14 @@
 
 #include <stdint.h>
 
+// Obtains address of a pointer that will be null if no panic, otherwise
+// will be the address of the panic text nul-terminated string, when the
+// program is in the panic infinite loop.
+extern "C" volatile const char **GetPanicMessagePointerAddress();
+
+// This needs to be called before the compiler-generated __wasm_call_ctors()
+extern "C" void InitBeforeCtorsCalled();
+
 // Get guest screen width.  This is a runtime constant.
 extern "C" int32_t GetGuestScreenWidthPixels();
 

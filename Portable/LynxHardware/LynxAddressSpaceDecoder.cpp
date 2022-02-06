@@ -24,27 +24,6 @@
 
 namespace Jynx
 {
-	void MapReflections( ADDRESS_SPACE &addressSpace, CHIP *chipOne, CHIP *chipTwo )
-	{
-		addressSpace[0] = chipOne;
-		addressSpace[1] = chipOne;
-		addressSpace[2] = chipTwo;
-		addressSpace[3] = chipTwo;
-		addressSpace[4] = chipOne;
-		addressSpace[5] = chipOne;
-		addressSpace[6] = chipTwo;
-		addressSpace[7] = chipTwo;
-	}
-
-
-
-	void ZeroBANK( ADDRESS_SPACE &addressSpace )
-	{
-		JynxFramework::InitialiseAllArrayElements( addressSpace, (CHIP *) nullptr );
-	}
-
-
-
 	LynxAddressSpaceDecoder::LynxAddressSpaceDecoder()
 	{
 		_machineType = LynxMachineType::LYNX_48K; // TODO: Parameterise this externally.
@@ -71,12 +50,6 @@ namespace Jynx
 	{
 		_devicePort = DEVICEPORT_INITIALISATION_VALUE;
 		_bankPort   = BANKPORT_INITIALISATION_VALUE;
-		
-		JynxFramework::InitialiseAllArrayElements( _addressSpaceREAD,   (CHIP *) nullptr );
-		JynxFramework::InitialiseAllArrayElements( _addressSpaceWRITE1, (CHIP *) nullptr );
-		JynxFramework::InitialiseAllArrayElements( _addressSpaceWRITE2, (CHIP *) nullptr );
-		JynxFramework::InitialiseAllArrayElements( _addressSpaceWRITE3, (CHIP *) nullptr );
-		
 		_memory.OnHardwareReset();
 		_screen.OnHardwareReset();
 		_screen.OnDevicePortValueChanged(_devicePort);
@@ -110,46 +83,46 @@ namespace Jynx
 		{
 			if( _machineType == LynxMachineType::LYNX_48K )
 			{
-				MapReflections( _addressSpaceWRITE1, _memory.GetRAM_8000(), _memory.GetRAM_6000() );
+				_addressSpaceWRITE1.MapReflections( _memory.GetRAM_8000(), _memory.GetRAM_6000() );
 			}
 			else
 			{
 				// TODO: assert( _machineType == LynxMachineType::LYNX_96K || _machineType == LynxMachineType::LYNX_96K_Scorpion );
-				_addressSpaceWRITE1[0] = _memory.GetRAM_0000();
-				_addressSpaceWRITE1[1] = _memory.GetRAM_2000();
-				_addressSpaceWRITE1[2] = _memory.GetRAM_4000();
-				_addressSpaceWRITE1[3] = _memory.GetRAM_6000();
-				_addressSpaceWRITE1[4] = _memory.GetRAM_8000();
-				_addressSpaceWRITE1[5] = _memory.GetRAM_A000();
-				_addressSpaceWRITE1[6] = _memory.GetRAM_C000();
-				_addressSpaceWRITE1[7] = _memory.GetRAM_E000();
+				_addressSpaceWRITE1.Chips[0] = _memory.GetRAM_0000();
+				_addressSpaceWRITE1.Chips[1] = _memory.GetRAM_2000();
+				_addressSpaceWRITE1.Chips[2] = _memory.GetRAM_4000();
+				_addressSpaceWRITE1.Chips[3] = _memory.GetRAM_6000();
+				_addressSpaceWRITE1.Chips[4] = _memory.GetRAM_8000();
+				_addressSpaceWRITE1.Chips[5] = _memory.GetRAM_A000();
+				_addressSpaceWRITE1.Chips[6] = _memory.GetRAM_C000();
+				_addressSpaceWRITE1.Chips[7] = _memory.GetRAM_E000();
 			}
 		}
 		else
 		{
-			MapReflections( _addressSpaceWRITE1, nullptr, nullptr );
+			_addressSpaceWRITE1.MapReflections( nullptr, nullptr );
 		}
 
 		// Is Bank 2 going to be enabled for writes?
 
 		if( _bankPort & BANKPORT_WREN2 && bCasEnBank2 )
 		{
-			MapReflections( _addressSpaceWRITE2, _screen.GetBlueRAM(), _screen.GetRedRAM() );
+			_addressSpaceWRITE2.MapReflections( _screen.GetBlueRAM(), _screen.GetRedRAM() );
 		}
 		else
 		{
-			MapReflections( _addressSpaceWRITE2, nullptr, nullptr );
+			_addressSpaceWRITE2.MapReflections( nullptr, nullptr );
 		}
 
 		// Is Bank 3 going to be enabled for writes?
 
 		if( _bankPort & BANKPORT_WREN3 && bCasEnBank3 )
 		{
-			MapReflections( _addressSpaceWRITE3, _screen.GetAltGreenRAM(), _screen.GetGreenRAM() );
+			_addressSpaceWRITE3.MapReflections( _screen.GetAltGreenRAM(), _screen.GetGreenRAM() );
 		}
 		else
 		{
-			MapReflections( _addressSpaceWRITE3, nullptr, nullptr );
+			_addressSpaceWRITE3.MapReflections( nullptr, nullptr );
 		}
 
 		//
@@ -164,19 +137,19 @@ namespace Jynx
 
 			if( _machineType == LynxMachineType::LYNX_48K )
 			{
-				MapReflections( _addressSpaceREAD, _memory.GetRAM_8000(), _memory.GetRAM_6000() );
+				_addressSpaceREAD.MapReflections( _memory.GetRAM_8000(), _memory.GetRAM_6000() );
 			}
 			else
 			{
 				// TODO: assert( _machineType == LynxMachineType::LYNX_96K || _machineType == LynxMachineType::LYNX_96K_Scorpion );
-				_addressSpaceREAD[0] = _memory.GetRAM_0000();
-				_addressSpaceREAD[1] = _memory.GetRAM_2000();
-				_addressSpaceREAD[2] = _memory.GetRAM_4000();
-				_addressSpaceREAD[3] = _memory.GetRAM_6000();
-				_addressSpaceREAD[4] = _memory.GetRAM_8000();
-				_addressSpaceREAD[5] = _memory.GetRAM_A000();
-				_addressSpaceREAD[6] = _memory.GetRAM_C000();
-				_addressSpaceREAD[7] = _memory.GetRAM_E000();
+				_addressSpaceREAD.Chips[0] = _memory.GetRAM_0000();
+				_addressSpaceREAD.Chips[1] = _memory.GetRAM_2000();
+				_addressSpaceREAD.Chips[2] = _memory.GetRAM_4000();
+				_addressSpaceREAD.Chips[3] = _memory.GetRAM_6000();
+				_addressSpaceREAD.Chips[4] = _memory.GetRAM_8000();
+				_addressSpaceREAD.Chips[5] = _memory.GetRAM_A000();
+				_addressSpaceREAD.Chips[6] = _memory.GetRAM_C000();
+				_addressSpaceREAD.Chips[7] = _memory.GetRAM_E000();
 			}
 
 			++readCount;
@@ -187,20 +160,20 @@ namespace Jynx
 			if( bCasEnBank2 )
 			{
 				// Bank 2 is switched in
-				MapReflections( _addressSpaceREAD, _screen.GetBlueRAM(), _screen.GetRedRAM() );
+				_addressSpaceREAD.MapReflections( _screen.GetBlueRAM(), _screen.GetRedRAM() );
 				++readCount;
 			}
 			if( bCasEnBank3 )
 			{
 				// Bank 3 is switched in
-				MapReflections( _addressSpaceREAD, _screen.GetAltGreenRAM(), _screen.GetGreenRAM() );
+				_addressSpaceREAD.MapReflections( _screen.GetAltGreenRAM(), _screen.GetGreenRAM() );
 				++readCount;
 			}
 		}
 
 		if( readCount == 0 )
 		{
-			ZeroBANK( _addressSpaceREAD );
+			_addressSpaceREAD.SetAllNull();
 		}
 
 		//
@@ -211,17 +184,17 @@ namespace Jynx
 		{
 			// ROM is enabled for reading
 
-			_addressSpaceREAD[0] = _memory.GetROM_0000();
-			_addressSpaceREAD[1] = _memory.GetROM_2000();
+			_addressSpaceREAD.Chips[0] = _memory.GetROM_0000();
+			_addressSpaceREAD.Chips[1] = _memory.GetROM_2000();
                                    
 			if( _machineType == LynxMachineType::LYNX_48K )
 			{
-				_addressSpaceREAD[2] = nullptr; // extended ROM not present, MUST return 0xFF for the region.
+				_addressSpaceREAD.Chips[2] = nullptr; // extended ROM not present, MUST return 0xFF for the region.  // TODO: Use new solution: We initialised the ROM store to 0xFFs above!
 			}
 			else
 			{
 				// TODO: assert( _machineType == LynxMachineType::LYNX_96K || _machineType == LynxMachineType::LYNX_96K_Scorpion );
-				_addressSpaceREAD[2] = _memory.GetROM_4000();  // The 96K machine has an extended ROM.
+				_addressSpaceREAD.Chips[2] = _memory.GetROM_4000();  // The 96K machine has an extended ROM.
 			}
 		}
 	}
@@ -231,11 +204,11 @@ namespace Jynx
 	uint8_t LynxAddressSpaceDecoder::Z80_AddressRead( uint16_t address )
 	{
 		auto regionIndex = (address >> 13) & 7;
-		auto chipToReadFrom = _addressSpaceREAD[regionIndex];
+		auto chipToReadFrom = _addressSpaceREAD.Chips[regionIndex];
 
 		if( chipToReadFrom != nullptr )  // TODO: Can we afford an 8KB slab of 0xFFs to avoid this branch?
 		{
-			auto dataByte = (*chipToReadFrom)[address & 0x1FFF];
+			auto dataByte = chipToReadFrom->RamBytes[address & 0x1FFF];
 			return dataByte;
 		}
 		else
@@ -255,15 +228,15 @@ namespace Jynx
 
 		// Is bank 1 enabled to decode this?
 
-		auto pChipInBank1 = _addressSpaceWRITE1[regionIndex];
+		auto pChipInBank1 = _addressSpaceWRITE1.Chips[regionIndex];
 		if( pChipInBank1 )
 		{
-			(*pChipInBank1)[addressOffset] = dataByte;
+			pChipInBank1->RamBytes[addressOffset] = dataByte;
 		}
 
 		// Is bank 2 enabled to decode this?
 
-		auto pChipInBank2 = _addressSpaceWRITE2[regionIndex];
+		auto pChipInBank2 = _addressSpaceWRITE2.Chips[regionIndex];
 		if( pChipInBank2 )
 		{
 			_screen.OnScreenRamWrite(*pChipInBank2, addressOffset, dataByte);
@@ -271,7 +244,7 @@ namespace Jynx
 
 		// Is bank 3 enabled to decode this?
 
-		auto pChipInBank3 = _addressSpaceWRITE3[regionIndex];
+		auto pChipInBank3 = _addressSpaceWRITE3.Chips[regionIndex];
 		if( pChipInBank3 )
 		{
 			_screen.OnScreenRamWrite(*pChipInBank3, addressOffset, dataByte);

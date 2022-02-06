@@ -18,9 +18,30 @@
 //		jynx_emulator {at} yahoo {dot} com
 //
 
+#include "../Portable/JynxFrameworkPanic.h"
+#include "../Portable/Z80/JynxZ80.h"
 #include "JynxJavascriptInterfacing.h"
 #include "../Portable/LynxHardware/LynxComputer.h"
 #include "../Portable/LynxHardware/LynxScreen.h"
+#include "../Portable/WasmNeverFreeingMemoryAllocator.h"
+
+
+
+extern "C" volatile const char **GetPanicMessagePointerAddress()
+{
+	return JynxFramework::GetPanicMessagePointerAddress();
+}
+
+
+
+extern "C" void InitBeforeCtorsCalled()
+{
+	// This needs to be called before the compiler-generated __wasm_call_ctors()
+	
+	WasmNeverFreeingMemoryAllocator::Init();
+}
+
+
 
 static Jynx::LynxComputer *g_LynxComputerSingletonInstance = nullptr;
 
@@ -31,6 +52,7 @@ extern "C" void CreateJynxEmulatorSingleton()
 {
 	if (g_LynxComputerSingletonInstance == nullptr)
 	{
+		JynxZ80::Z80::InitialiseGlobalTables();
 		g_LynxComputerSingletonInstance = new Jynx::LynxComputer();
 		
 		for (int i=0; i<128; i++)
