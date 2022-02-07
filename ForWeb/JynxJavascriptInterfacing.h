@@ -49,6 +49,14 @@ extern "C" void CreateJynxEmulatorSingleton();
 // and has dimensions given by the GetGuestScreenWidth/HeightPixels functions.
 extern "C" uint32_t *GetSingletonScreenBitmapBaseAddress();
 
+// Obtains address of 32-byte array of 8-bit counters that increment
+// (at most) once per emulation quantum, to indicate that the respective
+// screen row needs updating.  This is a lock-free indication, read
+// by the host.  These values are initialised to all zeroes when
+// the singleton is created and are NOT reset when the guest is reset,
+// allowing the host to stay "in sync" with no additional tasks.
+extern "C" volatile uint8_t *GetSingletonRowDirtyCountersAddress();
+
 // Once the singleton is created, obtains the address of the
 // sound buffer.  This is an array of 128 x 32-bit floats, per the
 // web browser Audio Worklet specification.

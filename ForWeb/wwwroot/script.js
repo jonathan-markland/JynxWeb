@@ -10,7 +10,7 @@
 
 const GUEST_SCREEN_WIDTH  = 256;   // If changed, must also change the C++ #define of the same name.
 const GUEST_SCREEN_HEIGHT = 256;   // If changed, must also change the C++ #define of the same name.
-
+const INV_ROWS            = 32;    // The number of entries in globalWasmRowDirtyCountersArray
 
 // ------------------------------------------------------------------------------------------------------------
 //   GLOBAL STATE
@@ -23,6 +23,7 @@ let globalWasmImage;
 let globalWasmKeyTranslationTableSize;
 let globalWasmKeyTranslationTableArray;
 let globalWasmKeyboardPortsArray;
+let globalWasmRowDirtyCountersArray;
 
 
 // ------------------------------------------------------------------------------------------------------------
@@ -58,6 +59,7 @@ async function createEmulatorAudioWorkletNode(audioContext, onReady)
 				let onReadyDetails = { 
 					wasmMemoryArray                : wasmMemoryArray,
 					wasmImageArray                 : new Uint8ClampedArray(wasmMemoryArray, postedDataForHost.screenBaseAddress, GUEST_SCREEN_WIDTH * GUEST_SCREEN_HEIGHT * 4),
+					wasmRowDirtyCountersArray      : new Uint8ClampedArray(wasmMemoryArray, postedDataForHost.screenRowDirtyCountersAddress, INV_ROWS),
 					wasmKeyTranslationTableSize    : postedDataForHost.keyTranslationTableSize,
 					wasmKeyTranslationTableArray   : new Uint8ClampedArray(wasmMemoryArray, postedDataForHost.keyTranslationTableAddress, postedDataForHost.keyTranslationTableSize),
 					wasmKeyboardPortsArray         : new Uint8ClampedArray(wasmMemoryArray, postedDataForHost.keyboardPortsArray, 10) // TODO: constant is number of bytes in the Lynx's keyboard ports array.
@@ -115,6 +117,8 @@ function ensureGlobalAudioContextCreated()
 
 
 
+/* Kept for future reference
+
 async function ensureGlobalAudioContextDisposed() 
 {
 	if (globalAudioContext) 
@@ -122,7 +126,7 @@ async function ensureGlobalAudioContextDisposed()
 		await globalAudioContext.close();
 		globalAudioContext = null;
 	}
-}
+} */
 
 
 
@@ -136,7 +140,7 @@ window.addEventListener(
 		{
 			document.getElementById("startEmulator").addEventListener("click", onStartEmulator);
 			// document.getElementById("toggleVolume").addEventListener("click", onToggleVolumeLevel);
-			document.getElementById("updateGraphics").addEventListener("click", onUpdateGraphics);
+			document.getElementById("updateGraphics").addEventListener("click", onManuallyUpdateGraphics);
 			document.addEventListener('keydown', onKeyDown);
 			document.addEventListener('keyup', onKeyUp);
 		});
@@ -146,6 +150,45 @@ window.addEventListener(
 // ------------------------------------------------------------------------------------------------------------
 //   UI EVENT HANDLERS
 // ------------------------------------------------------------------------------------------------------------
+
+
+var g_MostRecentUpdateCounts = new Uint8Array(INV_ROWS);
+
+function onPollForGraphicsUpdate() {
+	
+	// Called by window.requestAnimationFrame()
+
+	if (globalWasmImageSharedUint8ClampedArray && globalWasmRowDirtyCountersArray) // TODO: strictly, no longer needed.
+	{
+		// TODO: repaint only the strips in question!
+		
+		var repaintNeeded = false;
+		
+		for (i=0; i<INV_ROWS; i++)
+		{
+			var guestValue = globalWasmRowDirtyCountersArray[i];  // Read ONCE (volatile)
+			if (guestValue != g_MostRecentUpdateCounts[i])
+			{
+				repaintNeeded = true;
+				g_MostRecentUpdateCounts[i] = guestValue;  // so next time we can do our change-detection.
+			}
+		}
+
+		if (repaintNeeded)
+		{
+			globalWasmImageUnsharedUint8ClampedArray.set(globalWasmImageSharedUint8ClampedArray); // TODO: Design issue:  Unfortunately we must copy.  Can Web Canvas not directly accept a portion of the WASM memory space as the image source?
+			
+			const canvas = document.getElementById('canvas');
+			const ctx = canvas.getContext('2d');
+			ctx.putImageData(globalWasmImage, 0, 0);  // TODO: investigate portion-painting for the "update bands" that Jynx uses.
+		}
+	}
+	
+	// Keep the polling going always:
+	
+	window.requestAnimationFrame(onPollForGraphicsUpdate);
+}
+
 
 
 function HideStartEmulatorButton()
@@ -171,9 +214,14 @@ async function onStartEmulator(event)
 					globalWasmImageSharedUint8ClampedArray   = onReadyDetails.wasmImageArray;
 					globalWasmImageUnsharedUint8ClampedArray = new Uint8ClampedArray(GUEST_SCREEN_WIDTH * GUEST_SCREEN_HEIGHT * 4);  // This entails unfortunate copying, but we allocate ONCE at least!
 					globalWasmImage                          = new ImageData(globalWasmImageUnsharedUint8ClampedArray, GUEST_SCREEN_WIDTH, GUEST_SCREEN_HEIGHT); // TODO: check out the "format" parameter
-					globalWasmKeyTranslationTableSize        = onReadyDetails.wasmKeyTranslationTableSize,
-					globalWasmKeyTranslationTableArray       = onReadyDetails.wasmKeyTranslationTableArray,
-					globalWasmKeyboardPortsArray             = onReadyDetails.wasmKeyboardPortsArray
+					globalWasmRowDirtyCountersArray          = onReadyDetails.wasmRowDirtyCountersArray;
+					globalWasmKeyTranslationTableSize        = onReadyDetails.wasmKeyTranslationTableSize;
+					globalWasmKeyTranslationTableArray       = onReadyDetails.wasmKeyTranslationTableArray;
+					globalWasmKeyboardPortsArray             = onReadyDetails.wasmKeyboardPortsArray;
+					
+					// Start the display update polling:
+					
+					window.requestAnimationFrame(onPollForGraphicsUpdate);
 				});
 				
 		HideStartEmulatorButton();
@@ -186,34 +234,7 @@ async function onStartEmulator(event)
 
 
 
-/*
-async function onToggleVolumeLevel(event) {
-	
-	if (globalWasmVolumeLevelArray)
-	{
-		// Modify the volume level by directly altering the volume variable
-		// in the WASM memory space.
-		
-		// ECMA 262 : 29.11 Shared Memory Guidelines
-		// "... if memory is treated as strongly typed the racing accesses will not "tear" (bits of their values will not be mixed)."
-		
-		let currentLevel = globalWasmVolumeLevelArray[0];
-		if (currentLevel < 0.2)
-		{
-			currentLevel = 0.3;
-		}
-		else
-		{
-			currentLevel = 0.03;
-		}
-		globalWasmVolumeLevelArray[0] = currentLevel;
-	}
-}
-*/
-
-
-
-function onUpdateGraphics(event) {
+function onManuallyUpdateGraphics(event) {
 
 	if (globalWasmImageSharedUint8ClampedArray)
 	{

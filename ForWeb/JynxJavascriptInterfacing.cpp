@@ -77,6 +77,11 @@ extern "C" uint32_t *GetSingletonScreenBitmapBaseAddress()
 	return g_LynxComputerSingletonInstance->GetScreenBitmapBaseAddress();
 }
 
+extern "C" volatile uint8_t *GetSingletonRowDirtyCountersAddress()
+{ 
+	return g_LynxComputerSingletonInstance->GetRowDirtyCountersAddress();
+}
+
 extern "C" void RunTimeslice()
 {
 	g_LynxComputerSingletonInstance->OnTimeSlice();

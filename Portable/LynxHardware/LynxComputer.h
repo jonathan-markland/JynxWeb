@@ -35,8 +35,9 @@ namespace Jynx
 		void OnHardwareReset();
 		void OnTimeSlice();
 		
-		uint32_t *GetScreenBitmapBaseAddress();
-		volatile uint8_t *GetLynxKeyboardArrayAddress();
+		uint32_t *GetScreenBitmapBaseAddress()           { return _addressSpace.GetScreenBitmapBaseAddress();  }
+		volatile uint8_t *GetRowDirtyCountersAddress()   { return _addressSpace.GetRowDirtyCountersAddress();  }
+		volatile uint8_t *GetLynxKeyboardArrayAddress()  { return _addressSpace.GetLynxKeyboardArrayAddress(); }
 		
 	private:
 	

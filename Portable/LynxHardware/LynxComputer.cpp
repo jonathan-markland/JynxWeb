@@ -31,20 +31,6 @@ namespace Jynx
 
 
 
-	uint32_t *LynxComputer::GetScreenBitmapBaseAddress()
-	{
-		return _addressSpace.GetScreenBitmapBaseAddress();
-	}
-	
-	
-	
-	volatile uint8_t *LynxComputer::GetLynxKeyboardArrayAddress()
-	{
-		return _addressSpace.GetLynxKeyboardArrayAddress();
-	}
-
-
-
 	void LynxComputer::OnHardwareReset()
 	{
 		_processor.SetTimesliceLength(10449);  // TODO: Calc properly.  (4,000,000 * 128 / 44100) * 0.9  ...  (Z80 speed * samples per buffer / sound sample rate) * ROM slowdown factor
@@ -61,13 +47,15 @@ namespace Jynx
 		// the precise number of cycles elapsed (which may not
 		// precisely be what we asked for, but the design supports
 		// correcting this in later timeslices):
+		
+		_addressSpace.OnQuantumStart();
 
 		auto cycleCountBefore = _processor.GetRemainingCycles();
 		_processor.RunForTimeslice();
 		auto cycleCountAfter  = _processor.GetRemainingCycles();
 		_z80CycleCounter += (cycleCountAfter - cycleCountBefore) + _processor.GetTimesliceLength();
 
-		_addressSpace.RecomposeWholeHostScreenRGBAsIfPending();
+		_addressSpace.OnQuantumEnd();
 	}
 }
 

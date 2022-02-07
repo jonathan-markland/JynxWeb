@@ -32,23 +32,16 @@ namespace Jynx
 
 
 
-	uint32_t *LynxAddressSpaceDecoder::GetScreenBitmapBaseAddress()
+	void LynxAddressSpaceDecoder::OnQuantumStart()
 	{
-		return _screen.GetScreenBitmapBaseAddress();
+		_screen.OnQuantumStart();
 	}
-	
-	
-	
-	volatile uint8_t *LynxAddressSpaceDecoder::GetLynxKeyboardArrayAddress()
+
+
+
+	void LynxAddressSpaceDecoder::OnQuantumEnd()
 	{
-		return _keyboard.GetLynxKeyboardArrayAddress();
-	}
-	
-	
-	
-	void LynxAddressSpaceDecoder::RecomposeWholeHostScreenRGBAsIfPending()
-	{
-		_screen.RecomposeWholeHostScreenRGBAsIfPending();
+		_screen.OnQuantumEnd();
 	}
 
 

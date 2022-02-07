@@ -25,6 +25,7 @@ namespace Jynx
 {
 	LynxScreen::LynxScreen()
 	{
+		JynxFramework::InitialiseAllArrayElementsVolatile( _rowDirtyCount, (uint8_t) 0 );  // Init once per session, not per reset.
 		OnHardwareReset();
 	}
 
@@ -38,7 +39,7 @@ namespace Jynx
 		
 		_recompositeWholeHostRGBAs = false;
 
-		JynxFramework::InitialiseAllArrayElementsVolatile( _invalidateRow, true );
+		JynxFramework::InitialiseAllArrayElements( _rowWrittenFlag, false );
 
 		for (uint32_t i=0; i < LYNX_FRAMEBUF_PIXEL_COUNT; i++)
 		{
@@ -52,14 +53,7 @@ namespace Jynx
 
 		SetPalette(LynxColourSet::NormalRGB);
 
-		MarkHostScreenRGBAsAsNeedingRecompose();
-	}
-	
-	
-	
-	uint32_t *LynxScreen::GetScreenBitmapBaseAddress()
-	{
-		return _hostScreenImage;
+		MarkHostScreenRGBAsAsNeedingRecomposeAndInvalid();
 	}
 	
 	
@@ -139,7 +133,7 @@ namespace Jynx
 		// TODO:  Do when doing JynxII Desktop version, (the above colours are the Web browser ones):   
 			// TODO:  _hostObject->TranslateRGBXColourPaletteToHostValues( _colourPalette, _translatedColourPalette );
 			
-		MarkHostScreenRGBAsAsNeedingRecompose();
+		MarkHostScreenRGBAsAsNeedingRecomposeAndInvalid();
 	}
 	
 	
@@ -151,7 +145,7 @@ namespace Jynx
 		// We are changing the GREEN / ALTERNATIVE GREEN selector
 		// so a re-construction and invalidate of the display is needed.
 		// We don't do it right now, we flag for it at the next frame:
-		MarkHostScreenRGBAsAsNeedingRecompose();
+		MarkHostScreenRGBAsAsNeedingRecomposeAndInvalid();
 	}
 	
 	
@@ -174,8 +168,6 @@ namespace Jynx
 	
 	void LynxScreen::ComposeHostBitmapPixelsForLynxScreenAddress( uint32_t addressOffset )
 	{
-		// Note: Volatile variable access to _invalidateRow[] -- no sync needed.
-
 		// The Lynx's screen memory has just been written at address offset 'addressOffset'.
 		// We compose the framebuffer equivalent from the sources, which can be NULL.
 
@@ -239,31 +231,25 @@ namespace Jynx
 		{
 			// Original code for non-fiddled 6845 R12/R13.  (Just playing it super-safe for now until I regression test the above case more!).
 			// TODO: assert( (addressOffset >> 8) < INV_ROWS );
-			_invalidateRow[addressOffset >> 8] = true; // mark a row invalid
+			_rowWrittenFlag[addressOffset >> 8] = true; // mark a row as needing an update.
 		}
 	}
 	
 	
 	
-	void LynxScreen::MarkWholeScreenInvalid()
+	void LynxScreen::OnQuantumStart()
 	{
-		// (Called on Z80 thread and Main thread).
-		// Volatile variable access -- no sync needed.
-
-		JynxFramework::InitialiseAllArrayElementsVolatile( _invalidateRow, true );
+		JynxFramework::InitialiseAllArrayElements( _rowWrittenFlag, false );
 	}
 	
 	
 	
-	void LynxScreen::MarkHostScreenRGBAsAsNeedingRecompose()
+	void LynxScreen::OnQuantumEnd()
 	{
-		_recompositeWholeHostRGBAs = true;
-	}
-	
-	
-	
-	void LynxScreen::RecomposeWholeHostScreenRGBAsIfPending()
-	{
+		// See if we're recomposing the host pixels for the entire Lynx display.
+		// This expensive operation is done lazily, at the end of the timeslice
+		// rather than every time the associated ports are changed.
+		
 		if (_recompositeWholeHostRGBAs)
 		{
 			_recompositeWholeHostRGBAs = false;
@@ -273,8 +259,33 @@ namespace Jynx
 				ComposeHostBitmapPixelsForLynxScreenAddress( guestScreenAddressOffset );
 			}
 		}
+
+		// Increment the row-dirty counters for those rows that
+		// have been written by the guest during this time quantum.
+		
+		for (int i=0; i<INV_ROWS; i++)
+		{
+			if (_rowWrittenFlag[i] == true)
+			{
+				_rowWrittenFlag[i] = false;
+				_rowDirtyCount[i] += 1;
+			}
+		}
 	}
 
 	
+	
+	void LynxScreen::MarkWholeScreenInvalid()
+	{
+		JynxFramework::InitialiseAllArrayElements( _rowWrittenFlag, true );
+	}
+	
+	
+	
+	void LynxScreen::MarkHostScreenRGBAsAsNeedingRecomposeAndInvalid()
+	{
+		_recompositeWholeHostRGBAs = true;
+		MarkWholeScreenInvalid();
+	}
 }
 

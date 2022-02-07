@@ -38,22 +38,19 @@ namespace Jynx
 		LynxScreen(const LynxScreen &) = delete;
 		void operator=(const LynxScreen &) = delete;
 		
-		uint32_t *GetScreenBitmapBaseAddress();
+		uint32_t *GetScreenBitmapBaseAddress()          { return _hostScreenImage; }
+		volatile uint8_t *GetRowDirtyCountersAddress()  { return _rowDirtyCount; }
 		
 		void SetPalette(LynxColourSet::Enum colourSet);
+		
+		void OnQuantumStart();
+		void OnQuantumEnd();
 		void OnDevicePortValueChanged(uint8_t devicePortValue);
 		void OnScreenRamWrite(CHIP &ramChip, uint16_t addressIndex, uint8_t dataByte);
 		void OnHardwareReset();
 
 		void MarkWholeScreenInvalid();
 
-		// Some Z80 I/O space writes affect the whole Lynx screen.  We LAZILY update
-		// the host's RGBA values.
-		void MarkHostScreenRGBAsAsNeedingRecompose();  // TODO: Review whether external parties really need this.
-
-		// Only to be called one the Z80 timeslice processing function.
-		void RecomposeWholeHostScreenRGBAsIfPending();
-		
 		// TODO: Get address of invalidation flags for Javascript to directly read from the SharedArrayBuffer.
 		// TODO: Get address of _hostScreenImage for Javascript to directly read from the SharedArrayBuffer.
 
@@ -66,13 +63,17 @@ namespace Jynx
 	
 		void ComposeHostBitmapPixelsForLynxScreenAddress( uint32_t addressOffset );
 
+		// Some Z80 I/O space writes affect the whole Lynx screen.  We LAZILY update
+		// the host's RGBA values.
+		void MarkHostScreenRGBAsAsNeedingRecomposeAndInvalid();
+
 	private:
 	
 		//
 		// The RGBA pixels for the host.
 		//
 	
-		uint32_t _hostScreenImage[LYNX_FRAMEBUF_PIXEL_COUNT];
+		uint32_t  _hostScreenImage[LYNX_FRAMEBUF_PIXEL_COUNT];
 
 		//
 		// The Lynx's chip set  (8K ROMs/RAMs)
@@ -114,10 +115,13 @@ namespace Jynx
 
 		//
 		// Screen area invalidation recording system (guest coordinate space):
+		// The screen is divided into 32 x 8-pixel high rows.  These can be
+		// marked for repaint.
 		//
 		
-		enum { INV_ROWS = 32 };          // The vertical height of the screen is divided into this many rows for invalidation recording.  (This is irrespective of 6845 start address alteration).
-		volatile bool  _invalidateRow[INV_ROWS];  // Set true when an individual bit is drawn
+		enum { INV_ROWS = 32 };                         // The vertical height of the screen is divided into this many rows for invalidation recording.  (This is irrespective of 6845 start address alteration).
+		bool     _rowWrittenFlag[INV_ROWS];             // Sticky flags used within an emulation quantum
+		volatile uint8_t  _rowDirtyCount[INV_ROWS];     // Incremented once per emulation quantum where this band is written.  Host shares and READs this!
 
 		//
 		// Host-screen RGBAs (_hostScreenImage) recomposition.

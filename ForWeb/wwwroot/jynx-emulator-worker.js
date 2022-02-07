@@ -78,11 +78,12 @@ class JynxEmulatorWorkletProcessor extends AudioWorkletProcessor
 
 				let postedDataForHost = {
 					// volumeLevelAddress: instance.exports.get_static_level_variable(),
-					screenBaseAddress          : instance.exports.GetSingletonScreenBitmapBaseAddress(),
-					keyTranslationTableSize    : instance.exports.GetWebBrowserKeycodeTranslationTableSize(),
-					keyTranslationTableAddress : instance.exports.GetWebBrowserKeycodeTranslationTableAddress(),  // read only, of size given by keyTranslationTableSize
-					keyboardPortsArray         : instance.exports.GetLynxKeyboardArrayAddress(),
-					memory                     : memory
+					screenBaseAddress             : instance.exports.GetSingletonScreenBitmapBaseAddress(),
+					screenRowDirtyCountersAddress : instance.exports.GetSingletonRowDirtyCountersAddress(),
+					keyTranslationTableSize       : instance.exports.GetWebBrowserKeycodeTranslationTableSize(),
+					keyTranslationTableAddress    : instance.exports.GetWebBrowserKeycodeTranslationTableAddress(),  // read only, of size given by keyTranslationTableSize
+					keyboardPortsArray            : instance.exports.GetLynxKeyboardArrayAddress(),
+					memory                        : memory
 				};
 
 				parentThis.port.postMessage(postedDataForHost);

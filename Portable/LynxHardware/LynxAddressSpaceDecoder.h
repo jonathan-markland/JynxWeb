@@ -35,10 +35,13 @@ namespace Jynx
 	
 		LynxAddressSpaceDecoder();
 		
-		uint32_t *GetScreenBitmapBaseAddress();
-		volatile uint8_t *GetLynxKeyboardArrayAddress();
+		uint32_t *GetScreenBitmapBaseAddress()           { return _screen.GetScreenBitmapBaseAddress();    }
+		volatile uint8_t *GetRowDirtyCountersAddress()   { return _screen.GetRowDirtyCountersAddress();    }
+		volatile uint8_t *GetLynxKeyboardArrayAddress()  { return _keyboard.GetLynxKeyboardArrayAddress(); }
 		
 		void OnHardwareReset();
+		void OnQuantumStart();
+		void OnQuantumEnd();
 		
 		// The Z80 calls this to write a byte to the address space.
 		// Writes can hit multiple devices depending on which banks are active.
