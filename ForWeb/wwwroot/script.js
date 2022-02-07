@@ -4,6 +4,10 @@
 // Main bootstrapping and browser interfacing script.
 //
 
+
+	// TODO: How do we say the animation frame applies to the canvas element content only (optimisation) ?
+	
+
 // ------------------------------------------------------------------------------------------------------------
 //   CONSTANTS
 // ------------------------------------------------------------------------------------------------------------
@@ -139,7 +143,6 @@ window.addEventListener(
 	event => 
 		{
 			document.getElementById("startEmulator").addEventListener("click", onStartEmulator);
-			// document.getElementById("toggleVolume").addEventListener("click", onToggleVolumeLevel);
 			document.getElementById("updateGraphics").addEventListener("click", onManuallyUpdateGraphics);
 			document.addEventListener('keydown', onKeyDown);
 			document.addEventListener('keyup', onKeyUp);
