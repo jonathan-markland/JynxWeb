@@ -241,7 +241,6 @@ function BrowserKeyCodeToLynxKeyIndex(browserKeyCode)
 
 
 
-
 function onKeyDown(event) 
 {
 	if (globalWasmKeyTranslationTableArray)
@@ -254,7 +253,7 @@ function onKeyDown(event)
 			globalWasmKeyboardPortsArray[portIndex] = (globalWasmKeyboardPortsArray[portIndex] | mask) ^ mask;  // Clear bit in WASM shared memory  (key Down -ve logic)
 		}
 	}
-}	
+}
 
 
 
