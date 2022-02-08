@@ -72,10 +72,13 @@ namespace Jynx
 		
 		auto offsetInCycles = z80TimesliceLength - z80CyclesCountdown;
 		auto drawToIndex = (BROWSER_SOUND_BUFFER_LENGTH * offsetInCycles) / z80TimesliceLength;
-		
-		_level = ((float) lynxSpeakerLevel) / 63;
-		
+				
+		// This is kind of "write behind":  Only NOW do we know how long the previous
+		// level was held for!  So let's flush the previous level:
 		DrawTo( drawToIndex );
+
+		// Record the new level for next time:
+		_level = ((float) lynxSpeakerLevel) / 63.0;
 	}
 
 	
@@ -89,7 +92,11 @@ namespace Jynx
 	
 	void LynxSound::DrawTo( int index )
 	{	
-		if (index > BROWSER_SOUND_BUFFER_LENGTH) // Z80 processing may overshoot timeslice
+		if (index < 0)
+		{
+			index = 0;
+		}
+		else if (index > BROWSER_SOUND_BUFFER_LENGTH) // Z80 processing may overshoot timeslice
 		{
 			index = BROWSER_SOUND_BUFFER_LENGTH;
 		}
@@ -102,9 +109,9 @@ namespace Jynx
 				_pcmBuffer[i] = _level;
 				#endif
 			}
+
+			_bufferPosition = index;
 		}
-		
-		_bufferPosition = index;
 	}
 }
 
