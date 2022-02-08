@@ -85,6 +85,7 @@ namespace Jynx
 
 	void LynxSound::OnQuantumEnd()
 	{
+		// Ensure the most recent level is painted to the end of the sound buffer:
 		DrawTo( BROWSER_SOUND_BUFFER_LENGTH );
 	}
 	
