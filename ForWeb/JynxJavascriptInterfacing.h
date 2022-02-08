@@ -60,7 +60,7 @@ extern "C" volatile uint8_t *GetSingletonRowDirtyCountersAddress();
 // Once the singleton is created, obtains the address of the
 // sound buffer.  This is an array of 128 x 32-bit floats, per the
 // web browser Audio Worklet specification.
-extern "C" float *GetSingletonSoundBufferBaseAddress();
+extern "C" volatile float *GetSingletonSoundBufferBaseAddress();
 
 // Once the singleton is created, we can advance the state of
 // the system by 1 x timeslice.  This is the amount of time required

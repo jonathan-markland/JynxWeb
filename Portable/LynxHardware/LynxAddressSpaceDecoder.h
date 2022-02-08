@@ -20,12 +20,14 @@
 
 #pragma once
 
+#include "../Z80/JynxZ80.h" // only needed so sound can get elapsed Z80 time
 #include "../Z80/IZ80ExternalHandler.h"
 #include "LynxHardwareCommon.h"
 #include "LynxComputerInterface.h"
 #include "LynxROMsAndRAMs.h"
 #include "LynxScreen.h"
 #include "LynxKeyboard.h"
+#include "LynxSound.h"
 
 namespace Jynx
 {
@@ -35,9 +37,12 @@ namespace Jynx
 	
 		LynxAddressSpaceDecoder();
 		
+		void SetCPU( JynxZ80::Z80 *processor )           { _sound.SetCPU(processor); }
+		
 		uint32_t *GetScreenBitmapBaseAddress()           { return _screen.GetScreenBitmapBaseAddress();    }
 		volatile uint8_t *GetRowDirtyCountersAddress()   { return _screen.GetRowDirtyCountersAddress();    }
 		volatile uint8_t *GetLynxKeyboardArrayAddress()  { return _keyboard.GetLynxKeyboardArrayAddress(); }
+		volatile float   *GetSoundBufferBaseAddress()    { return _sound.GetSoundBufferBaseAddress();      }
 		
 		void OnHardwareReset();
 		void OnQuantumStart();
@@ -76,6 +81,7 @@ namespace Jynx
 		LynxROMsAndRAMs  _memory;             // The ROM and program-RAM storage
 		LynxScreen       _screen;             // The Screen RAM and associated host-format bitmap rendering
 		LynxKeyboard     _keyboard;           // The LYNX keyboard ports array.
+		LynxSound        _sound;              // The LYNX speaker support (PCM buffer).
 	
 		//
 		// ADDRESS SPACE

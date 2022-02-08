@@ -35,6 +35,7 @@ namespace Jynx
 	void LynxAddressSpaceDecoder::OnQuantumStart()
 	{
 		_screen.OnQuantumStart();
+		_sound.OnQuantumStart();
 	}
 
 
@@ -42,6 +43,7 @@ namespace Jynx
 	void LynxAddressSpaceDecoder::OnQuantumEnd()
 	{
 		_screen.OnQuantumEnd();
+		_sound.OnQuantumEnd();
 	}
 
 
@@ -51,6 +53,7 @@ namespace Jynx
 		_devicePort = DEVICEPORT_INITIALISATION_VALUE;
 		_bankPort   = BANKPORT_INITIALISATION_VALUE;
 		_memory.OnHardwareReset();
+		_sound.OnHardwareReset();
 		_screen.OnHardwareReset();
 		_screen.OnDevicePortValueChanged(_devicePort);
 		SyncAddressSpaceFromPorts();
@@ -302,7 +305,33 @@ namespace Jynx
 			}
 		}
 		
-		// TODO: Support writing the volume level DAC.
+		//
+		// CASSETTE / LOUDSPEAKER - 6 bit D/A
+		//
+
+		else if( (portNumber & DEVICEPORT_DECODING_MASK) == 0x84 )
+		{
+			// If the casette motor is enabled, we are saving to tape:
+			// The Lynx has a 6-bit D-A converter.
+
+			// Bits 5..0 contain the level:
+			auto level = dataByte & 0x3F;
+
+			/*if( _mc6845Regs[12] & 0x10 )  // Camputers use 6845 output MA12 as a switch to enable outputting.
+			{
+				CassetteWrite( level );
+
+				if( _hearTapeSounds )
+				{
+					// Listen to tape saving (quieten it a bit!):
+					SpeakerWrite( level >> 2 );
+				}
+			}
+			else */ // if( _devicePort & DEVICEPORT_SPEAKER ) // <-- Hmm... interesting... this disabled the sound on Invaders!
+			{
+				_sound.SetLevelAtTime( level );
+			}
+		}
 	}
 	
 	

@@ -45,7 +45,6 @@ extern "C" void InitBeforeCtorsCalled()
 
 static Jynx::LynxComputer *g_LynxComputerSingletonInstance = nullptr;
 
-static float g_SilenceBuffer[128];  // TODO: remove this ultimately.  It will be in an object, like _lynxScreen
 
 
 extern "C" void CreateJynxEmulatorSingleton()
@@ -54,11 +53,6 @@ extern "C" void CreateJynxEmulatorSingleton()
 	{
 		JynxZ80::Z80::InitialiseGlobalTables();
 		g_LynxComputerSingletonInstance = new Jynx::LynxComputer();
-		
-		for (int i=0; i<128; i++)
-		{
-			g_SilenceBuffer[i] = 0.0;  // TODO: no sound for now.  Remove this ultimately.
-		}
 	}
 }
 
@@ -87,9 +81,9 @@ extern "C" void RunTimeslice()
 	g_LynxComputerSingletonInstance->OnTimeSlice();
 }
 
-extern "C" float *GetSingletonSoundBufferBaseAddress()
+extern "C" volatile float *GetSingletonSoundBufferBaseAddress()
 {
-	return g_SilenceBuffer;  // TODO: no sound for now.
+	return g_LynxComputerSingletonInstance->GetSoundBufferBaseAddress();
 }
 
 #define NUMBER_OF_KEYS (8*11)

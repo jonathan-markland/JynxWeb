@@ -60,13 +60,21 @@ namespace JynxZ80
 
 		//
 		// Timeslice support.
-		// You can change the timeslice length during run, but that will
-		// only take effect on the expiration of the current remainder.
 		//
 
-		int32_t GetRemainingCycles() const              { return _remainingCycles; }
-		int32_t GetTimesliceLength() const              { return _timesliceLength; }
+		// The number of Z80 cycles desired per timeslice.
+		// The Z80 MAY overshoot this by 1 instruction's time, but that
+		// will automatically be subtracted from the next timeslice.
+		// You can change the timeslice length during run, but that will
+		// only take effect on the expiration of the current remainder.
 		void SetTimesliceLength( int32_t numCycles );
+
+		// Get the number of remaining cycles in the current timeslice.
+		// This may be negative if we overshot by part of the final instruction.
+		int32_t GetRemainingCycles() const              { return _remainingCycles; }
+		
+		// The number of Z80 cycles desired per timeslice.
+		int32_t GetTimesliceLength() const              { return _timesliceLength; }
 
 		//
 		// Serialisation support.
