@@ -28,6 +28,8 @@
 #include "LynxScreen.h"
 #include "LynxKeyboard.h"
 #include "LynxSound.h"
+#include "Lynx6845.h"
+#include "LynxCassetteReader.h"
 
 namespace Jynx
 {
@@ -78,10 +80,12 @@ namespace Jynx
 		uint8_t          _devicePort;         // Port '0x80' see DEVICEPORT_ #defines
 		uint8_t          _bankPort;           // Port '0xFFFF' see BANKPORT_ #defines
 
-		LynxROMsAndRAMs  _memory;             // The ROM and program-RAM storage
-		LynxScreen       _screen;             // The Screen RAM and associated host-format bitmap rendering
-		LynxKeyboard     _keyboard;           // The LYNX keyboard ports array.
-		LynxSound        _sound;              // The LYNX speaker support (PCM buffer).
+		LynxROMsAndRAMs     _memory;          // The ROM and program-RAM storage
+		LynxScreen          _screen;          // The Screen RAM and associated host-format bitmap rendering
+		LynxKeyboard        _keyboard;        // The LYNX keyboard ports array.
+		LynxSound           _sound;           // The LYNX speaker support (PCM buffer).
+		Lynx6845            _6845;            // The 6845 video display generation controller
+		LynxCassetteReader  _cassetteReader;  // Lynx cassette input
 	
 		//
 		// ADDRESS SPACE

@@ -56,6 +56,8 @@ namespace Jynx
 		_sound.OnHardwareReset();
 		_screen.OnHardwareReset();
 		_screen.OnDevicePortValueChanged(_devicePort);
+		_6845.OnHardwareReset();
+		_cassetteReader.OnHardwareReset();
 		SyncAddressSpaceFromPorts();
 	}
 
@@ -340,8 +342,6 @@ namespace Jynx
 	{
 		if( (portNumber & DEVICEPORT_DECODING_MASK) == 0x80 )
 		{
-			/* TODO: 
-
 			// If the cassette motor is enabled, we are loading from tape.
 			// Bit 0 is a "level sensor" which detects whether the level is below or above the middle.
 
@@ -349,36 +349,38 @@ namespace Jynx
 			// -- although I have insufficient documentation on this!  I deduced when the supply the
 			// cassette value in bit 0 of port 0x0080
 
-			if( _mc6845Regs[12] & 0x20 ) // Camputers use this output of the 6845 as a switch to enable cassette reading on the keyboard port (if MA13 is high).
+			uint8_t cassetteBit0 = 0x00;
+
+			if( _6845.GetRegister(12) & 0x20 ) // Camputers use this output of the 6845 as a switch to enable cassette reading on the keyboard port (if MA13 is high).
 			{
 				if( (portNumber & 0xFC6) == 0x0080 ) // <-- Mask per Lynx User Magazine Issue 1.  The lynx appears to only read from this port specifically, when reading tapes.
 				{
 					// (It seems cassette loading terminates immediately unless the key information is
 					// returned here.  Fixing the top 7 bits at "0"s wasn't a good idea!).
-					auto cassetteBit0 = CassetteRead();
-					if( _hearTapeSounds )
+					
+					cassetteBit0 = _cassetteReader.ReadCurrentBit();
+					
+					/* TODO:  if( _hearTapeSounds )
 					{
 						// Listen to tape loading (quieten it a bit):
-						SpeakerWrite( cassetteBit0 << 3 );
-					}
-					return (ReadLynxKeyboard(portNumber) & 0xFE) | cassetteBit0;
+						_sound.SetLevelAtTime( cassetteBit0 << 3 );
+					} */
 				}
 			}
 
-			*/
-
 			// Read of keyboard only (cassette motor not active):
-			return _keyboard.ReadLynxKeyboard(portNumber);
+			return (_keyboard.ReadLynxKeyboard(portNumber) & 0xFE) | cassetteBit0;    // The AND mask probably isn't needed.
 		}
-		/* TODO:  else if( (portNumber & CRTCPORT_DECODING_MASK) == 0x86 )
+		
+		/* TODO: remove when JynxII emulator more mature:
+		
+		else if( (portNumber & CRTCPORT_DECODING_MASK) == 0x86 )
 		{
-			// 6845 display generator
-			return _mc6845Select; // spec says this isn't readable, but heck
+			return 0xFF; // spec says 6845 display generator select isn't readable
 		}
 		else if( (portNumber & CRTCPORT_DECODING_MASK) == 0x87 )
 		{
-			// 6845 display generator
-			return _mc6845Regs[ _mc6845Select & 0x1F ]; // spec says this isn't readable, but heck
+			return 0xFF; // spec says 6845 register isn't readable
 		}
 		else if( (portNumber & BANKPORT_DECODING_MASK) == BANKPORT_DECODING_MASK )
 		{
