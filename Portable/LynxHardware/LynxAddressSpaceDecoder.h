@@ -39,7 +39,7 @@ namespace Jynx
 	
 		LynxAddressSpaceDecoder();
 		
-		void SetCPU( JynxZ80::Z80 *processor )           { _sound.SetCPU(processor); }
+		void SetCPU( JynxZ80::Z80 *processor )           { _processor = processor; }
 		
 		uint32_t *GetScreenBitmapBaseAddress()           { return _screen.GetScreenBitmapBaseAddress();    }
 		volatile uint8_t *GetRowDirtyCountersAddress()   { return _screen.GetRowDirtyCountersAddress();    }
@@ -74,6 +74,8 @@ namespace Jynx
 		void SyncAddressSpaceFromPorts();
 
 	private:
+	
+		JynxZ80::Z80 *_processor;             // Reference to processor to obtain precise elapsed emulation time.
 
 		LynxMachineType::Enum _machineType;
 

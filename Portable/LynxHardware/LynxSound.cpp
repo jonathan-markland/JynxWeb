@@ -27,7 +27,6 @@ namespace Jynx
 {
 	LynxSound::LynxSound()
 	{
-		_processor = nullptr;
 		OnHardwareReset();
 		
 		#ifdef DEBUG_EMIT_CONSTANT_SQUARE_WAVE
@@ -39,13 +38,6 @@ namespace Jynx
 	
 	
 	
-	void LynxSound::SetCPU( JynxZ80::Z80 *processor )
-	{
-		_processor = processor;
-	}
-
-
-
 	void LynxSound::OnHardwareReset()
 	{
 		_level = 0.0;
@@ -65,13 +57,10 @@ namespace Jynx
 	
 	
 	
-	void LynxSound::SetLevelAtTime( uint8_t lynxSpeakerLevel )
+	void LynxSound::SetLevelAtTime( uint8_t lynxSpeakerLevel, int32_t timesliceLength, int32_t remainingCycles )
 	{
-		auto z80TimesliceLength = _processor->GetTimesliceLength();
-		auto z80CyclesCountdown = _processor->GetRemainingCycles();
-		
-		auto offsetInCycles = z80TimesliceLength - z80CyclesCountdown;
-		auto drawToIndex = (BROWSER_SOUND_BUFFER_LENGTH * offsetInCycles) / z80TimesliceLength;
+		auto offsetInCycles = timesliceLength - remainingCycles;
+		auto drawToIndex = (BROWSER_SOUND_BUFFER_LENGTH * offsetInCycles) / timesliceLength;
 				
 		// This is kind of "write behind":  Only NOW do we know how long the previous
 		// level was held for!  So let's flush the previous level:

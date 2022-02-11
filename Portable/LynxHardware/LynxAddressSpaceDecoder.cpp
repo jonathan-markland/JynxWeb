@@ -26,7 +26,8 @@ namespace Jynx
 {
 	LynxAddressSpaceDecoder::LynxAddressSpaceDecoder()
 	{
-		_machineType = LynxMachineType::LYNX_48K; // TODO: Parameterise this externally.
+		_processor = nullptr;
+		_machineType = LynxMachineType::LYNX_96K; // TODO: Parameterise this externally.
 		OnHardwareReset();
 	}
 
@@ -344,7 +345,9 @@ namespace Jynx
 			}
 			else // if( _devicePort & DEVICEPORT_SPEAKER ) // <-- Hmm... interesting... this disabled the sound on Invaders!
 			{
-				_sound.SetLevelAtTime( level );
+				auto timesliceLength = _processor->GetTimesliceLength();
+				auto remainingCycles = _processor->GetRemainingCycles();
+				_sound.SetLevelAtTime( level, timesliceLength, remainingCycles );
 			}
 		}
 	}
@@ -373,7 +376,9 @@ namespace Jynx
 					/* TODO:  if( _hearTapeSounds )
 					{
 						// Listen to tape loading (quieten it a bit):
-						_sound.SetLevelAtTime( cassetteBit0 << 3 );
+						auto timesliceLength = _processor->GetTimesliceLength();
+						auto remainingCycles = _processor->GetRemainingCycles();
+						_sound.SetLevelAtTime( cassetteBit0 << 3, timesliceLength, remainingCycles );
 					} */
 					return (_keyboard.ReadLynxKeyboard(portNumber) & 0xFE) | cassetteBit0;    // The AND mask probably isn't needed.
 				}

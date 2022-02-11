@@ -32,7 +32,6 @@ namespace Jynx
 	public:
 	
 		LynxSound();
-		void SetCPU( JynxZ80::Z80 *processor );
 		
 		volatile float *GetSoundBufferBaseAddress()    { return _pcmBuffer; }
 		
@@ -42,8 +41,9 @@ namespace Jynx
 
 		// Change speaker level.
 		// Called when speaker is written, and the Z80 elapsed time is quoted
-		// in the form of the timeslice length, and countdown (distance to end of the ideal slice).
-		void SetLevelAtTime( uint8_t lynxSpeakerLevel );
+		// in the form of the timeslice length, and remaining cycles in timeslice.
+		// NB: remainingCycles could be slightly negative if Z80 instruction overran.
+		void SetLevelAtTime( uint8_t lynxSpeakerLevel, int32_t timesliceLength, int32_t remainingCycles );
 		
 	private:
 
@@ -54,7 +54,6 @@ namespace Jynx
 		
 		int _bufferPosition;
 		float _level;
-		JynxZ80::Z80 *_processor;
 
 	};
 }
