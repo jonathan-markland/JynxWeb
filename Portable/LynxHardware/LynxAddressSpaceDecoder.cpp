@@ -33,6 +33,21 @@ namespace Jynx
 
 
 
+	void LynxAddressSpaceDecoder::OnHardwareReset()
+	{
+		_devicePort = DEVICEPORT_INITIALISATION_VALUE;
+		_bankPort   = BANKPORT_INITIALISATION_VALUE;
+		_memory.OnHardwareReset();
+		_sound.OnHardwareReset();
+		_screen.OnHardwareReset();
+		_screen.OnDevicePortValueChanged(_devicePort);
+		_6845.OnHardwareReset();
+		_cassetteReader.OnHardwareReset();
+		SyncAddressSpaceFromPorts();
+	}
+
+
+
 	void LynxAddressSpaceDecoder::OnQuantumStart()
 	{
 		_screen.OnQuantumStart();
@@ -45,21 +60,6 @@ namespace Jynx
 	{
 		_screen.OnQuantumEnd();
 		_sound.OnQuantumEnd();
-	}
-
-
-
-	void LynxAddressSpaceDecoder::OnHardwareReset()
-	{
-		_devicePort = DEVICEPORT_INITIALISATION_VALUE;
-		_bankPort   = BANKPORT_INITIALISATION_VALUE;
-		_memory.OnHardwareReset();
-		_sound.OnHardwareReset();
-		_screen.OnHardwareReset();
-		_screen.OnDevicePortValueChanged(_devicePort);
-		_6845.OnHardwareReset();
-		_cassetteReader.OnHardwareReset();
-		SyncAddressSpaceFromPorts();
 	}
 
 
