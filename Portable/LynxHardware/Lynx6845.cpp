@@ -41,13 +41,21 @@ namespace Jynx
 	
 	uint8_t Lynx6845::GetRegister(uint8_t registerNumber)
 	{
-		if (registerNumber < 32)
-		{
-			return _mc6845Regs[registerNumber];
-		}
-		return 0xFF;
+		return _mc6845Regs[registerNumber & 31];
 	}
 	
+	
+	
+	void Lynx6845::SetRegister(uint8_t registerNumber, uint8_t value)
+	{
+		auto index = registerNumber & 31;
+		if ( value != _mc6845Regs[index] )
+		{
+			_mc6845Regs[index] = value;
+			Recalculate6845VariablesFromPorts();
+		}
+	}
+
 	
 	
 	void Lynx6845::Recalculate6845VariablesFromPorts()

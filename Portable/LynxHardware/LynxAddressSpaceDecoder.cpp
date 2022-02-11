@@ -308,6 +308,19 @@ namespace Jynx
 		}
 		
 		//
+		// 6845
+		//
+
+		else if( (portNumber & 0xC7) == 0x86 )
+		{
+			_6845.SetSelect( dataByte );
+		}
+		else if( (portNumber & 0xC7) == 0x87 )
+		{
+			_6845.SetSelectedRegister( dataByte );
+		}
+
+		//
 		// CASSETTE / LOUDSPEAKER - 6 bit D/A
 		//
 
@@ -319,17 +332,17 @@ namespace Jynx
 			// Bits 5..0 contain the level:
 			auto level = dataByte & 0x3F;
 
-			/*if( _mc6845Regs[12] & 0x10 )  // Camputers use 6845 output MA12 as a switch to enable outputting.
+			if( _6845.GetRegister(12) & 0x10 )  // Camputers use 6845 output MA12 as a switch to enable outputting.
 			{
-				CassetteWrite( level );
+				/* CassetteWrite( level );
 
 				if( _hearTapeSounds )
 				{
 					// Listen to tape saving (quieten it a bit!):
 					SpeakerWrite( level >> 2 );
-				}
+				} */
 			}
-			else */ // if( _devicePort & DEVICEPORT_SPEAKER ) // <-- Hmm... interesting... this disabled the sound on Invaders!
+			else // if( _devicePort & DEVICEPORT_SPEAKER ) // <-- Hmm... interesting... this disabled the sound on Invaders!
 			{
 				_sound.SetLevelAtTime( level );
 			}
@@ -349,8 +362,6 @@ namespace Jynx
 			// -- although I have insufficient documentation on this!  I deduced when the supply the
 			// cassette value in bit 0 of port 0x0080
 
-			uint8_t cassetteBit0 = 0x00;
-
 			if( _6845.GetRegister(12) & 0x20 ) // Camputers use this output of the 6845 as a switch to enable cassette reading on the keyboard port (if MA13 is high).
 			{
 				if( (portNumber & 0xFC6) == 0x0080 ) // <-- Mask per Lynx User Magazine Issue 1.  The lynx appears to only read from this port specifically, when reading tapes.
@@ -358,18 +369,18 @@ namespace Jynx
 					// (It seems cassette loading terminates immediately unless the key information is
 					// returned here.  Fixing the top 7 bits at "0"s wasn't a good idea!).
 					
-					cassetteBit0 = _cassetteReader.ReadCurrentBit();
-					
+					auto cassetteBit0 = _cassetteReader.ReadCurrentBit();
 					/* TODO:  if( _hearTapeSounds )
 					{
 						// Listen to tape loading (quieten it a bit):
 						_sound.SetLevelAtTime( cassetteBit0 << 3 );
 					} */
+					return (_keyboard.ReadLynxKeyboard(portNumber) & 0xFE) | cassetteBit0;    // The AND mask probably isn't needed.
 				}
 			}
 
 			// Read of keyboard only (cassette motor not active):
-			return (_keyboard.ReadLynxKeyboard(portNumber) & 0xFE) | cassetteBit0;    // The AND mask probably isn't needed.
+			return _keyboard.ReadLynxKeyboard(portNumber);
 		}
 		
 		/* TODO: remove when JynxII emulator more mature:

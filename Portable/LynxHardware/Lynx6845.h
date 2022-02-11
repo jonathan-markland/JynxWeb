@@ -32,6 +32,11 @@ namespace Jynx
 		
 		void OnHardwareReset();
 		
+		void     SetSelect(uint8_t registerNumber)                           { _mc6845Select = registerNumber; }
+		void     SetSelectedRegister(uint8_t value)                          { SetRegister( _mc6845Select, value ); }
+		uint8_t  GetSelectedRegister()                                       { return GetRegister( _mc6845Select ); }
+		
+		void     SetRegister(uint8_t registerNumber, uint8_t value);
 		uint8_t  GetRegister(uint8_t registerNumber);
 
 	private:
