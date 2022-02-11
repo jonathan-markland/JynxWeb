@@ -143,7 +143,6 @@ window.addEventListener(
 	event => 
 		{
 			document.getElementById("startEmulator").addEventListener("click", onStartEmulator);
-			document.getElementById("updateGraphics").addEventListener("click", onManuallyUpdateGraphics);
 			document.addEventListener('keydown', onKeyDown);
 			document.addEventListener('keyup', onKeyUp);
 		});
@@ -233,20 +232,6 @@ async function onStartEmulator(event)
 	{
 		await ensureGlobalAudioContextDisposed();
 	} */
-}
-
-
-
-function onManuallyUpdateGraphics(event) {
-
-	if (globalWasmImageSharedUint8ClampedArray)
-	{
-		globalWasmImageUnsharedUint8ClampedArray.set(globalWasmImageSharedUint8ClampedArray); // TODO: Design issue:  Unfortunately we must copy.  Can Web Canvas not directly accept a portion of the WASM memory space as the image source?
-		
-		const canvas = document.getElementById('canvas');
-		const ctx = canvas.getContext('2d');
-		ctx.putImageData(globalWasmImage, 0, 0);  // TODO: investigate portion-painting for the "update bands" that Jynx uses.
-	}
 }
 
 
