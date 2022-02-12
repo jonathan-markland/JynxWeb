@@ -28,6 +28,7 @@ namespace Jynx
 	{
 		_processor = nullptr;
 		_machineType = LynxMachineType::LYNX_96K; // TODO: Parameterise this externally.
+		_timesliceStartCount = 0;  // Does not need reset on hardware reset (used for differencing).
 		OnHardwareReset();
 	}
 
@@ -50,6 +51,7 @@ namespace Jynx
 
 	void LynxAddressSpaceDecoder::OnQuantumStart()
 	{
+		_cycleCountBefore = _processor->GetRemainingCycles();
 		_screen.OnQuantumStart();
 		_sound.OnQuantumStart();
 	}
@@ -58,6 +60,8 @@ namespace Jynx
 
 	void LynxAddressSpaceDecoder::OnQuantumEnd()
 	{
+		auto cycleCountAfter = _processor->GetRemainingCycles();
+		_timesliceStartCount += (cycleCountAfter - _cycleCountBefore) + _processor->GetTimesliceLength();
 		_screen.OnQuantumEnd();
 		_sound.OnQuantumEnd();
 	}
@@ -345,9 +349,9 @@ namespace Jynx
 			}
 			else // if( _devicePort & DEVICEPORT_SPEAKER ) // <-- Hmm... interesting... this disabled the sound on Invaders!
 			{
+				auto cyclesDoneInTimeslice = _processor->GetCyclesDoneInTimeslice();
 				auto timesliceLength = _processor->GetTimesliceLength();
-				auto remainingCycles = _processor->GetRemainingCycles();
-				_sound.SetLevelAtTime( level, timesliceLength, remainingCycles );
+				_sound.SetLevelAtTime( level, cyclesDoneInTimeslice, timesliceLength );
 			}
 		}
 	}
@@ -376,9 +380,9 @@ namespace Jynx
 					/* TODO:  if( _hearTapeSounds )
 					{
 						// Listen to tape loading (quieten it a bit):
+						auto cyclesDoneInTimeslice = _processor->GetCyclesDoneInTimeslice();
 						auto timesliceLength = _processor->GetTimesliceLength();
-						auto remainingCycles = _processor->GetRemainingCycles();
-						_sound.SetLevelAtTime( cassetteBit0 << 3, timesliceLength, remainingCycles );
+						_sound.SetLevelAtTime( cassetteBit0 << 3, cyclesDoneInTimeslice, timesliceLength );
 					} */
 					return (_keyboard.ReadLynxKeyboard(portNumber) & 0xFE) | cassetteBit0;    // The AND mask probably isn't needed.
 				}

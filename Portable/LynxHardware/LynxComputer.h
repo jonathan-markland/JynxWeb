@@ -44,10 +44,8 @@ namespace Jynx
 	
 		enum { LynxZ80ClockSpeedHz = 4000000 };
 
-		JynxZ80::Z80   _processor;          // Z80 + Registers
-		uint64_t       _z80CycleCounter;    // Total cycle counter // TODO: serialise -- but only the cassette creation relies on it, and we don't & can't easily serialise the state of that.
-
-		LynxAddressSpaceDecoder _addressSpace;
+		JynxZ80::Z80             _processor;
+		LynxAddressSpaceDecoder  _addressSpace;
 	
 	};
 }

@@ -40,10 +40,7 @@ namespace Jynx
 		void OnQuantumEnd();
 
 		// Change speaker level.
-		// Called when speaker is written, and the Z80 elapsed time is quoted
-		// in the form of the timeslice length, and remaining cycles in timeslice.
-		// NB: remainingCycles could be slightly negative if Z80 instruction overran.
-		void SetLevelAtTime( uint8_t lynxSpeakerLevel, int32_t timesliceLength, int32_t remainingCycles );
+		void SetLevelAtTime( uint8_t lynxSpeakerLevel, int32_t cyclesDoneInTimeslice, int32_t timesliceLength );
 		
 	private:
 

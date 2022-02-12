@@ -74,7 +74,10 @@ namespace Jynx
 		void SyncAddressSpaceFromPorts();
 
 	private:
-	
+
+		uint64_t      _timesliceStartCount;   // Total elapsed Z80 cycles at start of current timeslice
+		int32_t       _cycleCountBefore;      // A note made in OnQuantumStart for OnQuantumEnd
+
 		JynxZ80::Z80 *_processor;             // Reference to processor to obtain precise elapsed emulation time.
 
 		LynxMachineType::Enum _machineType;

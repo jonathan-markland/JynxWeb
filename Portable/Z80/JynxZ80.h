@@ -69,6 +69,17 @@ namespace JynxZ80
 		// only take effect on the expiration of the current remainder.
 		void SetTimesliceLength( int32_t numCycles );
 
+		// If called from Read/Write handlers, this gets the number of cycles 
+		// worth of work done so far in the current timeslice.
+		//
+		// If called after RunForTimeslice() returns, a new timeslice has
+		// already begun, and so this should be 0, except it will actually
+		// obtain a very small value which is the overshoot from the previous 
+		// timeslicc in cycles, since the instructions cannot be guaranteed to 
+		// precisely divide into the timeslice.
+		//
+		int32_t GetCyclesDoneInTimeslice() const        { return _timesliceLength - _remainingCycles; }
+
 		// Get the number of remaining cycles in the current timeslice.
 		// This may be negative if we overshot by part of the final instruction.
 		int32_t GetRemainingCycles() const              { return _remainingCycles; }

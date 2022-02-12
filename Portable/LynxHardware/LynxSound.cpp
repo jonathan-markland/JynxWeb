@@ -57,10 +57,9 @@ namespace Jynx
 	
 	
 	
-	void LynxSound::SetLevelAtTime( uint8_t lynxSpeakerLevel, int32_t timesliceLength, int32_t remainingCycles )
+	void LynxSound::SetLevelAtTime( uint8_t lynxSpeakerLevel, int32_t cyclesDoneInTimeslice, int32_t timesliceLength )
 	{
-		auto offsetInCycles = timesliceLength - remainingCycles;
-		auto drawToIndex = (BROWSER_SOUND_BUFFER_LENGTH * offsetInCycles) / timesliceLength;
+		auto drawToIndex = (BROWSER_SOUND_BUFFER_LENGTH * cyclesDoneInTimeslice) / timesliceLength;
 				
 		// This is kind of "write behind":  Only NOW do we know how long the previous
 		// level was held for!  So let's flush the previous level:

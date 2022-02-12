@@ -35,7 +35,6 @@ namespace Jynx
 	void LynxComputer::OnHardwareReset()
 	{
 		_processor.SetTimesliceLength(10449);  // TODO: Calc properly.  (4,000,000 * 128 / 44100) * 0.9  ...  (Z80 speed * samples per buffer / sound sample rate) * ROM slowdown factor
-		_z80CycleCounter = 0;
 		_addressSpace.OnHardwareReset();
 		_processor.Reset();
 	}
@@ -44,18 +43,8 @@ namespace Jynx
 	
 	void LynxComputer::OnTimeSlice()
 	{
-		// Execute Z80 code for this timeslice, and accumulate
-		// the precise number of cycles elapsed (which may not
-		// precisely be what we asked for, but the design supports
-		// correcting this in later timeslices):
-		
 		_addressSpace.OnQuantumStart();
-
-		auto cycleCountBefore = _processor.GetRemainingCycles();
 		_processor.RunForTimeslice();
-		auto cycleCountAfter  = _processor.GetRemainingCycles();
-		_z80CycleCounter += (cycleCountAfter - cycleCountBefore) + _processor.GetTimesliceLength();
-
 		_addressSpace.OnQuantumEnd();
 	}
 }

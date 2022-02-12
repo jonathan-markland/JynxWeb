@@ -18,6 +18,8 @@
 //		jynx_emulator {at} yahoo {dot} com
 //
 
+		// *** TODO: Want a TAP -> PCM wave tool ***
+
 #pragma once
 
 #include <stdint.h>
@@ -34,8 +36,22 @@ namespace Jynx
 
 		uint8_t ReadCurrentBit();
 		
+		// TODO: What about motor on/off messages?
+		
 	private:
 
 
 	};
+	
+	// Need a function to:
+	// Given
+	//     - A TAP file image (possibly concatenations)
+	//     - An offset from the start of the tape in Z80 cycles.
+	// Returns
+	//     - Wave level above|below the comparator line.
+	
+	
+	
+	
+	
 }
