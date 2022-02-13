@@ -22,24 +22,20 @@
 
 #include <stdint.h>
 
-
-
 namespace Jynx
 {
-
-	// Run-length encoding datum for TAPE (square-wave) waveforms.
-	// Bit 15 has the square wave level:  0=low / 1=high level.
-	// Bits 14..0 have the duration in Z80 cycles.
-	class SignalRLE
+	class ITapeSpeedSupplier
 	{
 	public:
-		
-		SignalRLE(uint16_t rawValue)           : Datum(rawValue) {}
 
-		inline uint16_t Duration() const       { return Datum & 0x7FFF; }
-		inline uint8_t  BitValue() const       { return Datum >> 15; }
+		// Interface onto the party that will supply the TapFileReader with
+		// the Lynx's current tape speed setting (TAPE command in BASIC).
+		// For reliability, this needs to be done at the last moment, just
+		// before creating the waveform.
 
-		const uint16_t Datum;
+		virtual uint32_t GetLynxTapeSpeedBitsPerSecond() = 0;
+		virtual bool GetPauseAfterTapLoadEnable() = 0;
+		virtual void SetPauseMode( bool pauseMode ) = 0;
 	};
 
 } // end namespace Jynx
