@@ -39,7 +39,7 @@ namespace Jynx
 	
 
 			
-	bool TapFileLexer::Open( const Array<uint8_t> &tapFileImage )
+	void TapFileLexer::Open( const Array<uint8_t> &tapFileImage )
 	{
 		// assert( tapFileImage.size() >= 1 );  // must be
 		// assert( tapFileImage.back() == 0 );  // must be a 0 terminator at the end (eases parsing)
@@ -52,7 +52,6 @@ namespace Jynx
 
 	bool TapFileLexer::End()
 	{
-		if( _position > _endPosition ) return Fail();
 		return _position == _endPosition;
 	}
 
@@ -65,11 +64,8 @@ namespace Jynx
 
 
 
-	bool TapFileLexer::ExpectFileName( String *result )
+	Result<String> TapFileLexer::ExpectFileName()
 	{
-		// Default result is empty string:
-		result->Clear();
-		
 		// Some TAPs have a spurious A5 at the start:
 		if( _position[0] == 0xA5 )
 		{
@@ -79,7 +75,7 @@ namespace Jynx
 		// Check for type 'A' files (no file name portion):
 		if( _position[0] == 'A' )
 		{
-			return true; // There is no name string with an 'A' format TAP (as used by Level-9 adventures)
+			return Success(String()); // There is no name string with an 'A' format TAP (as used by Level-9 adventures)
 		}
 
 		// In the block after the FIRST sync, the Lynx stores the file name, in quotes.
@@ -91,7 +87,7 @@ namespace Jynx
 			while(true)
 			{
 				auto byte = *_position;
-				if( byte == 0 ) return Fail();
+				if( byte == 0 ) return Fail<String>("Unexpected TAP end");
 				if( byte == '\"' ) break;
 				fileNameBuilder.AppendChar(byte);
 				++_position;
@@ -99,26 +95,22 @@ namespace Jynx
 			++_position; // skip second "
 
 			// Success
-			*result = fileNameBuilder.ToString();
-			return true;
+			return Success( fileNameBuilder.ToString() );
 		}
 
-		return Fail();
+		return Fail<String>("Failed to parse file name from TAP file.");
 	}
 
 
 
-	bool TapFileLexer::ExpectFileBody( Array<uint8_t> *result )
+	JynxFramework::Result<Array<uint8_t>> TapFileLexer::ExpectFileBody()
 	{
-		// Default result
-		result->Clear();
-		
 		// In the block after the second sync, the type-stamp, data-length and raw data are encoded.
 
 		auto positionOfFileStart = _position;
 
 		// Read file type letter:
-		if( SpaceRemaining() < 1 ) return Fail();
+		if( SpaceRemaining() < 1 ) return Fail<Array<uint8_t>>("End of tape while reading file type letter.");
 		auto fileTypeLetter = _position[0];
 
 		// Read header now we know the type:
@@ -126,19 +118,19 @@ namespace Jynx
 		uint8_t  lengthHigh = 0;
 		if( fileTypeLetter == 'A' ) // 'A' type files used by Level 9 games, possibly others?
 		{
-			if( SpaceRemaining() < 5 ) return Fail();
+			if( SpaceRemaining() < 5 ) return Fail<Array<uint8_t>>("End of tape while reading final fields of type A file.");
 			lengthLow  = _position[3];
 			lengthHigh = _position[4];
 			_position += 5;
 		}
 		else if( fileTypeLetter == 'B' || fileTypeLetter == 'M' )  // Lynx basic or machine code.
 		{
-			if( SpaceRemaining() < 3 ) return Fail();
+			if( SpaceRemaining() < 3 ) return Fail<Array<uint8_t>>("End of tape while reading final fields of type B or M file.");
 			lengthLow  = _position[1];
 			lengthHigh = _position[2];
 			_position += 3;
 		}
-		else return Fail();
+		else return Fail<Array<uint8_t>>("Unrecognised TAP file type.");
 
 		// Determine the image length (as recorded in the file):
 		auto payloadLength = (uint32_t) ((lengthHigh << 8) | lengthLow);
@@ -150,11 +142,11 @@ namespace Jynx
 
 		// Check it fits the file:
 		auto spaceRemaining = SpaceRemaining();
-		if( payloadLength > spaceRemaining ) return Fail();
+		if( payloadLength > spaceRemaining ) return Fail<Array<uint8_t>>("End of tape while reading main payload.");
 
 		// Copy out the raw file data, starting at the file type byte:
 		_position += payloadLength;
-		auto fileBody = Array<uint8_t>( Slice<const uint8_t>(positionOfFileStart, _position) );
+		auto fileBodySlice = Slice<const uint8_t>(positionOfFileStart, _position); 
 
 		// Unfortunately, a minority of TAPs, particularly BASIC ones, have a spurious zero
 		// at the end.  However, we can skip this, if found, because TAP files always begin
@@ -165,19 +157,7 @@ namespace Jynx
 			++_position;  // move past spurious zero
 		}
 
-		// Success
-		*result = fileBody;
-		return true;
-	}
-
-
-
-	bool TapFileLexer::Fail()
-	{
-		// Convenience error handling.
-		// Reset the state and return false.
-		Clear();
-		return false;
+		return Success( Array<uint8_t>( fileBodySlice ) );
 	}
 
 } // end namespace Jynx

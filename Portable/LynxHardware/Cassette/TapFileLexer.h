@@ -22,6 +22,7 @@
 
 #include <stdint.h>
 #include "../../JynxFramework.h"
+#include "../../ResultType.h"
 
 namespace Jynx
 {
@@ -32,9 +33,12 @@ namespace Jynx
 		TapFileLexer();
 
 		// NOTE: fileImage must have 0 terminator added.
-		bool Open( const Array<uint8_t> &tapFileImage );
-		bool ExpectFileName( String *result );
-		bool ExpectFileBody( Array<uint8_t> *result );
+		void Open( const JynxFramework::Array<uint8_t> &tapFileImage );
+		
+		JynxFramework::Result<JynxFramework::String>  ExpectFileName();
+		
+		JynxFramework::Result<JynxFramework::Array<uint8_t>>  ExpectFileBody();
+		
 		bool End();
 
 	private:
@@ -45,7 +49,6 @@ namespace Jynx
 	private:
 
 		void Clear();
-		bool Fail();
 		void RaiseError() const;
 		uintptr_t SpaceRemaining() const;
 
