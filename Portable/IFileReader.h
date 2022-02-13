@@ -20,20 +20,19 @@
 
 #pragma once
 
-#include <iostream>
-#include <fstream>
-
 namespace Jynx
 {
-	class IFileOpener
+	class IFileReader
 	{
 	public:
 
-		// Encapsulate the nature and representation of a file path.
-		// Assist opening or creating a file with the hidden path.
+		// Hide opening or creating a file with the hidden path.
+		// Hide the nature and representation of a file path.
 
-		virtual void OpenOutputStream( std::ofstream &stream, std::ios_base::openmode openModeRequired ) = 0;
-		virtual void OpenInputStream(  std::ifstream &stream, std::ios_base::openmode openModeRequired ) = 0;
+		virtual bool Open() = 0;  // TODO: Handle receiving an error in future.
+		virtual uint32_t Length() = 0;
+		virtual bool Read(uint32_t startOffset, uint32_t length, uint8_t *destinationBuffer) = 0;
+		virtual void Close();
 
 	};
 

@@ -22,7 +22,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "../../IFileOpener.h"
+#include "../../IFileReader.h"
 #include "../../JynxFramework.h"
 #include "SignalRLE.h"
 
@@ -38,17 +38,9 @@ namespace Jynx
 
 
 
-    class TapFileLexerException: public std::runtime_error
-    {
-    public:
-        TapFileLexerException( const char *message ) : std::runtime_error(message) {}
-    };
-
-
-
 	struct NamedTapFile
 	{
-		JynxFramework::String  FileName;
+		JynxFramework::String          FileName;
 		JynxFramework::Array<uint8_t>  ContentImage;
 	};
 
@@ -58,33 +50,38 @@ namespace Jynx
 	{
 	public:
 
+		// Tape is empty for reading by default.
 		TapFileSplitter();
-			// The constructor for an empty tape.
 
-		explicit TapFileSplitter( IFileOpener *tapFile );
+		// Attempts to set the tape to the content of a TAP file.
+		bool SetTape( IFileReader *tapFile );
 
+		// Clears the tape to empty.
+		void Clear();
+
+		// Return number of files contained in this TAP.
 		size_t GetNumberOfFiles() const;
-			// Return number of files containing in this TAP.
 
+		// Returns the wave data for the file at the given index.
+		// The return wave comprises:
+		// - The initial SYNC
+		// - The file name
+		// - The second SYNC
+		// - The main data block
+		// ... as the Lynx uses.
+		// - bitsPerSecond should be the "TAPE" speed the Lynx is currently
+		//   expecting: { 600, 900, 1200, 1500, 1800, 2100 } for TAPE 0-5 resp.
 		JynxFramework::Array<SignalRLE>  GenerateWaveformForFile( size_t fileIndex, uint32_t bitsPerSecond );
-			// Returns the wave data for the file at the given index.
-			// The return wave comprises:
-			// - The initial SYNC
-			// - The file name
-			// - The second SYNC
-			// - The main data block
-			// ... as the Lynx uses.
-			// - bitsPerSecond should be the "TAPE" speed the Lynx is currently
-			//   expecting: { 600, 900, 1200, 1500, 1800, 2100 } for TAPE 0-5 resp.
 
+		// Retrieves text giving tape content and file types (LOAD / MLOAD).
 		JynxFramework::String  GetTapeDirectory( TapeDirectoryStyle::Enum styleRequired ) const;
-			// Retrieves text giving tape content and file types (LOAD / MLOAD).
 
 	private:
 
 		JynxFramework::Array<JynxFramework::Pointer<NamedTapFile>> _filesOnTape;
 
-		void LoadAndParseTapFile( IFileOpener *tapFileOpener );
+	private:
+
 		JynxFramework::String LynxLoadCommandForFile( size_t fileIndex ) const;
 
 	};
