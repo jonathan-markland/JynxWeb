@@ -21,25 +21,32 @@
 #pragma once
 
 #include <stdint.h>
-
-
+#include "../../JynxFramework.h"
+#include "../../ResultType.h"
 
 namespace Jynx
 {
+	// Information about an individual file located with a TAP file.
+    struct TapFileInfo
+    {
+        TapFileInfo(
+            char fileTypeLetter,
+            const uint8_t* fileName,
+            const uint32_t fileNameLength,
+            const uint8_t* body,
+            const uint32_t bodyLength)
+                : FileTypeLetter(fileTypeLetter)
+                , FileName(fileName)
+                , FileNameLength(fileNameLength)
+                , Body(body)
+                , BodyLength(bodyLength)
+        {
+        }
 
-	// Run-length encoding datum for TAPE (square-wave) waveforms.
-	// Bit 15 has the square wave level:  0=low / 1=high level.
-	// Bits 14..0 have the duration in Z80 cycles.
-	class SignalRLE
-	{
-	public:
-		
-		SignalRLE(uint16_t rawValue)           : Datum(rawValue) {}
-
-		inline uint16_t Duration() const       { return Datum & 0x7FFF; }
-		inline uint8_t  BitValue() const       { return Datum >> 15; }
-
-		const uint16_t Datum;
-	};
-
-} // end namespace Jynx
+        const char     FileTypeLetter;
+        const uint8_t* FileName;
+        const uint32_t FileNameLength;
+        const uint8_t* Body;
+        const uint32_t BodyLength;
+    };
+}
