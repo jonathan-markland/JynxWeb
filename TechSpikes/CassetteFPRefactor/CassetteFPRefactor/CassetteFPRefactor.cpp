@@ -460,6 +460,39 @@ namespace Jynx
 
         return sb.ToString();
     }
+
+
+
+    JynxFramework::String LoadCommandForFirstFile(
+        const uint8_t* nulTermFileImageStart,
+        const uint8_t* nulTermFileImageEnd)
+    {
+        JynxFramework::StringBuilder sb;
+        bool first = true;
+
+        JynxTapFileLexer::ForEachTapeFileDo(
+            nulTermFileImageStart,
+            nulTermFileImageEnd,
+            [&](const Jynx::TapFileInfo& tapFileInfo)
+            {
+                if (first)
+                {
+                    JynxFramework::Slice<const char>  fileName((const char*)tapFileInfo.FileName, tapFileInfo.FileNameLength);
+
+                    sb.Append(LynxLoadCommandForFile(tapFileInfo)) // TODO: If the file is unknown, there won't be a REM prefix.
+                      .Append(fileName)
+                      .Append("\"\r"); // Lynx compatible line ending.
+                }
+                first = false; // TODO: We cannot request stopping the ForEach
+            });
+
+        if (sb.Empty())
+        {
+            sb.Append("REM No files on tape.\r");  // TODO: Or parse error on the file.
+        }
+
+        return sb.ToString();
+    }
 }
 
 
