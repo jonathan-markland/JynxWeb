@@ -171,22 +171,3 @@ namespace JynxTapFileLexer
 }
 
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-//    TAPE FILE ITERATOR
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-
-namespace Jynx
-{
-    // Parse a concatenated-TAP file image, and call the action for each discovered file.
-    // The image file must have an additional NUL terminator byte 0x00.
-    // Returns true if all parsed successfully, else returns false.
-    template<typename ACTION>
-    bool ForEachTapeFileDo(
-        const uint8_t* fileImageStart,
-        const uint8_t* fileImageEnd,
-        ACTION action)
-    {
-        return JynxTapFileLexer::ForEachTapeFileDo(fileImageStart, fileImageEnd, action);
-    }
-}
-

@@ -13,5 +13,3 @@ namespace WasmNeverFreeingMemoryAllocator
 
 void *malloc(uintptr_t size);
 void free(void *) noexcept;
-void *operator new(uintptr_t sizeBytes);
-void operator delete(void *block) noexcept;

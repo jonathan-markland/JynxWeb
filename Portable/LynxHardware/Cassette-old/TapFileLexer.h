@@ -18,47 +18,40 @@
 //		jynx_emulator {at} yahoo {dot} com
 //
 
-		// *** TODO: Want a TAP -> PCM wave tool ***
-
 #pragma once
 
 #include <stdint.h>
-#include "../JynxFramework.h"
+#include "../../JynxFramework.h"
+#include "../../ResultType.h"
 
 namespace Jynx
 {
-	class LynxCassetteReader
+	class TapFileLexer
 	{
 	public:
-	
-		LynxCassetteReader();
 
-		void OnHardwareReset();
+		TapFileLexer();
 
-		uint8_t ReadCurrentBit();
+		// NOTE: fileImage must have 0 terminator added.
+		void Open( const JynxFramework::Array<uint8_t> &tapFileImage );
 		
-		// The static tap file image must have an additional NUL terminator appended
-		// after the on-disc file data.
-		void SetStaticTapeImageData(const uint8_t *tapFileImage, const uint8_t *tapFileImageEnd);
+		JynxFramework::Result<JynxFramework::String>  ExpectFileName();
 		
-		// TODO: What about motor on/off messages?
+		JynxFramework::Result<JynxFramework::Array<uint8_t>>  ExpectFileBody();
 		
+		bool End();
+
 	private:
 
-		uint32_t _fileIndex;
-		
+		const uint8_t *_position;
+		const uint8_t *_endPosition;
+
+	private:
+
+		void Clear();
+		void RaiseError() const;
+		uintptr_t SpaceRemaining() const;
 
 	};
-	
-	// Need a function to:
-	// Given
-	//     - A TAP file image (possibly concatenations)
-	//     - An offset from the start of the tape in Z80 cycles.
-	// Returns
-	//     - Wave level above|below the comparator line.
-	
-	
-	
-	
-	
-}
+
+} // end namespace Jynx

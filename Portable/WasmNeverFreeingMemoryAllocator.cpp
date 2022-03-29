@@ -86,12 +86,3 @@ void free(void *) noexcept
 	// No operation with never-freeing allocator!
 }
 
-void *operator new(uintptr_t sizeBytes) 
-{ 
-	return malloc(sizeBytes); 
-}
-	
-void operator delete(void *block) noexcept
-{ 
-	return free(block); 
-}

@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <stdint.h>
+#include "JynxFramework.h"
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
@@ -273,11 +274,49 @@ namespace Jynx
 
 namespace JynxTapFileSignalGenerator
 {
+    template<typename ACTION_LOW, typename ACTION_HIGH>
+    void ForTapeByteDo(
+        uint8_t byteValue,
+        const Jynx::SignalLengths& lengths,
+        ACTION_LOW low,
+        ACTION_HIGH high)
+    {
+        // Loop for bits 7..1 inclusive:
+        uint8_t bitMask = 0x80;
+        while (bitMask != 1)
+        {
+            if (byteValue & bitMask)
+            {
+                low(lengths.SignalLengthsForOnes.LowCycles);
+                high(lengths.SignalLengthsForOnes.HighCyclesAfterBits7to1);
+            }
+            else
+            {
+                low(lengths.SignalLengthsForZeroes.LowCycles);
+                high(lengths.SignalLengthsForZeroes.HighCyclesAfterBits7to1);
+            }
+            bitMask >>= 1;
+        }
+
+        // Finally do bit 0:
+        if (byteValue & bitMask)
+        {
+            low(lengths.SignalLengthsForOnes.LowCycles);
+            high(lengths.SignalLengthsForOnes.HighCyclesAfterBit0);
+        }
+        else
+        {
+            low(lengths.SignalLengthsForZeroes.LowCycles);
+            high(lengths.SignalLengthsForZeroes.HighCyclesAfterBit0);
+        }
+    }
+
+
     // Parse a concatenated-TAP file image, and call the action for each discovered file.
     // The image file must have an additional NUL terminator byte 0x00.
     // Returns true if all parsed successfully, else returns false.
     template<typename ACTION>
-    void ForTapeRLEDataDo(
+    void ForTapeBytesDo(
         const Jynx::TapFileInfo& tapFileInfo,
         const Jynx::SignalLengths &lengths,
         ACTION action)
@@ -286,46 +325,23 @@ namespace JynxTapFileSignalGenerator
         // The level is in bit #15 (1=high, 0=low).  Bits 14..0 are the duration in cycles.
         // (The duration encodes whether its a 0 or a 1 being recorded on tape.  1s are longer than 0s).
     
-        auto low = [&](uint16_t repeatCount)
-        {
-            action(Jynx::SignalRLE(0x0000 | (repeatCount & 0x7FFF)));
-        };
+        // Idea: Call the action handler for each data byte, passing the Z80 cycle time offset
+        //       at which the byte starts on the tape.  Gaps are HIGHs.
+
+        uint32_t elapsedCycles = 0;
 
         auto high = [&](uint16_t repeatCount)
         {
-            action(Jynx::SignalRLE(0x8000 | (repeatCount & 0x7FFF)));
+            elapsedCycles += repeatCount;
         };
 
         auto byte = [&](uint8_t byteValue)
         {
-            // Loop for bits 7..1 inclusive:
-            uint8_t bitMask = 0x80;
-            while (bitMask != 1)
-            {
-                if (byteValue & bitMask)
-                {
-                    low(lengths.SignalLengthsForOnes.LowCycles);
-                    high(lengths.SignalLengthsForOnes.HighCyclesAfterBits7to1);
-                }
-                else
-                {
-                    low(lengths.SignalLengthsForZeroes.LowCycles);
-                    high(lengths.SignalLengthsForZeroes.HighCyclesAfterBits7to1);
-                }
-                bitMask >>= 1;
-            }
+            action(elapsedCycles, byteValue);
 
-            // Finally do bit 0:
-            if (byteValue & bitMask)
-            {
-                low(lengths.SignalLengthsForOnes.LowCycles);
-                high(lengths.SignalLengthsForOnes.HighCyclesAfterBit0);
-            }
-            else
-            {
-                low(lengths.SignalLengthsForZeroes.LowCycles);
-                high(lengths.SignalLengthsForZeroes.HighCyclesAfterBit0);
-            }
+            ForTapeByteDo(byteValue, lengths,
+                [&elapsedCycles](uint16_t lowLength)  { elapsedCycles += lowLength; },
+                [&elapsedCycles](uint16_t highLength) { elapsedCycles += highLength; });
         };
 
         auto bytes = [&](const uint8_t *data, uint32_t length)
@@ -348,43 +364,103 @@ namespace JynxTapFileSignalGenerator
             byte(0xA5);
         };
 
-        // Initial SYNC + A5 applies to all file types:
-        syncAndA5();
-
         // Types 'B' and 'M' require the file name portion and a second SYNC + A5:
         auto fileTypeLetter = tapFileInfo.FileTypeLetter;
         if (fileTypeLetter == 'B' || fileTypeLetter == 'M')
         {
+            syncAndA5();
             byte(0x22);
             bytes((const uint8_t*)(tapFileInfo.FileName), tapFileInfo.FileNameLength);
             byte(0x22);
             high(0x1F1);
-            syncAndA5();
         }
 
-        // All types emit the file payload:
+        // All types emit the file body:
+        syncAndA5();
         bytes(tapFileInfo.Body, tapFileInfo.BodyLength);
     }
 }
 
 
+
+
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+//   TAPE DIRECTORY
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
 namespace Jynx
 {
-    // Parse a concatenated-TAP file image, and call the action for each discovered file.
-    // The image file must have an additional NUL terminator byte 0x00.
-    // Returns true if all parsed successfully, else returns false.
-    template<typename ACTION>
-    void ForTapeRLEDataDo(
-        const TapFileInfo &tapFileInfo, 
-        const Jynx::SignalLengths& lengths,
-        ACTION action)
+    uint32_t CountFilesOnTape(
+        const uint8_t* nulTermFileImageStart,
+        const uint8_t* nulTermFileImageEnd)
     {
-        return JynxTapFileSignalGenerator::ForTapeRLEDataDo(tapFileInfo, lengths, action);
+        uint32_t count = 0;
+
+        if (JynxTapFileLexer::ForEachTapeFileDo(
+            nulTermFileImageStart,
+            nulTermFileImageEnd,
+            [&count](const Jynx::TapFileInfo& tapFileInfo)
+            {
+                ++count;
+            }))
+        {
+            return count;
+        }
+
+        return 0; // TODO: parse error.
+    }
+
+
+
+    JynxFramework::String  LynxLoadCommandForFile(const Jynx::TapFileInfo& tapFileInfo)
+    {
+        auto fileType = tapFileInfo.FileTypeLetter;
+
+        if (fileType == 'B')
+        {
+            return JynxFramework::String("LOAD \"");
+        }
+        else if (fileType == 'M')
+        {
+            return JynxFramework::String("MLOAD \"");
+        }
+        else
+        {
+            return JynxFramework::String("UNKNOWN FILE TYPE \"");  // should never happen.
+        }
+    }
+
+
+
+    JynxFramework::String TapeDirectory(
+        const uint8_t* nulTermFileImageStart,
+        const uint8_t* nulTermFileImageEnd)
+    {
+        JynxFramework::StringBuilder sb;
+
+        JynxTapFileLexer::ForEachTapeFileDo(
+            nulTermFileImageStart,
+            nulTermFileImageEnd,
+            [&sb](const Jynx::TapFileInfo& tapFileInfo)
+            {
+                JynxFramework::Slice<const char>  fileName((const char*)tapFileInfo.FileName, tapFileInfo.FileNameLength);
+
+                sb.Append("REM ") // so is suitable for automated "typing" into the Lynx.
+                    .Append(LynxLoadCommandForFile(tapFileInfo))
+                    .Append(fileName)
+                    .Append("\"\r"); // Lynx compatible line ending.
+            });
+
+        if (sb.Empty())
+        {
+            sb.Append("REM No files on tape.\r");  // TODO: Or parse error on the file.
+        }
+
+        return sb.ToString();
     }
 }
-
-
-
 
 
 
@@ -410,8 +486,19 @@ int main()
 
     FileBuffer[len] = 0;
 
+    // Function given a TAP file to return the lynx's load command string for 
+    // the first file on the tape.
+
+    // Function given TAP file to return REM commands directory listing.
+
+    // Count the number of files on the tape.  Check for parse error.
+    // Given a tape index:
+    // - Return info record
+    // - Count the number of LOW records needed in the RLE scheme.
+    // - Return RLE array
+
     auto result = 
-        Jynx::ForEachTapeFileDo(
+        JynxTapFileLexer::ForEachTapeFileDo(
             FileBuffer, FileBuffer + (len + 1), 
             [](const Jynx::TapFileInfo& tapFileInfo) 
             {
@@ -423,9 +510,10 @@ int main()
 
                 int count = 0;
 
-                Jynx::ForTapeRLEDataDo(tapFileInfo, signalLengths,
-                    [&](Jynx::SignalRLE item)
+                JynxTapFileSignalGenerator::ForTapeBytesDo(tapFileInfo, signalLengths,
+                    [&](uint32_t z80CycleMark, uint8_t byteValue)
                     {
+                        printf("      Z80-Time: %10d  Byte: %02x\n", z80CycleMark, byteValue);
                         ++count;
                     });
 

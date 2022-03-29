@@ -18,47 +18,28 @@
 //		jynx_emulator {at} yahoo {dot} com
 //
 
-		// *** TODO: Want a TAP -> PCM wave tool ***
-
 #pragma once
 
 #include <stdint.h>
-#include "../JynxFramework.h"
+
+
 
 namespace Jynx
 {
-	class LynxCassetteReader
+
+	// Run-length encoding datum for TAPE (square-wave) waveforms.
+	// Bit 15 has the square wave level:  0=low / 1=high level.
+	// Bits 14..0 have the duration in Z80 cycles.
+	class SignalRLE
 	{
 	public:
-	
-		LynxCassetteReader();
-
-		void OnHardwareReset();
-
-		uint8_t ReadCurrentBit();
 		
-		// The static tap file image must have an additional NUL terminator appended
-		// after the on-disc file data.
-		void SetStaticTapeImageData(const uint8_t *tapFileImage, const uint8_t *tapFileImageEnd);
-		
-		// TODO: What about motor on/off messages?
-		
-	private:
+		SignalRLE(uint16_t rawValue)           : Datum(rawValue) {}
 
-		uint32_t _fileIndex;
-		
+		inline uint16_t Duration() const       { return Datum & 0x7FFF; }
+		inline uint8_t  BitValue() const       { return Datum >> 15; }
 
+		const uint16_t Datum;
 	};
-	
-	// Need a function to:
-	// Given
-	//     - A TAP file image (possibly concatenations)
-	//     - An offset from the start of the tape in Z80 cycles.
-	// Returns
-	//     - Wave level above|below the comparator line.
-	
-	
-	
-	
-	
-}
+
+} // end namespace Jynx

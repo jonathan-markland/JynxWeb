@@ -140,6 +140,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CassetteFPRefactor.cpp" />
+    <ClCompile Include="JynxFramework.cpp" />
+    <ClCompile Include="JynxFrameworkPanic.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
