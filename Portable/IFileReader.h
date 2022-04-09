@@ -20,26 +20,20 @@
 
 #pragma once
 
-#include <stdint.h>
-
-
-
 namespace Jynx
 {
-
-	// Run-length encoding datum for TAPE (square-wave) waveforms.
-	// Bit 15 has the 0 / 1 value.
-	// Bits 14..0 have the duration in Z80 cycles.
-	class SignalRLE
+	class IFileReader
 	{
 	public:
-		
-		SignalRLE(uint16_t rawValue)           : Datum(rawValue) {}
 
-		inline uint16_t Duration() const       { return Datum & 0x7FFF; }
-		inline uint8_t  BitValue() const       { return Datum >> 15; }
+		// Hide opening or creating a file with the hidden path.
+		// Hide the nature and representation of a file path.
 
-		const uint16_t Datum;
+		virtual bool Open() = 0;  // TODO: Handle receiving an error in future.
+		virtual uint32_t Length() = 0;
+		virtual bool Read(uint32_t startOffset, uint32_t length, uint8_t *destinationBuffer) = 0;
+		virtual void Close();
+
 	};
 
 } // end namespace Jynx

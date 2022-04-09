@@ -23,6 +23,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "../JynxFramework.h"
 
 namespace Jynx
 {
@@ -36,10 +37,16 @@ namespace Jynx
 
 		uint8_t ReadCurrentBit();
 		
+		// The static tap file image must have an additional NUL terminator appended
+		// after the on-disc file data.
+		void SetStaticTapeImageData(const uint8_t *tapFileImage, const uint8_t *tapFileImageEnd);
+		
 		// TODO: What about motor on/off messages?
 		
 	private:
 
+		uint32_t _fileIndex;
+		
 
 	};
 	
