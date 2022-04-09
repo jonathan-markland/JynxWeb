@@ -17,4 +17,8 @@ namespace JynxFramework
 	// To be called on the monitoring thread.
 	// Indicates unrecoverable "Blue Screen Of Death" condition.
 	bool IsInPanicState();
+	
+	// Obtain address of panic-message-pointer global variable.
+	// Used to allow external monitoring.
+	volatile const char **GetPanicMessagePointerAddress();
 }
