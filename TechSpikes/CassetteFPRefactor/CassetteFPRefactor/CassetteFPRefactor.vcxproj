@@ -142,6 +142,9 @@
     <ClCompile Include="CassetteFPRefactor.cpp" />
     <ClCompile Include="JynxFramework.cpp" />
     <ClCompile Include="JynxFrameworkPanic.cpp" />
+    <ClCompile Include="TapeBitStreamSupplier.cpp" />
+    <ClCompile Include="TapFileFunctions.cpp" />
+    <ClCompile Include="TapFileTo8BitWaveAudio.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

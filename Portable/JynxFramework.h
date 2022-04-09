@@ -516,7 +516,7 @@ namespace JynxFramework
 
 		// Move assignment.
 		// Moved-from Array will be nullptr with count 0.
-		void operator=(Array&& a)
+		void operator=(Array&& a) noexcept
 		{
 			DeleteArray();
 			_data = a._data;
@@ -648,7 +648,7 @@ namespace JynxFramework
 		auto end = ptr + count;
 		while (ptr < end)
 		{
-			new ((void*)ptr) T(args...); // TODO: Does this move where type T can?
+			new (ptr) T(args...); // TODO: Does this move where type T can?
 			++ptr;
 		}
 		return Array<T>(UnsafeAccept(), (T*)block, count);
