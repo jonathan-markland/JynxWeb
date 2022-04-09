@@ -18,7 +18,7 @@
 //		jynx_emulator {at} yahoo {dot} com
 //
 
-#include "../JynxFramework.h"
+#include "../../ExternalModules/JynxFrameworkLibrary/JynxFramework.h"
 #include "LynxROMsAndRAMs.h"
 
 // - The snapshot format permits the user to fiddle the ROM images,

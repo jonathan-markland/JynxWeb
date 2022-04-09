@@ -18,7 +18,7 @@
 //		jynx_emulator {at} yahoo {dot} com
 //
 
-#include "../JynxFramework.h"
+#include "../../ExternalModules/JynxFrameworkLibrary/JynxFramework.h"
 #include "Lynx6845.h"
 
 namespace Jynx

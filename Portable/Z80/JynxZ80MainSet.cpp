@@ -18,7 +18,7 @@
 //		jynx_emulator {at} yahoo {dot} com
 //
 
-#include "../JynxFramework.h"  // TODO: do we need the whole framework?
+#include "../../ExternalModules/JynxFrameworkLibrary/JynxFramework.h" // TODO: do we need the whole framework?
 #include "JynxZ80.h"
 #include "JynxZ80Timings.h"
 #include "JynxZ80Shared.h"

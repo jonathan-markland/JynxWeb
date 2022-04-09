@@ -24,7 +24,7 @@
 #include "JynxZ80.h"
 #include "JynxZ80Shared.h"
 
-#include "../JynxFrameworkPanic.h"
+#include "../../ExternalModules/JynxFrameworkLibrary/JynxFrameworkPanic.h"
 
 
 namespace JynxZ80

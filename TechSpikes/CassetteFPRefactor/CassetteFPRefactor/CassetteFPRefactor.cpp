@@ -3,10 +3,9 @@
 
 #include <iostream>
 #include <stdint.h>
-#include "JynxFramework.h"
-
-#include "TapFileFunctions.h"
-#include "TapFileTo8BitWaveAudio.h"
+#include "ExternalModules/JynxFrameworkLibrary/JynxFramework.h"
+#include "ExternalModules/TapFileLibrary/TapFileFunctions.h"
+#include "ExternalModules/TapFileLibrary/TapFileTo8BitWaveAudio.h"
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 

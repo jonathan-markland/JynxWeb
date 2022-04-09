@@ -2,7 +2,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "JynxFramework.h"
+#include "../JynxFrameworkLibrary/JynxFramework.h"
 #include "TapFileSignalGenerator.h"  // SignalLengths
 #include "TapFileFunctions.h"        // SignalRLE
 
