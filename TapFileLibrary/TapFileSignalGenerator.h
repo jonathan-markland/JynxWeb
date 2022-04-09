@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "JynxFramework.h"
+#include "../JynxFrameworkLibrary/JynxFramework.h"
 #include "TapFileParser.h"
 
 

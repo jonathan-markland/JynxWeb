@@ -140,11 +140,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CassetteFPRefactor.cpp" />
-    <ClCompile Include="JynxFramework.cpp" />
-    <ClCompile Include="JynxFrameworkPanic.cpp" />
-    <ClCompile Include="TapeBitStreamSupplier.cpp" />
-    <ClCompile Include="TapFileFunctions.cpp" />
-    <ClCompile Include="TapFileTo8BitWaveAudio.cpp" />
+    <ClCompile Include="ExternalModules\JynxFrameworkLibrary\JynxFramework.cpp" />
+    <ClCompile Include="ExternalModules\JynxFrameworkLibrary\JynxFrameworkPanic.cpp" />
+    <ClCompile Include="ExternalModules\TapFileLibrary\TapeBitStreamSupplier.cpp" />
+    <ClCompile Include="ExternalModules\TapFileLibrary\TapFileFunctions.cpp" />
+    <ClCompile Include="ExternalModules\TapFileLibrary\TapFileTo8BitWaveAudio.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
