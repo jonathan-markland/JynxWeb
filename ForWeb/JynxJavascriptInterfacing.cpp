@@ -18,12 +18,12 @@
 //		jynx_emulator {at} yahoo {dot} com
 //
 
-#include "../Portable/JynxFrameworkPanic.h"
+#include "../ExternalModules/JynxFrameworkLibrary/JynxFrameworkPanic.h"
+#include "../ExternalModules/JynxFrameworkLibrary/WasmNeverFreeingMemoryAllocator.h"
 #include "../Portable/Z80/JynxZ80.h"
-#include "JynxJavascriptInterfacing.h"
 #include "../Portable/LynxHardware/LynxComputer.h"
 #include "../Portable/LynxHardware/LynxScreen.h"
-#include "../Portable/WasmNeverFreeingMemoryAllocator.h"
+#include "JynxJavascriptInterfacing.h"
 
 
 

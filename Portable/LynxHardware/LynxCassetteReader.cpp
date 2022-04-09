@@ -18,7 +18,7 @@
 //		jynx_emulator {at} yahoo {dot} com
 //
 
-#include "../JynxFramework.h"
+#include "../../ExternalModules/JynxFrameworkLibrary/JynxFramework.h"
 #include "LynxCassetteReader.h"
 
 namespace Jynx

@@ -18,7 +18,7 @@
 //		jynx_emulator {at} yahoo {dot} com
 //
 
-#include "../JynxFramework.h"
+#include "../../ExternalModules/JynxFrameworkLibrary/JynxFramework.h"
 #include "LynxSound.h"
 
 //  #define DEBUG_EMIT_CONSTANT_SQUARE_WAVE

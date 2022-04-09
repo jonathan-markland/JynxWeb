@@ -23,7 +23,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "../JynxFramework.h"
+#include "../../ExternalModules/JynxFrameworkLibrary/JynxFramework.h"
 
 namespace Jynx
 {
