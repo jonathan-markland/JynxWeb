@@ -1,14 +1,12 @@
 @REM Update the emulator's ExternalModules folder by copying source files in.
 
-@REM  TODO: delete the ExternalModules entire tree.
-
-copy /Y ..\JynxFramework\JynxFramework\JynxFrameworkLibrary\* ExternalModules\JynxFrameworkLibrary\
-copy /Y TapFileLibrary\* ExternalModules\TapFileLibrary\
+rd /S /Q ExternalModules
+xcopy /E /Y ..\JynxFramework\JynxFramework\JynxFrameworkLibrary\ ExternalModules\JynxFrameworkLibrary\
+xcopy /E /Y TapFileLibrary\* ExternalModules\TapFileLibrary\
 
 @REM  Update the CassetteFPRefactor spike program's ExternalModules folder
 
-@REM  TODO: delete the ExternalModules entire tree.
-
-copy /Y ..\JynxFramework\JynxFramework\JynxFrameworkLibrary\* TechSpikes\CassetteFPRefactor\CassetteFPRefactor\ExternalModules\JynxFrameworkLibrary\
-copy /Y TapFileLibrary\* TechSpikes\CassetteFPRefactor\CassetteFPRefactor\ExternalModules\TapFileLibrary\
+rd /S /Q TechSpikes\CassetteFPRefactor\CassetteFPRefactor\ExternalModules
+xcopy /E /Y ..\JynxFramework\JynxFramework\JynxFrameworkLibrary\ TechSpikes\CassetteFPRefactor\CassetteFPRefactor\ExternalModules\JynxFrameworkLibrary\
+xcopy /E /Y TapFileLibrary\* TechSpikes\CassetteFPRefactor\CassetteFPRefactor\ExternalModules\TapFileLibrary\
 
