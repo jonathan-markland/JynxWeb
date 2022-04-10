@@ -71,28 +71,24 @@ int main()
         fclose(fileHandle);
     }
 
-    auto result = 
-        JynxTapFileParser::ForEachTapeFileDo(
-            nulTerminatedImageStart, 
-            nulTermiantedImageEnd,
-            [](const Jynx::TapFileInfo& tapFileInfo) 
+    JynxTapFileParser::ForEachTapeFileDo(
+        nulTerminatedImageStart,
+        nulTermiantedImageEnd,
+        [&](const Jynx::TapFileInfo& tapFileInfo)
+        {
+            std::string fileName((const char*)tapFileInfo.FileName, tapFileInfo.FileNameLength);
+            printf("File: %c '%s' %d\n", tapFileInfo.FileTypeLetter, fileName.c_str(), tapFileInfo.BodyLength);
+
+            auto bitsPerSecond = 600;
+            auto signalLengths = Jynx::SignalLengths(Jynx::SignalLengthSeeds(bitsPerSecond));
+
+            auto rleData = GetRleArrayForFile(tapFileInfo, signalLengths);
+            auto count = rleData.Count();
+
+            for (int i=0; i<count; i++)
             {
-                std::string fileName((const char *) tapFileInfo.FileName, tapFileInfo.FileNameLength);
-                printf("File: %c '%s' %d\n", tapFileInfo.FileTypeLetter, fileName.c_str(), tapFileInfo.BodyLength);
-
-                auto bitsPerSecond = 600;
-                auto signalLengths = Jynx::SignalLengths(Jynx::SignalLengthSeeds(bitsPerSecond));
-
-                int count = 0;
-
-                JynxTapFileSignalGenerator::ForTapeBytesDo(tapFileInfo, signalLengths,
-                    [&](uint32_t z80CycleMark, uint8_t byteValue)
-                    {
-                        printf("      Z80-Time: %10d  Byte: %02x\n", z80CycleMark, byteValue);
-                        ++count;
-                    });
-
-                printf("      Rle count: %d\n", count);
-            });
+                printf("    %d  %10d\n", rleData[i].BitValue(), rleData[i].Duration());
+            }
+        });
 }
 

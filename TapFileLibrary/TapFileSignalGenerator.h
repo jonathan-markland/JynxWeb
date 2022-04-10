@@ -105,11 +105,12 @@ namespace JynxTapFileSignalGenerator
     // Parse a concatenated-TAP file image, and call the action for each discovered file.
     // The image file must have an additional NUL terminator byte 0x00.
     // Returns true if all parsed successfully, else returns false.
-    template<typename ACTION>
+    template<typename ACTION_LOW, typename ACTION_HIGH>
     void ForTapeBytesDo(
         const Jynx::TapFileInfo& tapFileInfo,
         const Jynx::SignalLengths &lengths,
-        ACTION action)
+        ACTION_LOW low,
+        ACTION_HIGH high)
     {
         // Tape is a square wave.
         // The level is in bit #15 (1=high, 0=low).  Bits 14..0 are the duration in cycles.
@@ -118,20 +119,9 @@ namespace JynxTapFileSignalGenerator
         // Idea: Call the action handler for each data byte, passing the Z80 cycle time offset
         //       at which the byte starts on the tape.  Gaps are HIGHs.
 
-        uint32_t elapsedCycles = 0;
-
-        auto high = [&](uint16_t repeatCount)
-        {
-            elapsedCycles += repeatCount;
-        };
-
         auto byte = [&](uint8_t byteValue)
         {
-            action(elapsedCycles, byteValue);
-
-            ForTapeByteDo(byteValue, lengths,
-                [&elapsedCycles](uint16_t lowLength)  { elapsedCycles += lowLength; },
-                [&elapsedCycles](uint16_t highLength) { elapsedCycles += highLength; });
+            ForTapeByteDo(byteValue, lengths, low, high);
         };
 
         auto bytes = [&](const uint8_t *data, uint32_t length)
