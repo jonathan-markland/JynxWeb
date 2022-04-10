@@ -136,8 +136,8 @@ namespace Jynx
         JynxTapFileSignalGenerator::ForTapeBytesDo(
             tapFileInfo,
             lengths,
-            [&builder](uint16_t lowLength) { builder.Add(lowLength); },
-            [&builder](uint16_t highLength) { builder.Add(highLength | 0x8000); });
+            [&builder](uint16_t lowLength)  { builder.Add( SignalRLE(lowLength) ); },
+            [&builder](uint16_t highLength) { builder.Add( SignalRLE(highLength | 0x8000) ); });
 
         return builder.MoveToArray();
     }

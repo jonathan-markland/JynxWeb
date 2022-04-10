@@ -46,7 +46,7 @@ namespace Jynx
     {
     public:
 
-        SignalRLE(uint16_t rawValue) : Datum(rawValue) {}
+        explicit SignalRLE(uint16_t rawValue) : Datum(rawValue) {}
 
         inline uint16_t Duration() const { return Datum & 0x7FFF; }
         inline uint8_t  BitValue() const { return Datum >> 15; }
