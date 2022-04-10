@@ -15,8 +15,11 @@ uint8_t FileBuffer[100000];
 
 int main()
 {
-    auto filename = "C:\\Users\\Jonathan\\Documents\\Jynx for DropBox\\Camputers Lynx\\Tapes\\LOAD COLOSSAL.TAP";
-    auto len = 30025;
+    //auto filename = "C:\\Users\\Jonathan\\Documents\\Jynx for DropBox\\Camputers Lynx\\Tapes\\LOAD COLOSSAL.TAP";
+    //auto len = 30025;
+
+    auto filename = "C:\\Users\\Jonathan\\Documents\\Jynx for DropBox\\Camputers Lynx\\Tapes\\LOAD GRIDTRAP.tap";
+    auto len = 4708;
 
     FILE* fileHandle = nullptr;
     if (fopen_s(&fileHandle, filename, "rb"))
@@ -58,7 +61,7 @@ int main()
 
     {
         FILE* fileHandle = nullptr;
-        if (fopen_s(&fileHandle, "C:\\Users\\Jonathan\\Documents\\Work\\COLOSSAL_8BIT_44100Hz.raw", "wb"))
+        if (fopen_s(&fileHandle, "C:\\Users\\Jonathan\\Documents\\Work\\GRIDTRAP.raw", "wb"))
             return 1;
 
         if (!fileHandle) return 1;

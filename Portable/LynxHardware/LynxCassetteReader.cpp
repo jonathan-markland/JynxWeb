@@ -21,24 +21,16 @@
 #include "../../ExternalModules/JynxFrameworkLibrary/JynxFramework.h"
 #include "LynxCassetteReader.h"
 
+extern unsigned char BuiltInCassetteImage[];
+extern unsigned int  BuiltInCassetteImageLength;
+
 namespace Jynx
 {
 	LynxCassetteReader::LynxCassetteReader()
+		: _tapeBitStreamSupplier(
+				BuiltInCassetteImage, 
+				BuiltInCassetteImageLength)
 	{
-		OnHardwareReset();
-	}
-	
-	
-	
-	void LynxCassetteReader::OnHardwareReset()
-	{
-	}
-	
-	
-	
-	uint8_t LynxCassetteReader::ReadCurrentBit()
-	{
-		return 0; // TODO
 	}
 }
 

@@ -147,7 +147,7 @@ namespace JynxTapFileSignalGenerator
 
         auto syncAndA5 = [&]()
         {
-            for (int i = 0; i < 96; i++)
+            for (int i = 0; i < 768; i++)
             {
                 byte(0x00);
             }
