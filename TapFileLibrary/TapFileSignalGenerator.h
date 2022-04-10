@@ -55,11 +55,10 @@ namespace Jynx
         SignalLengthInfo  SignalLengthsForZeroes;
 
         explicit SignalLengths(SignalLengthSeeds seeds)
-            : SignalLengthsForOnes(seeds.ZeroSeed, seeds.ZeroSeed + 0x57, seeds.ZeroSeed + 0x11F)    
-            , SignalLengthsForZeroes(seeds.OneSeed, seeds.OneSeed + 0x121, seeds.OneSeed + 0x1F7)    
+            : SignalLengthsForZeroes(seeds.ZeroSeed, seeds.ZeroSeed + 0x57, seeds.ZeroSeed + 0x11F)  // Signal length information (in Z80 cycles) for a ZERO  (at "TAPE 0" speed).
+            , SignalLengthsForOnes(seeds.OneSeed, seeds.OneSeed + 0x121, seeds.OneSeed + 0x1F7)      // Signal length information (in Z80 cycles) for a ONE   (at "TAPE 0" speed).
         {
         }
-
     };
 }
 
