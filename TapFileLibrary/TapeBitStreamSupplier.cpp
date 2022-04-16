@@ -50,22 +50,26 @@ namespace Jynx
     {
         if (_tapeMotorOn && !_allDone)
         {
+			if (_rleIndex >= _currentFileRle.Count())
+			{
+                PrepareToStartReadingFile();
+			}
+			
             if (_resyncOnTapeMotorOn)
             {
-                PrepareToStartReadingFile();
-                _previousReadBitZ80Time = z80CycleCountNow;
                 _resyncOnTapeMotorOn = false;
             }
             else
             {
                 AdvancePositionByZ80Cycles(z80CycleCountNow - _previousReadBitZ80Time);
-                _previousReadBitZ80Time = z80CycleCountNow;
+			}
 
-                if (_rleIndex < _currentFileRle.Count())
-                {
-                    return _currentFileRle[_rleIndex].BitValue();
-                }
-            }
+			_previousReadBitZ80Time = z80CycleCountNow;
+
+			if (_rleIndex < _currentFileRle.Count())
+			{
+				return _currentFileRle[_rleIndex].BitValue();
+			}
         }
 
         // Default to returning a HIGH signal level (arbitrary really, but should remain constant).
@@ -76,7 +80,7 @@ namespace Jynx
 
     void TapeBitStreamSupplier::AdvancePositionByZ80Cycles(uint64_t z80Cycles)
     {
-        while (_rleIndex < _currentFileRle.Count())
+        while (z80Cycles > 0 && _rleIndex < _currentFileRle.Count())
         {
             auto currentRleItemDuration = _currentFileRle[_rleIndex].Duration();
             auto datumRemainder = currentRleItemDuration - _fineOffset;

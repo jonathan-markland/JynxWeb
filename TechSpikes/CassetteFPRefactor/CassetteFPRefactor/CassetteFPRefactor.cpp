@@ -85,10 +85,10 @@ int main()
             auto rleData = GetRleArrayForFile(tapFileInfo, signalLengths);
             auto count = rleData.Count();
 
-            for (int i=0; i<count; i++)
-            {
-                printf("    %d  %10d\n", rleData[i].BitValue(), rleData[i].Duration());
-            }
+            // for (int i=0; i<count; i++)
+            // {
+            //     printf("    %d  %10d\n", rleData[i].BitValue(), rleData[i].Duration());
+            // }
         });
 }
 
