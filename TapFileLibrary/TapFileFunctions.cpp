@@ -118,14 +118,8 @@ namespace Jynx
         JynxTapFileSignalGenerator::ForTapeBytesDo(
             tapFileInfo,
             lengths,
-            [&lengths, &rleCount](uint32_t z80CycleMark, uint8_t byteValue) {
-
-                JynxTapFileSignalGenerator::ForTapeByteDo(
-                    byteValue,
-                    lengths,
-                    [&rleCount](uint16_t /*lowLength*/) { ++rleCount; },
-                    [&rleCount](uint16_t /*highLength*/) { ++rleCount; });
-            });
+            [&rleCount](uint16_t /*lowLength*/) { ++rleCount; },
+            [&rleCount](uint16_t /*highLength*/) { ++rleCount; });
 
         return rleCount;
     }
@@ -142,14 +136,8 @@ namespace Jynx
         JynxTapFileSignalGenerator::ForTapeBytesDo(
             tapFileInfo,
             lengths,
-            [&lengths, &builder](uint32_t z80CycleMark, uint8_t byteValue) {
-
-                JynxTapFileSignalGenerator::ForTapeByteDo(
-                    byteValue,
-                    lengths,
-                    [&builder](uint16_t lowLength) { builder.Add(lowLength); },
-                    [&builder](uint16_t highLength) { builder.Add(highLength | 0x8000); });
-            });
+            [&builder](uint16_t lowLength)  { builder.Add( SignalRLE(lowLength) ); },
+            [&builder](uint16_t highLength) { builder.Add( SignalRLE(highLength | 0x8000) ); });
 
         return builder.MoveToArray();
     }

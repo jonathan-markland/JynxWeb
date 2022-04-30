@@ -21,24 +21,17 @@
 #include "../../ExternalModules/JynxFrameworkLibrary/JynxFramework.h"
 #include "LynxCassetteReader.h"
 
+// TODO: Post MVP:  In the MVP we statically link a single cassette file only.
+extern unsigned char BuiltInCassetteImage[];
+extern unsigned int  BuiltInCassetteImageLength;
+
 namespace Jynx
 {
 	LynxCassetteReader::LynxCassetteReader()
+		: _tapeBitStreamSupplier(
+				BuiltInCassetteImage, 
+				BuiltInCassetteImageLength)
 	{
-		OnHardwareReset();
-	}
-	
-	
-	
-	void LynxCassetteReader::OnHardwareReset()
-	{
-	}
-	
-	
-	
-	uint8_t LynxCassetteReader::ReadCurrentBit()
-	{
-		return 0; // TODO
 	}
 }
 

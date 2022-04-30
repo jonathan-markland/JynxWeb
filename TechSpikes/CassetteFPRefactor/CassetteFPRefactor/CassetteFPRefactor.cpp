@@ -15,8 +15,11 @@ uint8_t FileBuffer[100000];
 
 int main()
 {
-    auto filename = "C:\\Users\\Jonathan\\Documents\\Jynx for DropBox\\Camputers Lynx\\Tapes\\LOAD COLOSSAL.TAP";
-    auto len = 30025;
+    //auto filename = "C:\\Users\\Jonathan\\Documents\\Jynx for DropBox\\Camputers Lynx\\Tapes\\LOAD COLOSSAL.TAP";
+    //auto len = 30025;
+
+    auto filename = "C:\\Users\\Jonathan\\Documents\\Jynx for DropBox\\Camputers Lynx\\Tapes\\LOAD GRIDTRAP.tap";
+    auto len = 4708;
 
     FILE* fileHandle = nullptr;
     if (fopen_s(&fileHandle, filename, "rb"))
@@ -58,7 +61,7 @@ int main()
 
     {
         FILE* fileHandle = nullptr;
-        if (fopen_s(&fileHandle, "C:\\Users\\Jonathan\\Documents\\Work\\COLOSSAL_8BIT_44100Hz.raw", "wb"))
+        if (fopen_s(&fileHandle, "C:\\Users\\Jonathan\\Documents\\Work\\GRIDTRAP.raw", "wb"))
             return 1;
 
         if (!fileHandle) return 1;
@@ -68,28 +71,24 @@ int main()
         fclose(fileHandle);
     }
 
-    auto result = 
-        JynxTapFileParser::ForEachTapeFileDo(
-            nulTerminatedImageStart, 
-            nulTermiantedImageEnd,
-            [](const Jynx::TapFileInfo& tapFileInfo) 
-            {
-                std::string fileName((const char *) tapFileInfo.FileName, tapFileInfo.FileNameLength);
-                printf("File: %c '%s' %d\n", tapFileInfo.FileTypeLetter, fileName.c_str(), tapFileInfo.BodyLength);
+    JynxTapFileParser::ForEachTapeFileDo(
+        nulTerminatedImageStart,
+        nulTermiantedImageEnd,
+        [&](const Jynx::TapFileInfo& tapFileInfo)
+        {
+            std::string fileName((const char*)tapFileInfo.FileName, tapFileInfo.FileNameLength);
+            printf("File: %c '%s' %d\n", tapFileInfo.FileTypeLetter, fileName.c_str(), tapFileInfo.BodyLength);
 
-                auto bitsPerSecond = 600;
-                auto signalLengths = Jynx::SignalLengths(Jynx::SignalLengthSeeds(bitsPerSecond));
+            auto bitsPerSecond = 600;
+            auto signalLengths = Jynx::SignalLengths(Jynx::SignalLengthSeeds(bitsPerSecond));
 
-                int count = 0;
+            auto rleData = GetRleArrayForFile(tapFileInfo, signalLengths);
+            auto count = rleData.Count();
 
-                JynxTapFileSignalGenerator::ForTapeBytesDo(tapFileInfo, signalLengths,
-                    [&](uint32_t z80CycleMark, uint8_t byteValue)
-                    {
-                        printf("      Z80-Time: %10d  Byte: %02x\n", z80CycleMark, byteValue);
-                        ++count;
-                    });
-
-                printf("      Rle count: %d\n", count);
-            });
+            // for (int i=0; i<count; i++)
+            // {
+            //     printf("    %d  %10d\n", rleData[i].BitValue(), rleData[i].Duration());
+            // }
+        });
 }
 

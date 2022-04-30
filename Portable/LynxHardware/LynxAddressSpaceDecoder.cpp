@@ -22,6 +22,10 @@
 #include "LynxAddressSpaceDecoder.h"
 #include "LynxHardwareCommon.h"
 
+// TODO: Post MVP:  In the MVP we hack setting a palette, on the 
+//                  basis of knowledge of the statically-linked cassette image.
+extern bool BuiltInCassetteNeedsLevel9Palette;
+
 namespace Jynx
 {
 	LynxAddressSpaceDecoder::LynxAddressSpaceDecoder()
@@ -44,6 +48,7 @@ namespace Jynx
 		_screen.OnDevicePortValueChanged(_devicePort);
 		_6845.OnHardwareReset();
 		_cassetteReader.OnHardwareReset();
+		_screen.SetPalette(BuiltInCassetteNeedsLevel9Palette ? LynxColourSet::Level9 : LynxColourSet::NormalRGB);  // TODO: This is only for the MVP (static link of cassette image)
 		SyncAddressSpaceFromPorts();
 	}
 
@@ -280,19 +285,17 @@ namespace Jynx
 					SyncAddressSpaceFromPorts();
 				}
 
-				/* TODO: cassette   // Use XOR to detect *change* in CASSETTE MOTOR control bit:
 				if( (oldSetting ^ dataByte) & DEVICEPORT_CASSETTE_MOTOR )
 				{
 					if( dataByte & DEVICEPORT_CASSETTE_MOTOR )
 					{
-						CassetteMotorOn();
+						_cassetteReader.TapeMotorOn(600); // TODO: We used to get the setting from the Lynx
 					}
 					else
 					{
-						CassetteMotorOff();
+						_cassetteReader.TapeMotorOff();
 					}
 				}
-				*/
 			}
 		}
 
@@ -373,10 +376,9 @@ namespace Jynx
 			{
 				if( (portNumber & 0xFC6) == 0x0080 ) // <-- Mask per Lynx User Magazine Issue 1.  The lynx appears to only read from this port specifically, when reading tapes.
 				{
-					// (It seems cassette loading terminates immediately unless the key information is
-					// returned here.  Fixing the top 7 bits at "0"s wasn't a good idea!).
-					
-					auto cassetteBit0 = _cassetteReader.ReadCurrentBit();
+					auto elaspedThisQuantum = _processor->GetTimesliceLength() - _processor->GetRemainingCycles();
+					auto z80CycleCountNow   = _timesliceStartCount + elaspedThisQuantum;
+					auto cassetteBit0       = _cassetteReader.ReadCurrentBit(z80CycleCountNow);
 					/* TODO:  if( _hearTapeSounds )
 					{
 						// Listen to tape loading (quieten it a bit):
@@ -384,6 +386,9 @@ namespace Jynx
 						auto timesliceLength = _processor->GetTimesliceLength();
 						_sound.SetLevelAtTime( cassetteBit0 << 3, cyclesDoneInTimeslice, timesliceLength );
 					} */
+
+					// (It seems cassette loading terminates immediately unless the key information is
+					// returned here.  Fixing the top 7 bits at "0"s wasn't a good idea!).
 					return (_keyboard.ReadLynxKeyboard(portNumber) & 0xFE) | cassetteBit0;    // The AND mask probably isn't needed.
 				}
 			}
