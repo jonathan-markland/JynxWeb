@@ -12,5 +12,7 @@ AutoGen_*
 thumbs.db
 Debug
 Release
+obj/
+.vs/
 ipch
 ExternalModules/
