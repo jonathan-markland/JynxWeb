@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "FileToCHex": {
+      "commandName": "Project",
+      "commandLineArgs": "\"C:\\Users\\Jonathan\\Documents\\Jynx for DropBox\\Camputers Lynx\\Tapes\""
+    }
+  }
+}
