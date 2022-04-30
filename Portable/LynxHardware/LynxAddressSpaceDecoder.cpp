@@ -22,6 +22,10 @@
 #include "LynxAddressSpaceDecoder.h"
 #include "LynxHardwareCommon.h"
 
+// TODO: Post MVP:  In the MVP we hack setting a palette, on the 
+//                  basis of knowledge of the statically-linked cassette image.
+extern bool BuiltInCassetteNeedsLevel9Palette;
+
 namespace Jynx
 {
 	LynxAddressSpaceDecoder::LynxAddressSpaceDecoder()
@@ -44,6 +48,7 @@ namespace Jynx
 		_screen.OnDevicePortValueChanged(_devicePort);
 		_6845.OnHardwareReset();
 		_cassetteReader.OnHardwareReset();
+		_screen.SetPalette(BuiltInCassetteNeedsLevel9Palette ? LynxColourSet::Level9 : LynxColourSet::NormalRGB);  // TODO: This is only for the MVP (static link of cassette image)
 		SyncAddressSpaceFromPorts();
 	}
 
