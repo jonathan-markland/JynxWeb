@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="SDL2Binaries">
+      <UniqueIdentifier>{42a8523d-0911-4ec4-8a6f-c2595e576502}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="SDL2DesktopSpike.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="Anubis.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="SDL2\libjpeg-9.dll">
+      <Filter>SDL2Binaries</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="SDL2\libpng16-16.dll">
+      <Filter>SDL2Binaries</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="SDL2\libtiff-5.dll">
+      <Filter>SDL2Binaries</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="SDL2\libwebp-7.dll">
+      <Filter>SDL2Binaries</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="SDL2\SDL2.dll">
+      <Filter>SDL2Binaries</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="SDL2\SDL2_image.dll">
+      <Filter>SDL2Binaries</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="SDL2\zlib1.dll">
+      <Filter>SDL2Binaries</Filter>
+    </CopyFileToFolders>
+  </ItemGroup>
+</Project>
