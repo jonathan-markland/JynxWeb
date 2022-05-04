@@ -13,10 +13,38 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="DLLs">
+      <UniqueIdentifier>{49b49d25-4265-4e32-96c5-8b6bbe60ef24}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="JynxII.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\ExternalModules\SDL2-2.0.22\lib\x64\SDL2.dll">
+      <Filter>DLLs</Filter>
+    </None>
+    <None Include="..\ExternalModules\SDL2_image-2.0.5\lib\x64\libpng16-16.dll">
+      <Filter>DLLs</Filter>
+    </None>
+    <None Include="..\ExternalModules\SDL2_image-2.0.5\lib\x64\libtiff-5.dll">
+      <Filter>DLLs</Filter>
+    </None>
+    <None Include="..\ExternalModules\SDL2_image-2.0.5\lib\x64\libwebp-7.dll">
+      <Filter>DLLs</Filter>
+    </None>
+    <None Include="..\ExternalModules\SDL2_image-2.0.5\lib\x64\SDL2_image.dll">
+      <Filter>DLLs</Filter>
+    </None>
+    <None Include="..\ExternalModules\SDL2_image-2.0.5\lib\x64\zlib1.dll">
+      <Filter>DLLs</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="..\ExternalModules\SDL2_image-2.0.5\lib\x64\libjpeg-9.dll">
+      <Filter>DLLs</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>
