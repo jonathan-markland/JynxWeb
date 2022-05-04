@@ -2,7 +2,7 @@
 JYNX DESKTOP SDL2
 =================
 
-	[ ] Spike test SDL2 generation of wave audio (on the Desktop).
+	[X] Spike test SDL2 generation of wave audio (on the Desktop).
 
 
 
