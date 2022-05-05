@@ -142,6 +142,33 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\ExternalModules\JynxFrameworkLibrary\JynxFramework.cpp" />
+    <ClCompile Include="..\..\ExternalModules\JynxFrameworkLibrary\JynxFrameworkPanic.cpp" />
+    <ClCompile Include="..\..\ExternalModules\TapFileLibrary\TapeBitStreamSupplier.cpp" />
+    <ClCompile Include="..\..\ExternalModules\TapFileLibrary\TapFileFunctions.cpp" />
+    <ClCompile Include="..\..\ExternalModules\TapFileLibrary\TapFileTo8BitWaveAudio.cpp" />
+    <ClCompile Include="..\..\Portable\LynxHardware\Lynx6845.cpp" />
+    <ClCompile Include="..\..\Portable\LynxHardware\LynxAddressSpaceDecoder.cpp" />
+    <ClCompile Include="..\..\Portable\LynxHardware\LynxCassetteReader.cpp" />
+    <ClCompile Include="..\..\Portable\LynxHardware\LynxComputer.cpp" />
+    <ClCompile Include="..\..\Portable\LynxHardware\LynxKeyboard.cpp" />
+    <ClCompile Include="..\..\Portable\LynxHardware\LynxROMsAndRAMs.cpp" />
+    <ClCompile Include="..\..\Portable\LynxHardware\LynxScreen.cpp" />
+    <ClCompile Include="..\..\Portable\LynxHardware\LynxSound.cpp" />
+    <ClCompile Include="..\..\Portable\Z80\JynxZ80.cpp" />
+    <ClCompile Include="..\..\Portable\Z80\JynxZ80Disassembler.cpp" />
+    <ClCompile Include="..\..\Portable\Z80\JynxZ80MainSet.cpp" />
+    <ClCompile Include="..\..\Portable\Z80\JynxZ80Shared.cpp" />
+    <ClCompile Include="..\..\Portable\Z80\JynxZ80Timings.cpp" />
+    <ClCompile Include="..\..\Portable\Z80\JynxZ80_CB.cpp" />
+    <ClCompile Include="..\..\Portable\Z80\JynxZ80_ED.cpp" />
+    <ClCompile Include="..\..\Roms\built-in-cassette.cpp" />
+    <ClCompile Include="..\..\Roms\lynx48-1.cpp" />
+    <ClCompile Include="..\..\Roms\lynx48-2.cpp" />
+    <ClCompile Include="..\..\Roms\lynx96-1.cpp" />
+    <ClCompile Include="..\..\Roms\lynx96-2.cpp" />
+    <ClCompile Include="..\..\Roms\lynx96-3-scorpion.cpp" />
+    <ClCompile Include="..\..\Roms\lynx96-3.cpp" />
     <ClCompile Include="JynxII.cpp" />
   </ItemGroup>
   <ItemGroup>

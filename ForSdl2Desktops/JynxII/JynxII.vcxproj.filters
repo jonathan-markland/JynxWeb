@@ -16,35 +16,126 @@
     <Filter Include="DLLs">
       <UniqueIdentifier>{49b49d25-4265-4e32-96c5-8b6bbe60ef24}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\ExternalModules">
+      <UniqueIdentifier>{a51cb561-0bb9-45c9-a501-227fa2a7c82f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ExternalModules\JynxFrameworkLibrary">
+      <UniqueIdentifier>{7d452c08-90cf-4f11-a410-eca9d3de520c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ExternalModules\TapFileLibrary">
+      <UniqueIdentifier>{a6d3ad64-5b00-45c8-b0ff-068d9046896b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Portable">
+      <UniqueIdentifier>{ad2af6ee-4762-4c8a-b7f9-97dc5750a0e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Portable\LynxHardware">
+      <UniqueIdentifier>{5a38fef0-9a43-4497-ab2d-b76d8ad9d9ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Portable\Z80">
+      <UniqueIdentifier>{f0ae51ea-f412-49d7-bf90-b4b683897c76}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ROMs">
+      <UniqueIdentifier>{9ac93c4a-32a0-4cd1-8a60-acb1215688b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\BuiltInCassette">
+      <UniqueIdentifier>{0678470e-5b3b-49e2-b815-51ef2e05aace}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="JynxII.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\ExternalModules\SDL2-2.0.22\lib\x64\SDL2.dll">
-      <Filter>DLLs</Filter>
-    </None>
-    <None Include="..\ExternalModules\SDL2_image-2.0.5\lib\x64\libpng16-16.dll">
-      <Filter>DLLs</Filter>
-    </None>
-    <None Include="..\ExternalModules\SDL2_image-2.0.5\lib\x64\libtiff-5.dll">
-      <Filter>DLLs</Filter>
-    </None>
-    <None Include="..\ExternalModules\SDL2_image-2.0.5\lib\x64\libwebp-7.dll">
-      <Filter>DLLs</Filter>
-    </None>
-    <None Include="..\ExternalModules\SDL2_image-2.0.5\lib\x64\SDL2_image.dll">
-      <Filter>DLLs</Filter>
-    </None>
-    <None Include="..\ExternalModules\SDL2_image-2.0.5\lib\x64\zlib1.dll">
-      <Filter>DLLs</Filter>
-    </None>
+    <ClCompile Include="..\..\ExternalModules\JynxFrameworkLibrary\JynxFramework.cpp">
+      <Filter>Source Files\ExternalModules\JynxFrameworkLibrary</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ExternalModules\JynxFrameworkLibrary\JynxFrameworkPanic.cpp">
+      <Filter>Source Files\ExternalModules\JynxFrameworkLibrary</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ExternalModules\TapFileLibrary\TapeBitStreamSupplier.cpp">
+      <Filter>Source Files\ExternalModules\TapFileLibrary</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ExternalModules\TapFileLibrary\TapFileFunctions.cpp">
+      <Filter>Source Files\ExternalModules\TapFileLibrary</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ExternalModules\TapFileLibrary\TapFileTo8BitWaveAudio.cpp">
+      <Filter>Source Files\ExternalModules\TapFileLibrary</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Portable\LynxHardware\Lynx6845.cpp">
+      <Filter>Source Files\Portable\LynxHardware</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Portable\LynxHardware\LynxAddressSpaceDecoder.cpp">
+      <Filter>Source Files\Portable\LynxHardware</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Portable\LynxHardware\LynxCassetteReader.cpp">
+      <Filter>Source Files\Portable\LynxHardware</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Portable\LynxHardware\LynxComputer.cpp">
+      <Filter>Source Files\Portable\LynxHardware</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Portable\LynxHardware\LynxKeyboard.cpp">
+      <Filter>Source Files\Portable\LynxHardware</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Portable\LynxHardware\LynxROMsAndRAMs.cpp">
+      <Filter>Source Files\Portable\LynxHardware</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Portable\LynxHardware\LynxScreen.cpp">
+      <Filter>Source Files\Portable\LynxHardware</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Portable\LynxHardware\LynxSound.cpp">
+      <Filter>Source Files\Portable\LynxHardware</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Portable\Z80\JynxZ80Timings.cpp">
+      <Filter>Source Files\Portable\Z80</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Portable\Z80\JynxZ80Shared.cpp">
+      <Filter>Source Files\Portable\Z80</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Portable\Z80\JynxZ80MainSet.cpp">
+      <Filter>Source Files\Portable\Z80</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Portable\Z80\JynxZ80Disassembler.cpp">
+      <Filter>Source Files\Portable\Z80</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Portable\Z80\JynxZ80_ED.cpp">
+      <Filter>Source Files\Portable\Z80</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Portable\Z80\JynxZ80_CB.cpp">
+      <Filter>Source Files\Portable\Z80</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Portable\Z80\JynxZ80.cpp">
+      <Filter>Source Files\Portable\Z80</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Roms\lynx48-1.cpp">
+      <Filter>Source Files\ROMs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Roms\lynx48-2.cpp">
+      <Filter>Source Files\ROMs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Roms\lynx96-1.cpp">
+      <Filter>Source Files\ROMs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Roms\lynx96-2.cpp">
+      <Filter>Source Files\ROMs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Roms\lynx96-3.cpp">
+      <Filter>Source Files\ROMs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Roms\lynx96-3-scorpion.cpp">
+      <Filter>Source Files\ROMs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Roms\built-in-cassette.cpp">
+      <Filter>Source Files\BuiltInCassette</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="..\ExternalModules\SDL2_image-2.0.5\lib\x64\libjpeg-9.dll">
       <Filter>DLLs</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="..\ExternalModules\SDL2-2.0.22\lib\x64\SDL2.dll" />
+    <CopyFileToFolders Include="..\ExternalModules\SDL2_image-2.0.5\lib\x64\libpng16-16.dll" />
+    <CopyFileToFolders Include="..\ExternalModules\SDL2_image-2.0.5\lib\x64\libtiff-5.dll" />
+    <CopyFileToFolders Include="..\ExternalModules\SDL2_image-2.0.5\lib\x64\libwebp-7.dll" />
+    <CopyFileToFolders Include="..\ExternalModules\SDL2_image-2.0.5\lib\x64\SDL2_image.dll" />
+    <CopyFileToFolders Include="..\ExternalModules\SDL2_image-2.0.5\lib\x64\zlib1.dll" />
   </ItemGroup>
 </Project>

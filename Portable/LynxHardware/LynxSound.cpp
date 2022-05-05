@@ -66,7 +66,7 @@ namespace Jynx
 		DrawTo( drawToIndex );
 
 		// Record the new level for next time:
-		_level = ((float) lynxSpeakerLevel) / 63.0;
+		_level = ((float) lynxSpeakerLevel) / 63.0F;
 	}
 
 	
