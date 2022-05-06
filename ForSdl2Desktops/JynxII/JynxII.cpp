@@ -270,7 +270,7 @@ int main(int argc, char* argv[])
         SDL_CreateRenderer(win, -1, render_flags);
 
     auto guestScreenSurface =
-        SDL_CreateRGBSurfaceWithFormatFrom(sharedDisplayBuffer, GUEST_SCREEN_WIDTH, GUEST_SCREEN_HEIGHT, 32, GUEST_SCREEN_WIDTH * 4, SDL_PIXELFORMAT_ARGB8888);
+        SDL_CreateRGBSurfaceWithFormatFrom(sharedDisplayBuffer, GUEST_SCREEN_WIDTH, GUEST_SCREEN_HEIGHT, 32, GUEST_SCREEN_WIDTH * 4, SDL_PIXELFORMAT_ABGR8888);
 
     //
     // 50Hz timer
