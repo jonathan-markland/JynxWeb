@@ -91,6 +91,140 @@ Uint32 __cdecl TimerCallback(Uint32 interval, void* param)
 
 
 
+// ------------------------------------------------------------------------------------------------------------
+//   KEYBOARD
+// ------------------------------------------------------------------------------------------------------------
+
+#define NUMBER_OF_KEYS (8*11)
+
+
+
+uint8_t  SdlKeycodesLookupTable[NUMBER_OF_KEYS] =
+{
+    // The Lynx has 10 x 8-bit registers that are connected to the keys.
+    // The Lynx does not have the exact same keyboard that a PC has, so
+    // we approximate the mappings of the Lynx keys to the PC.
+
+    // - The values are Web browser key codes.
+    // - Indices are bit-indexes into the Lynx Keyboard Array and registers
+
+    //  SHIFT |  ESC  | DOWN  |  UP   | CAPS  |       |       |   1   |
+    //        |       |   C   |   D   |   X   |   E   |   4   |   3   |
+    //        |  CTRL |   A   |   S   |   Z   |   W   |   Q   |   2   |
+    //        |       |   F   |   G   |   V   |   T   |   R   |   5   |
+    //        |       |   B   |   N   | SPACE |   H   |   Y   |   6   |
+    //        |       |   J   |       |   M   |   U   |   8   |   7   |
+    //        |       |   K   |       |  , <  |   O   |   I   |   9   |
+    //        |       |  ; :  |       |  . >  |   L   |   P   |   0   |
+    //        |       |  = +  |       |  / ?  |  [ {  |  ' @  |  - _  |
+    //        |       | RIGHT |       | ENTER | LEFT  |  ] }  | BKSPC |
+
+    SDL_SCANCODE_LSHIFT , SDL_SCANCODE_ESCAPE , SDL_SCANCODE_DOWN      , SDL_SCANCODE_UP , SDL_SCANCODE_CAPSLOCK ,            0             ,        0                  , SDL_SCANCODE_1         ,
+             0          ,         0           , SDL_SCANCODE_C         , SDL_SCANCODE_D  , SDL_SCANCODE_X        , SDL_SCANCODE_E           , SDL_SCANCODE_4            , SDL_SCANCODE_3         ,
+             0          , SDL_SCANCODE_LCTRL  , SDL_SCANCODE_A         , SDL_SCANCODE_S  , SDL_SCANCODE_Z        , SDL_SCANCODE_W           , SDL_SCANCODE_Q            , SDL_SCANCODE_2         ,
+             0          ,         0           , SDL_SCANCODE_F         , SDL_SCANCODE_G  , SDL_SCANCODE_V        , SDL_SCANCODE_T           , SDL_SCANCODE_R            , SDL_SCANCODE_5         ,
+             0          ,         0           , SDL_SCANCODE_B         , SDL_SCANCODE_N  , SDL_SCANCODE_SPACE    , SDL_SCANCODE_H           , SDL_SCANCODE_Y            , SDL_SCANCODE_6         ,
+             0          ,         0           , SDL_SCANCODE_J         ,       0         , SDL_SCANCODE_M        , SDL_SCANCODE_U           , SDL_SCANCODE_8            , SDL_SCANCODE_7         ,
+             0          ,         0           , SDL_SCANCODE_K         ,       0         , SDL_SCANCODE_COMMA    , SDL_SCANCODE_O           , SDL_SCANCODE_I            , SDL_SCANCODE_9         ,
+             0          ,         0           , SDL_SCANCODE_SEMICOLON ,       0         , SDL_SCANCODE_PERIOD   , SDL_SCANCODE_L           , SDL_SCANCODE_P            , SDL_SCANCODE_0         ,
+             0          ,         0           , SDL_SCANCODE_EQUALS    ,       0         , SDL_SCANCODE_SLASH    , SDL_SCANCODE_LEFTBRACKET , SDL_SCANCODE_APOSTROPHE   , SDL_SCANCODE_MINUS     ,
+             0          ,         0           , SDL_SCANCODE_RIGHT     ,       0         , SDL_SCANCODE_RETURN   , SDL_SCANCODE_LEFT        , SDL_SCANCODE_RIGHTBRACKET , SDL_SCANCODE_BACKSPACE
+};
+
+
+
+SDL_Scancode  CombineScancodes(SDL_Scancode sdlKeyCode)
+{
+    // (Since the table can only hold one keycode per slot)
+
+    if (sdlKeyCode == SDL_SCANCODE_RSHIFT) return SDL_SCANCODE_LSHIFT;
+    if (sdlKeyCode == SDL_SCANCODE_RCTRL) return SDL_SCANCODE_LCTRL;
+    if (sdlKeyCode == SDL_SCANCODE_KP_ENTER) return SDL_SCANCODE_RETURN;
+    return sdlKeyCode;
+}
+
+
+
+int SdlKeyCodeToLynxKeyIndex(SDL_Scancode sdlKeyCode)
+{
+    sdlKeyCode = CombineScancodes(sdlKeyCode);
+
+    for (int i = 0; i < NUMBER_OF_KEYS; i++)
+    {
+        if (sdlKeyCode == SdlKeycodesLookupTable[i])
+        {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+
+
+void HandleKeyDownEvent(SDL_Scancode sdlKeyCode, volatile uint8_t *sharedKeyboardRegisters)
+{
+    auto bitIndex = SdlKeyCodeToLynxKeyIndex(sdlKeyCode);
+    if (bitIndex != -1)
+    {
+        auto portIndex = bitIndex >> 3;
+        auto mask = 0x80 >> (bitIndex & 7);
+        sharedKeyboardRegisters[portIndex] = (sharedKeyboardRegisters[portIndex] | mask) ^ mask;  // Clear bit in shared memory  (key Down -ve logic)
+    }
+}
+
+
+
+void HandleKeyUpEvent(SDL_Scancode sdlKeyCode, volatile uint8_t* sharedKeyboardRegisters)
+{
+    auto bitIndex = SdlKeyCodeToLynxKeyIndex(sdlKeyCode);
+    if (bitIndex != -1)
+    {
+        auto portIndex = bitIndex >> 3;
+        auto mask = 0x80 >> (bitIndex & 7);
+        sharedKeyboardRegisters[portIndex] = sharedKeyboardRegisters[portIndex] | mask;  // Set bit in shared memory (key Up -ve logic)
+    }
+}
+
+
+
+// ------------------------------------------------------------------------------------------------------------
+//   SCREEN
+// ------------------------------------------------------------------------------------------------------------
+
+void RefreshScreen(
+    SDL_Renderer* rend, 
+    SDL_Surface *guestScreenSurface,
+    volatile uint8_t *sharedBandCounters,
+    JynxFramework::Array<uint8_t> &bandCounters)
+{
+    // TODO:  We ignore the band flags detail altogether!
+    // TODO:  Consider 6845 emulation, which will completely change Desktop and Web rendering anyway.
+
+    bool changeDetectedAnywhere = false;
+
+    for (int i = 0; i < INV_ROWS; i++)
+    {
+        auto n = sharedBandCounters[i];
+        if (bandCounters[i] != n)
+        {
+            changeDetectedAnywhere = true;
+            bandCounters[i] = n;
+        }
+    }
+
+    if (changeDetectedAnywhere)
+    {
+        auto tex = SDL_CreateTextureFromSurface(rend, guestScreenSurface);
+        SDL_RenderClear(rend);
+        SDL_RenderCopy(rend, tex, NULL, NULL);
+        SDL_RenderPresent(rend);
+        SDL_DestroyTexture(tex);
+    }
+}
+
+
+
 
 // ------------------------------------------------------------------------------------------------------------
 //   MAIN
@@ -103,7 +237,11 @@ int main(int argc, char* argv[])
     //
 
     JynxZ80::Z80::InitialiseGlobalTables();
-    SoundThreadData soundThreadData;
+    SoundThreadData soundThreadData; // but we'll need the shared buffers from here.
+    auto sharedKeyboardRegisters = soundThreadData.lynxComputer->GetLynxKeyboardArrayAddress();
+    auto sharedDisplayBuffer = soundThreadData.lynxComputer->GetScreenBitmapBaseAddress();
+    auto sharedBandCounters = soundThreadData.lynxComputer->GetRowDirtyCountersAddress();
+    auto bandCounters = JynxFramework::ArrayInit<uint8_t>(INV_ROWS, 0);
 
     //
     // Init SDL
@@ -131,11 +269,8 @@ int main(int argc, char* argv[])
     auto rend = 
         SDL_CreateRenderer(win, -1, render_flags);
 
-    // auto guestScreenSurface =
-    //     SDL_CreateRGBSurfaceWithFormat(0, GUEST_SCREEN_WIDTH, GUEST_SCREEN_HEIGHT, 32, SDL_PIXELFORMAT_ARGB8888);
-
-    auto guestScreenTexture = 
-        SDL_CreateTexture(rend, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, GUEST_SCREEN_WIDTH, GUEST_SCREEN_HEIGHT);
+    auto guestScreenSurface =
+        SDL_CreateRGBSurfaceWithFormatFrom(sharedDisplayBuffer, GUEST_SCREEN_WIDTH, GUEST_SCREEN_HEIGHT, 32, GUEST_SCREEN_WIDTH * 4, SDL_PIXELFORMAT_ARGB8888);
 
     //
     // 50Hz timer
@@ -151,7 +286,6 @@ int main(int argc, char* argv[])
         return 1; // TODO: close down
     }
     
-
     //
     // Audio
     //
@@ -176,7 +310,9 @@ int main(int argc, char* argv[])
 
     SDL_PauseAudioDevice(audioDevice, 0); // start audio playing.
 
-    // -----------------------------------------------------------------------------------
+    // 
+    // Main loop
+    //
 
     bool quit = false;
 
@@ -184,8 +320,7 @@ int main(int argc, char* argv[])
     {
         SDL_Event event;
 
-        // Events management
-        while (SDL_PollEvent(&event) != 0 && !quit) 
+        while (SDL_WaitEvent(&event) != 0 && !quit)
         {
             switch (event.type)
             {
@@ -194,11 +329,11 @@ int main(int argc, char* argv[])
                 break;
 
             case SDL_KEYDOWN:
-                // HandleKeyDownEvent(event.key.keysym.scancode, lynxComputer);
+                HandleKeyDownEvent(event.key.keysym.scancode, sharedKeyboardRegisters);
                 break;
 
             case SDL_KEYUP:
-                // HandleKeyUpEvent(event.key.keysym.scancode, lynxComputer);
+                HandleKeyUpEvent(event.key.keysym.scancode, sharedKeyboardRegisters);
                 break;
 
             case SDL_USEREVENT:
@@ -209,29 +344,15 @@ int main(int argc, char* argv[])
                 }
                 else
                 {
-                    // RefreshScreen(rend, lynxComputer);
+                    RefreshScreen(rend, guestScreenSurface, sharedBandCounters, bandCounters);
                 }
                 break;
             }
         }
-
-        /*
-        // clears the screen
-        SDL_RenderClear(rend);
-        // SDL_RenderCopy(rend, tex, NULL, &dest);
-
-        // triggers the double buffers
-        // for multiple rendering
-        SDL_RenderPresent(rend);
-
-        // calculates to 60 fps
-        SDL_Delay(1000 / 60);
-        */
     }
 
     SDL_CloseAudioDevice(audioDevice);
-    // SDL_FreeSurface(guestScreenSurface);
-    SDL_DestroyTexture(guestScreenTexture);
+    SDL_FreeSurface(guestScreenSurface);
     SDL_DestroyRenderer(rend);
     SDL_DestroyWindow(win);
     SDL_Quit();
