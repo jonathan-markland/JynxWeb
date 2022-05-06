@@ -90,18 +90,23 @@ extern "C" volatile float *GetSingletonSoundBufferBaseAddress()
 
 uint8_t  WebBrowserKeycodesLookupTable[NUMBER_OF_KEYS] =
 {
-	// Values are Web browser key codes.
-	// Indices are bit-indexes into the Lynx Keyboard Array.
-	16, 27,  40, 38,  20,   0,   0,  49,
-	 0,  0,  67, 68,  88,  69,  52,  51,
-	 0, 17,  65, 83,  90,  87,  81,  50,
-	 0,  0,  70, 71,  86,  84,  82,  53,
-	 0,  0,  66, 78,  32,  72,  89,  54,
-	 0,  0,  74,  0,  77,  85,  56,  55,
-	 0,  0,  75,  0, 188,  79,  73,  57,
-	 0,  0, 186,  0, 190,  76,  80,  48,
-	 0,  0, 187,  0, 191, 219, 222, 189,
-	 0,  0,  39,  0,  13,  37, 221,   8,
+	// The Lynx has 10 x 8-bit registers that are connected to the keys.
+	// The Lynx does not have the exact same keyboard that a PC has, so
+	// we approximate the mappings of the Lynx keys to the PC.
+
+	// - The values are Web browser key codes.
+	// - Indices are bit-indexes into the Lynx Keyboard Array and registers
+
+	16, 27,  40, 38,  20,   0,   0,  49,    //  SHIFT |  ESC  | DOWN  |  UP   | CAPS  |       |       |   1   |
+	 0,  0,  67, 68,  88,  69,  52,  51,    //        |       |   C   |   D   |   X   |   E   |   4   |   3   |
+	 0, 17,  65, 83,  90,  87,  81,  50,    //        |  CTRL |   A   |   S   |   Z   |   W   |   Q   |   2   |
+	 0,  0,  70, 71,  86,  84,  82,  53,    //        |       |   F   |   G   |   V   |   T   |   R   |   5   |
+	 0,  0,  66, 78,  32,  72,  89,  54,    //        |       |   B   |   N   | SPACE |   H   |   Y   |   6   |
+	 0,  0,  74,  0,  77,  85,  56,  55,    //        |       |   J   |       |   M   |   U   |   8   |   7   |
+	 0,  0,  75,  0, 188,  79,  73,  57,    //        |       |   K   |       |  , <  |   O   |   I   |   9   |
+	 0,  0, 186,  0, 190,  76,  80,  48,    //        |       |  ; :  |       |  . >  |   L   |   P   |   0   |
+	 0,  0, 187,  0, 191, 219, 222, 189,    //        |       |  = +  |       |  / ?  |  [ {  |  ' @  |  - _  |
+	 0,  0,  39,  0,  13,  37, 221,   8,    //        |       | RIGHT |       | ENTER | LEFT  |  ] }  | BKSPC |
 };
 
 extern "C" int GetWebBrowserKeycodeTranslationTableSize()
